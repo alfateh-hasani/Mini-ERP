@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset name="MiniERP">
+  <file>application</file>
+  <exclude-pattern>application/views/errors/*</exclude-pattern>
+  <exclude-pattern>application/controllers/Welcome.php</exclude-pattern>
+  <rule ref="Generic.PHP.Syntax"/>
+  <rule ref="Generic.Files.LineEndings"/>
+</ruleset>
