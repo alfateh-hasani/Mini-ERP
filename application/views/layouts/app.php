@@ -26,14 +26,15 @@ $adminLinks = [
   <meta name="csrf-hash" content="<?= e($this->security->get_csrf_hash()) ?>">
   <title>SmartLife ERP</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/css/tabler<?= $dir === 'rtl' ? '.rtl' : '' ?>.min.css">
-  <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=3">
+  <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=4">
 </head>
 <body>
 <div class="page">
-  <aside class="navbar navbar-vertical navbar-expand-lg" aria-label="<?= e(lang('dashboard')) ?>">
+  <div class="mobile-sidebar-backdrop" data-sidebar-backdrop hidden></div>
+  <aside id="app-sidebar" class="navbar navbar-vertical navbar-expand-lg" aria-label="<?= e(lang('dashboard')) ?>">
     <div class="container-fluid">
       <h1 class="navbar-brand navbar-brand-autodark"><a href="<?= site_url() ?>">SmartLife ERP</a></h1>
-      <div class="collapse navbar-collapse show" id="sidebar-menu">
+      <div class="navbar-collapse" id="sidebar-menu">
         <ul class="navbar-nav pt-lg-3">
           <?php foreach ($mainLinks as [$url, $match, $label]): ?>
             <li class="nav-item<?= $section === $match ? ' active' : '' ?>"><a class="nav-link" href="<?= site_url($url) ?>"><span class="nav-link-title"><?= e($label) ?></span></a></li>
@@ -47,9 +48,15 @@ $adminLinks = [
     </div>
   </aside>
   <div class="page-wrapper">
-    <header class="navbar navbar-expand-md d-print-none">
+    <header class="navbar navbar-expand-md d-print-none app-header">
       <div class="container-xl">
-        <div class="navbar-nav ms-auto">
+        <div class="app-header-brand d-lg-none">
+          <button class="btn btn-icon btn-ghost-secondary" type="button" data-sidebar-toggle aria-controls="app-sidebar" aria-expanded="false" aria-label="<?= e(lang('menu')) ?>">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16"></path><path d="M4 12h16"></path><path d="M4 18h16"></path></svg>
+          </button>
+          <a class="navbar-brand" href="<?= site_url() ?>">SmartLife ERP</a>
+        </div>
+        <div class="navbar-nav ms-auto app-header-actions">
           <a class="nav-link" href="<?= site_url('language/' . ($lang === 'ar' ? 'en' : 'ar')) ?>"><?= $lang === 'ar' ? 'English' : 'العربية' ?></a>
           <?= form_open('logout', ['class' => 'nav-item']) ?><button class="nav-link btn btn-link" type="submit"><?= lang('logout') ?></button><?= form_close() ?>
         </div>
@@ -62,7 +69,7 @@ $adminLinks = [
     </div></div>
   </div>
 </div>
-<script src="<?= base_url('public/assets/js/app.js') ?>"></script>
-<script src="<?= base_url('public/assets/js/tables.js') ?>?v=3"></script>
+<script src="<?= base_url('public/assets/js/app.js') ?>?v=2"></script>
+<script src="<?= base_url('public/assets/js/tables.js') ?>?v=4"></script>
 </body>
 </html>
