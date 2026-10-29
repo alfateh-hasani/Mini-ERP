@@ -1,0 +1,2 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed');
+class Migration_Create_invoice_counters_table extends CI_Migration { public function up() { $this->db->query('CREATE TABLE IF NOT EXISTS invoice_counters (counter_date DATE NOT NULL, last_number INT UNSIGNED NOT NULL DEFAULT 0, PRIMARY KEY (counter_date)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'); } public function down() { $this->db->query('DROP TABLE IF EXISTS invoice_counters'); } }

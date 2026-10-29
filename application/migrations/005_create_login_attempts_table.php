@@ -1,0 +1,2 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed');
+class Migration_Create_login_attempts_table extends CI_Migration { public function up() { $this->db->query('CREATE TABLE IF NOT EXISTS login_attempts (id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, ip_address VARCHAR(45) NOT NULL, attempted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id), KEY idx_login_attempts_ip_time (ip_address, attempted_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'); } public function down() { $this->db->query('DROP TABLE IF EXISTS login_attempts'); } }
