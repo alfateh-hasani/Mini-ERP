@@ -1,0 +1,2 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed');
+class Migration_Create_settings_table extends CI_Migration { public function up() { $this->db->query('CREATE TABLE IF NOT EXISTS settings (setting_key VARCHAR(100) NOT NULL, setting_value TEXT NULL, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (setting_key)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'); } public function down() { $this->db->query('DROP TABLE IF EXISTS settings'); } }
