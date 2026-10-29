@@ -1,0 +1,4 @@
+<div class="page-header d-flex"><h2><?= lang('low_stock_report') ?></h2><a class="btn ms-auto" href="<?= site_url('reports/low_stock?export=1') ?>"><?= lang('export_csv') ?></a></div>
+<div class="card"><table class="table data-table" data-source="<?= site_url('reports/data') ?>" data-fields="warehouse,code,name,name_ar,quantity,alert_quantity"><thead><tr><th><?= lang('warehouse') ?></th><th><?= lang('code') ?></th><th><?= lang('product') ?></th><th><?= lang('arabic_name') ?></th><th><?= lang('quantity') ?></th><th><?= lang('alert_quantity') ?></th></tr></thead><tbody>
+<?php foreach ($rows as $row): ?><tr><td><?= e($row['warehouse']) ?></td><td><?= e($row['code']) ?></td><td><?= e($row['name']) ?></td><td><?= e($row['name_ar']) ?></td><td><?= e($row['quantity']) ?></td><td><?= e($row['alert_quantity']) ?></td></tr><?php endforeach; ?>
+</tbody></table></div>
