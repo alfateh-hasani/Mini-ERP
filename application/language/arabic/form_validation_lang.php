@@ -1,0 +1,33 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+$lang['form_validation_required'] = 'حقل {field} مطلوب.';
+$lang['form_validation_isset'] = 'يجب أن يحتوي حقل {field} على قيمة.';
+$lang['form_validation_valid_email'] = 'يجب أن يحتوي حقل {field} على بريد إلكتروني صالح.';
+$lang['form_validation_valid_emails'] = 'يجب أن يحتوي حقل {field} على عناوين بريد إلكتروني صالحة.';
+$lang['form_validation_valid_url'] = 'يجب أن يحتوي حقل {field} على رابط صالح.';
+$lang['form_validation_valid_ip'] = 'يجب أن يحتوي حقل {field} على عنوان IP صالح.';
+$lang['form_validation_valid_base64'] = 'يجب أن يحتوي حقل {field} على نص Base64 صالح.';
+$lang['form_validation_min_length'] = 'يجب ألا يقل حقل {field} عن {param} أحرف.';
+$lang['form_validation_max_length'] = 'لا يمكن أن يتجاوز حقل {field} {param} أحرف.';
+$lang['form_validation_exact_length'] = 'يجب أن يتكون حقل {field} من {param} أحرف بالضبط.';
+$lang['form_validation_alpha'] = 'يسمح لحقل {field} بالأحرف فقط.';
+$lang['form_validation_alpha_numeric'] = 'يسمح لحقل {field} بالأحرف والأرقام فقط.';
+$lang['form_validation_alpha_numeric_spaces'] = 'يسمح لحقل {field} بالأحرف والأرقام والمسافات فقط.';
+$lang['form_validation_alpha_dash'] = 'يسمح لحقل {field} بالأحرف والأرقام والشرطة والشرطة السفلية فقط.';
+$lang['form_validation_numeric'] = 'يجب أن يحتوي حقل {field} على أرقام فقط.';
+$lang['form_validation_is_numeric'] = 'يجب أن يحتوي حقل {field} على قيمة رقمية.';
+$lang['form_validation_integer'] = 'يجب أن يحتوي حقل {field} على عدد صحيح.';
+$lang['form_validation_regex_match'] = 'تنسيق حقل {field} غير صحيح.';
+$lang['form_validation_matches'] = 'حقل {field} لا يطابق حقل {param}.';
+$lang['form_validation_differs'] = 'يجب أن يختلف حقل {field} عن حقل {param}.';
+$lang['form_validation_is_unique'] = 'يجب أن تكون قيمة حقل {field} فريدة.';
+$lang['form_validation_is_natural'] = 'يسمح لحقل {field} بالأرقام الموجبة فقط.';
+$lang['form_validation_is_natural_no_zero'] = 'يجب أن يكون حقل {field} رقماً موجباً أكبر من صفر.';
+$lang['form_validation_decimal'] = 'يجب أن يحتوي حقل {field} على رقم عشري.';
+$lang['form_validation_less_than'] = 'يجب أن يكون حقل {field} أقل من {param}.';
+$lang['form_validation_less_than_equal_to'] = 'يجب أن يكون حقل {field} أقل من أو يساوي {param}.';
+$lang['form_validation_greater_than'] = 'يجب أن يكون حقل {field} أكبر من {param}.';
+$lang['form_validation_greater_than_equal_to'] = 'يجب أن يكون حقل {field} أكبر من أو يساوي {param}.';
+$lang['form_validation_error_message_not_set'] = 'تعذر الوصول إلى رسالة تحقق لحقل {field}.';
+$lang['form_validation_in_list'] = 'يجب أن تكون قيمة حقل {field} إحدى القيم التالية: {param}.';
