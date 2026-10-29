@@ -5,6 +5,7 @@
   let hash = document.querySelector('meta[name="csrf-hash"]')?.content;
   const sidebar = document.querySelector('#app-sidebar');
   const toggle = document.querySelector('[data-sidebar-toggle]');
+  const close = document.querySelector('[data-sidebar-close]');
   const backdrop = document.querySelector('[data-sidebar-backdrop]');
 
   window.erpFetch = async (url, options = {}) => {
@@ -33,6 +34,7 @@
   };
 
   toggle?.addEventListener('click', () => sidebar?.classList.contains('is-open') ? closeSidebar() : openSidebar());
+  close?.addEventListener('click', closeSidebar);
   backdrop?.addEventListener('click', closeSidebar);
   sidebar?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeSidebar));
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeSidebar(); });
