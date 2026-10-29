@@ -21,6 +21,11 @@
   }
 
   function setupTable(table) {
+    if (!table.parentElement.classList.contains('table-responsive')) {
+      var responsive = element('div', 'table-responsive');
+      table.parentNode.insertBefore(responsive, table);
+      responsive.appendChild(table);
+    }
     var body = table.tBodies[0];
     if (!body) return;
     var rows = Array.prototype.slice.call(body.rows);
