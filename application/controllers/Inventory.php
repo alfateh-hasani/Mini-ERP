@@ -13,15 +13,18 @@ class Inventory extends MY_Controller
         }
         $repository = new \App\Repositories\InventoryRepository($this->db);
         $page = $this->inventoryService()->page([], $scope);
+        $adjustment = $this->session->flashdata('inventory_adjustment') ?: ['values' => [], 'errors' => []];
+        $adjustmentWarehouse = (int) ($adjustment['values']['warehouse_id'] ?? $scope ?? 0);
         $this->render('inventory/index', [
             'items' => $page['rows'],
             'scope' => $scope,
+            'adjustment' => $adjustment,
             'filter_products' => $repository->productOptions($scope),
             'filter_warehouses' => $this->currentUser['role'] === ROLE_ADMIN
                 ? $this->db->order_by('name')->get('warehouses')->result_array()
                 : $this->db->where('id', $scope)->get('warehouses')->result_array(),
             'warehouses' => $this->currentUser['role'] === ROLE_ADMIN ? $this->db->where('status', STATUS_ACTIVE)->order_by('name')->get('warehouses')->result_array() : [],
-            'products' => $this->currentUser['role'] === ROLE_ADMIN ? $this->db->where('status', STATUS_ACTIVE)->where('deleted_at IS NULL', null, false)->order_by('code')->get('products')->result_array() : [],
+            'products' => $this->currentUser['role'] === ROLE_ADMIN ? $repository->adjustmentProductOptions($adjustmentWarehouse, ($adjustment['values']['include_unstocked'] ?? '') === '1' && ($adjustment['values']['mode'] ?? 'set') !== 'remove') : [],
         ]);
     }
 
@@ -59,25 +62,40 @@ class Inventory extends MY_Controller
         $this->json(true, ['products' => (new \App\Repositories\InventoryRepository($this->db))->productOptions($scope)]);
     }
 
+    public function adjustment_products(): void
+    {
+        $this->requireAdmin();
+        $warehouseId = filter_var($this->input->get('warehouse_id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 0;
+        $includeUnstocked = $this->input->get('include_unstocked') === '1';
+        $this->json(true, ['products' => (new \App\Repositories\InventoryRepository($this->db))->adjustmentProductOptions($warehouseId, $includeUnstocked)]);
+    }
+
     public function adjust(): void
     {
         $this->requireAdmin();
         $this->requirePost();
-        $warehouseId = $this->warehouseScope($this->input->post('warehouse_id', true));
-        $productId = (int) $this->input->post('product_id', true);
-        $quantity = (int) $this->input->post('quantity', true);
-        $mode = (string) $this->input->post('mode', true);
-        $reason = trim((string) $this->input->post('reason', true));
-        if (!$warehouseId || !$productId || $quantity < 0 || !in_array($mode, ['set', 'add', 'remove'], true) || (($mode === 'add' || $mode === 'remove') && $reason === '')) { show_error(lang('invalid_inventory_adjustment'), 422); }
-        $this->db->trans_begin();
-        $row = $this->db->query('SELECT id, quantity FROM inventory WHERE warehouse_id = ? AND product_id = ? FOR UPDATE', [$warehouseId, $productId])->row_array();
-        if (!$row) { $this->db->trans_rollback(); show_error(lang('invalid_inventory_adjustment'), 422); return; }
-        $before = (int) $row['quantity'];
-        $after = $mode === 'set' ? $quantity : ($mode === 'add' ? $before + $quantity : $before - $quantity);
-        if ($after < 0) { $this->db->trans_rollback(); show_error(lang('invalid_inventory_adjustment'), 422); return; }
-        $this->db->where('id', $row['id'])->update('inventory', ['quantity' => $after]);
-        $this->db->insert('inventory_movements', ['warehouse_id' => $warehouseId, 'product_id' => $productId, 'movement_type' => $mode, 'quantity_before' => $before, 'quantity_change' => $after - $before, 'quantity_after' => $after, 'reason' => $reason ?: null, 'created_by' => (int) $this->currentUser['id']]);
-        $this->db->trans_commit();
-        $this->session->set_flashdata('flash', ['type' => 'success', 'message' => lang('inventory_updated')]); redirect('inventory');
+        $input = $this->input->post(null, true) ?: [];
+        $errors = [];
+        try {
+            $this->inventoryService()->adjust($input, (int) $this->currentUser['id']);
+            $flash = ['type' => 'success', 'message' => lang('inventory_updated')];
+        } catch (\App\Exceptions\InventoryAdjustmentException $exception) {
+            foreach ($exception->fieldErrors() as $field => $key) { $errors[$field] = lang($key); }
+            $flash = ['type' => 'error', 'message' => reset($errors)];
+        } catch (\App\Exceptions\ValidationException $exception) {
+            $flash = ['type' => 'error', 'message' => lang('invalid_inventory_adjustment')];
+        } catch (\Throwable $exception) {
+            log_message('error', 'Inventory adjustment failed: ' . $exception->getMessage());
+            $flash = ['type' => 'error', 'message' => lang('inventory_update_failed')];
+        }
+        if ($flash['type'] === 'error') {
+            $values = [];
+            foreach (['warehouse_id', 'product_id', 'mode', 'quantity', 'reason', 'include_unstocked'] as $field) {
+                if (isset($input[$field]) && is_scalar($input[$field])) { $values[$field] = mb_substr((string) $input[$field], 0, 1024); }
+            }
+            $this->session->set_flashdata('inventory_adjustment', ['values' => $values, 'errors' => $errors, 'message' => $flash['message']]);
+        }
+        $this->session->set_flashdata('flash', $flash);
+        redirect($flash['type'] === 'error' ? 'inventory#inventory-adjustment' : 'inventory');
     }
 }

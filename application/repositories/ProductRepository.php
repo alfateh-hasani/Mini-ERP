@@ -5,7 +5,7 @@ class ProductRepository extends BaseRepository
 {
     public function codeExists(string $code, ?int $exceptId = null): bool
     {
-        $query = $this->db->where('code', $code)->where('deleted_at IS NULL', null, false);
+        $query = $this->db->where('code', $code);
         if ($exceptId) { $query->where('id !=', $exceptId); }
         return $query->count_all_results('products') > 0;
     }
@@ -13,11 +13,27 @@ class ProductRepository extends BaseRepository
     public function save(array $data, ?int $id = null): int
     {
         if ($id) {
-            $this->db->where('id', $id)->update('products', $data);
+            if (!$this->db->where('id', $id)->update('products', $data)) { throw new \RuntimeException('Product update failed.'); }
             return $id;
         }
-        $this->db->insert('products', $data);
+        if (!$this->db->insert('products', $data)) { throw new \RuntimeException('Product creation failed.'); }
         return (int) $this->db->insert_id();
+    }
+
+    public function createWithStock(array $data, ?int $warehouseId, int $quantity, int $userId): int
+    {
+        return $this->transaction(function () use ($data, $warehouseId, $quantity, $userId): int {
+            $inventory = new InventoryRepository($this->db);
+            if ($warehouseId) { $inventory->lockActiveWarehouse($warehouseId); }
+            $category = $this->db->query('SELECT id FROM categories WHERE id = ? AND status = ? FOR UPDATE', [$data['category_id'], 'active'])->row_array();
+            if (!$category) { throw new \App\Exceptions\ValidationException('Category is inactive or missing.'); }
+            $id = $this->save($data);
+            if ($warehouseId) {
+                $inventory->enrol($warehouseId, $id);
+                $inventory->writeAdjustment($warehouseId, $id, 0, $quantity, 'set', null, $userId);
+            }
+            return $id;
+        });
     }
 
     public function activeSearch(string $term, ?int $warehouseId): array

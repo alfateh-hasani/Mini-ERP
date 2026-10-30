@@ -8,10 +8,11 @@ class MY_Controller extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->load->library('authentication');
+        $this->currentUser = $this->authentication->restore();
         $lang = $this->session->userdata('lang') ?: 'ar';
         $this->config->set_item('language', $lang === 'en' ? 'english' : 'arabic');
         $this->lang->load('app', $this->config->item('language'));
-        $this->currentUser = $this->session->userdata('user');
     }
 
     protected function requireAuth(): void

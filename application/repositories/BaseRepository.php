@@ -32,17 +32,21 @@ class BaseRepository
 
     public function transaction(callable $work)
     {
-        $this->db->trans_begin();
+        $debug = $this->db->db_debug ?? false;
+        $this->db->db_debug = false;
         try {
+            if ($this->db->trans_begin() === false) { throw new \RuntimeException('Cannot begin database transaction.'); }
             $result = $work();
             if ($this->db->trans_status() === false) {
                 throw new \RuntimeException('Database transaction failed.');
             }
-            $this->db->trans_commit();
+            if ($this->db->trans_commit() === false) { throw new \RuntimeException('Cannot commit database transaction.'); }
             return $result;
         } catch (\Throwable $exception) {
             $this->db->trans_rollback();
             throw $exception;
+        } finally {
+            $this->db->db_debug = $debug;
         }
     }
 }

@@ -19,7 +19,8 @@ function setup(fetch, refresh = false) {
         };
         return metadata[selector] ? { content: metadata[selector], setAttribute() {} } : null;
       },
-      addEventListener() {}
+      addEventListener() {},
+      querySelectorAll() { return []; }
     },
     window: { addEventListener() {} }
   };

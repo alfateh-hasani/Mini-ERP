@@ -33,7 +33,7 @@ try {
     $db->insert('categories', ['id' => 1, 'name' => 'Test', 'name_ar' => 'Test']);
     $db->insert('users', ['id' => 1, 'name' => 'Test', 'email' => 'numbering@example.test', 'password_hash' => 'test-only', 'role' => 'admin']);
     $db->insert('customers', ['id' => 1, 'name' => 'Test']);
-    $db->insert('products', ['id' => 1, 'category_id' => 1, 'code' => 'TEST', 'name' => 'Test', 'name_ar' => 'Test', 'unit' => 'piece', 'unit_ar' => 'Test', 'price' => '10.00']);
+    $db->insert('products', ['id' => 1, 'category_id' => 1, 'code' => 'TEST', 'name' => 'Test', 'name_ar' => 'Test', 'unit' => 'piece', 'price' => '10.00']);
     $db->insert('inventory', ['warehouse_id' => 1, 'product_id' => 1, 'quantity' => 100]);
     $db->insert('settings', ['setting_key' => 'invoice_prefix', 'setting_value' => 'inv']);
     $stem = 'INV-' . date('Ymd') . '-';

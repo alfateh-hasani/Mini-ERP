@@ -39,6 +39,10 @@
     wrapper.className = 'searchable-select';
     input.id = inputId;
     input.className = 'form-control searchable-select-input';
+    input.classList.toggle('is-invalid', select.classList.contains('is-invalid'));
+    ['aria-invalid', 'aria-describedby'].forEach(attribute => {
+      if (select.hasAttribute(attribute)) input.setAttribute(attribute, select.getAttribute(attribute));
+    });
     input.type = 'search';
     input.autocomplete = 'off';
     input.value = initial;

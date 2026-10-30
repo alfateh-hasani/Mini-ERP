@@ -1,11 +1,14 @@
 <?php
+$lang['stock_include_unstocked'] = 'تضمين منتجات لم تُضف لهذا المستودع';
+$lang['stock_products_empty'] = 'لا توجد منتجات في هذا المستودع. فعّل تضمين المنتجات لإضافة مخزون جديد.';
+$lang['stock_products_failed'] = 'تعذر تحميل المنتجات. اختر المستودع مجددًا لإعادة المحاولة.';
 $lang['customer_saved'] = 'تم حفظ العميل.'; $lang['product_saved'] = 'تم حفظ المنتج.'; $lang['inventory_updated'] = 'تم تحديث المخزون.'; $lang['invalid_inventory_adjustment'] = 'تعديل المخزون غير صالح.'; $lang['invoice_cancelled_restored'] = 'تم إلغاء الفاتورة واستعادة المخزون.'; $lang['category_saved'] = 'تم حفظ التصنيف.'; $lang['warehouse_saved'] = 'تم حفظ المستودع.'; $lang['user_saved'] = 'تم حفظ المستخدم.';
 $lang['settings'] = 'الإعدادات'; $lang['company_name'] = 'اسم الشركة'; $lang['invoice_prefix'] = 'بادئة رقم الفاتورة'; $lang['settings_saved'] = 'تم حفظ الإعدادات.';
 $lang['login'] = 'تسجيل الدخول'; $lang['logout'] = 'تسجيل الخروج'; $lang['email'] = 'البريد الإلكتروني'; $lang['password'] = 'كلمة المرور'; $lang['dashboard'] = 'لوحة التحكم'; $lang['invalid_login'] = 'البريد الإلكتروني أو كلمة المرور غير صحيحة.'; $lang['account_inactive'] = 'هذا الحساب غير نشط. يرجى التواصل مع المسؤول.'; $lang['forbidden'] = 'ليس لديك صلاحية للوصول إلى هذا المورد.';
 $lang['inventory'] = 'المخزون'; $lang['customers'] = 'العملاء'; $lang['invoices'] = 'الفواتير'; $lang['new_invoice'] = 'فاتورة جديدة'; $lang['reports'] = 'التقارير'; $lang['products'] = 'المنتجات'; $lang['categories'] = 'التصنيفات'; $lang['warehouses'] = 'المستودعات'; $lang['users'] = 'المستخدمون';
 $lang['add'] = 'إضافة'; $lang['edit'] = 'تعديل'; $lang['save'] = 'حفظ'; $lang['cancel'] = 'إلغاء'; $lang['create_invoice'] = 'إنشاء فاتورة'; $lang['customer'] = 'العميل'; $lang['warehouse'] = 'المستودع'; $lang['product'] = 'المنتج'; $lang['quantity'] = 'الكمية'; $lang['discount'] = 'الخصم'; $lang['total'] = 'الإجمالي'; $lang['status'] = 'الحالة'; $lang['code'] = 'الرمز'; $lang['name'] = 'الاسم'; $lang['arabic_name'] = 'الاسم بالعربية'; $lang['category'] = 'التصنيف'; $lang['price'] = 'السعر'; $lang['unit'] = 'الوحدة'; $lang['alert_quantity'] = 'حد التنبيه';
 $lang['low_stock_report'] = 'تقرير نقص المخزون'; $lang['export_csv'] = 'تصدير CSV'; $lang['address'] = 'العنوان'; $lang['phone'] = 'الهاتف'; $lang['role'] = 'الدور'; $lang['active'] = 'نشط'; $lang['inactive'] = 'غير نشط'; $lang['add_line'] = 'إضافة بند'; $lang['remove'] = 'حذف';
-$lang['add_product'] = 'إضافة منتج'; $lang['edit_product'] = 'تعديل منتج'; $lang['english_name'] = 'الاسم بالإنجليزية'; $lang['arabic_name'] = 'الاسم بالعربية'; $lang['english_unit'] = 'الوحدة بالإنجليزية'; $lang['arabic_unit'] = 'الوحدة بالعربية'; $lang['initial_stock'] = 'المخزون الابتدائي'; $lang['no_initial_stock'] = 'عدم إنشاء مخزون الآن'; $lang['sar_price'] = 'السعر (س.ر)';
+$lang['add_product'] = 'إضافة منتج'; $lang['edit_product'] = 'تعديل منتج'; $lang['english_name'] = 'الاسم بالإنجليزية'; $lang['arabic_name'] = 'الاسم بالعربية'; $lang['initial_stock'] = 'المخزون الابتدائي'; $lang['no_initial_stock'] = 'عدم إنشاء مخزون الآن'; $lang['sar_price'] = 'السعر (س.ر)';
 $lang['stat_products'] = 'المنتجات'; $lang['stat_stock'] = 'إجمالي المخزون'; $lang['stat_invoices'] = 'الفواتير'; $lang['stat_sales'] = 'المبيعات'; $lang['initial_quantity'] = 'المخزون الابتدائي';
 $lang['add_customer'] = 'إضافة عميل'; $lang['edit_customer'] = 'تعديل عميل'; $lang['add_user'] = 'إضافة مستخدم'; $lang['no_warehouse'] = 'بدون مستودع'; $lang['admin'] = 'مدير'; $lang['warehouse_user'] = 'مستخدم مستودع'; $lang['language'] = 'اللغة'; $lang['number'] = 'الرقم'; $lang['issued'] = 'صادرة'; $lang['cancelled'] = 'ملغاة'; $lang['confirm_cancel_invoice'] = 'هل تريد إلغاء هذه الفاتورة؟';
 $lang['method_not_allowed'] = 'الطلب غير مسموح.'; $lang['too_many_login_attempts'] = 'تم تجاوز عدد محاولات تسجيل الدخول. يرجى الانتظار 15 دقيقة.'; $lang['category_name_taken'] = 'اسم التصنيف مستخدم بالفعل.'; $lang['duplicate_customer'] = 'يوجد عميل بنفس رقم الهاتف أو البريد الإلكتروني.'; $lang['invoice_saved'] = 'تم حفظ الفاتورة.'; $lang['invalid_invoice'] = 'يرجى مراجعة بيانات الفاتورة وإعادة المحاولة.'; $lang['insufficient_stock'] = 'المخزون غير كافٍ لواحد أو أكثر من البنود.';
@@ -71,3 +74,23 @@ $lang['invoice_cancel_failed'] = 'تعذر إلغاء الفاتورة. قد ت�
 $lang['inventory_adjustment_help'] = 'تعيين الكمية النهائية يستبدل الرصيد الحالي. الإضافة أو السحب يغير الرصيد الحالي ويتطلب كتابة السبب.';
 
 $lang['stock_shortfall'] = 'النقص عن حد التنبيه';
+$lang['inventory_warehouse_required'] = 'اختر مستودعًا نشطًا.';
+$lang['inventory_product_required'] = 'اختر منتجًا نشطًا.';
+$lang['inventory_quantity_invalid'] = 'أدخل كمية صحيحة من 0 إلى 2,147,483,647.';
+$lang['inventory_mode_invalid'] = 'اختر نوع تعديل صالحًا.';
+$lang['inventory_reason_required'] = 'سبب التعديل مطلوب عند إضافة المخزون أو سحبه.';
+$lang['inventory_reason_invalid'] = 'أدخل سببًا لا يتجاوز 255 حرفًا.';
+$lang['inventory_positive_quantity'] = 'أدخل كمية أكبر من صفر عند إضافة المخزون أو سحبه.';
+$lang['inventory_not_stocked'] = 'لا يوجد سجل مخزون لهذا المنتج في المستودع المحدد.';
+$lang['inventory_insufficient_stock'] = 'الكمية المطلوب سحبها تتجاوز المخزون المتاح.';
+$lang['inventory_stock_limit'] = 'لا يمكن أن يتجاوز المخزون بعد التعديل 2,147,483,647.';
+$lang['logout_confirmation'] = 'هل تريد تسجيل الخروج من حسابك؟';
+$lang['remember_me'] = 'تذكرني';
+$lang['remember_help'] = 'البقاء مسجلاً على هذا الجهاز لمدة تصل إلى 30 يومًا. استخدم الخيار على جهازك الشخصي فقط.';
+$lang['remember_failed'] = 'تم تسجيل الدخول، لكن تعذر تذكر هذا الجهاز. اختر تذكرني عند تسجيل الدخول لاحقًا.';
+$lang['invoice_save_failed'] = 'تعذر حفظ الفاتورة. يرجى المحاولة مرة أخرى.';
+$lang['product_save_invalid'] = 'راجع بيانات المنتج وتفرّد الرمز والمستودع والتصنيف المحددين.';
+$lang['product_save_failed'] = 'تعذر حفظ المنتج. لم يتم حفظ أي تغيير. يرجى المحاولة مرة أخرى.';
+$lang['stock_enrolment_help'] = 'لإضافة منتج إلى مستودع جديد، اختر إضافة مخزون أو تعيين الكمية النهائية. يُنشأ سجل المخزون تلقائيًا.';
+
+$lang['inventory_update_failed'] = 'تعذر تعديل المخزون. لم يتم حفظ أي تغيير. يرجى المحاولة مرة أخرى.';

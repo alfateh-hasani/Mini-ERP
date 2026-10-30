@@ -11,8 +11,9 @@
 
   let requestQueue = Promise.resolve();
   const send = async (url, options = {}, retryCsrf = true) => {
+    const { csrfRefreshUrl, ...fetchOptions } = options;
     const body = options.body instanceof FormData ? options.body : new FormData();
-    const refreshUrl = document.querySelector('meta[name="csrf-refresh"]')?.content;
+    const refreshUrl = csrfRefreshUrl || document.querySelector('meta[name="csrf-refresh"]')?.content;
     // HttpOnly cookies cannot be read by JavaScript; refresh their matching token.
     if (refreshUrl) {
       const fresh = await fetch(refreshUrl, { credentials: 'same-origin', cache: 'no-store' });
@@ -25,7 +26,7 @@
     const cookie = document.cookie.split('; ').find(value => value.startsWith(`${cookieName}=`));
     if (cookie) hash = decodeURIComponent(cookie.slice(cookieName.length + 1));
     if (name) body.set(name, hash);
-    const response = await fetch(url, { credentials: 'same-origin', ...options, method: options.method || 'POST', body});
+    const response = await fetch(url, { credentials: 'same-origin', ...fetchOptions, method: options.method || 'POST', body});
     // Retry only a confirmed CSRF rejection, which occurs before the controller runs.
     if (retryCsrf && refreshUrl && response.status === 403) {
       const rejected = await response.clone().text();
@@ -51,6 +52,31 @@
     requestQueue = localized.catch(() => {});
     return localized;
   };
+
+  document.querySelectorAll('[data-logout-form]').forEach(form => {
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = form.querySelector('button[type="submit"]');
+      const error = form.querySelector('[data-logout-error]');
+      if (button.disabled) return;
+      button.disabled = true;
+      if (error) error.hidden = true;
+      try {
+        const response = await window.erpFetch(form.action, {
+          body: new FormData(form), headers: { Accept: 'application/json' },
+          csrfRefreshUrl: form.dataset.csrfRefresh
+        });
+        if (!response.success || !response.data?.redirect) throw new Error(response.error?.message || form.dataset.error);
+        window.location.assign(response.data.redirect);
+      } catch (failure) {
+        button.disabled = false;
+        if (error) {
+          error.textContent = failure.message || (document.documentElement.lang === 'ar' ? 'تعذر تسجيل الخروج. يرجى المحاولة مرة أخرى.' : 'Could not sign out. Please try again.');
+          error.hidden = false;
+        }
+      }
+    });
+  });
 
   const closeSidebar = () => {
     if (!sidebar) return;

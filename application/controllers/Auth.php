@@ -10,6 +10,13 @@ class Auth extends MY_Controller
         $this->json(true);
     }
 
+    /** Logout must still be possible after the ordinary session expires. */
+    public function logout_csrf(): void
+    {
+        $this->output->set_header('Cache-Control: no-store');
+        $this->json(true);
+    }
+
     public function login(): void
     {
         if ($this->currentUser) { redirect(''); }
@@ -32,9 +39,7 @@ class Auth extends MY_Controller
                         $this->render('auth/login', $data, 'auth');
                         return;
                     }
-                    $this->session->sess_regenerate(true);
-                    $this->session->set_userdata('user', ['id' => (int) $user['id'], 'name' => $user['name'], 'role' => $user['role'], 'warehouse_id' => $user['warehouse_id']]);
-                    $this->session->set_userdata('lang', $user['preferred_lang']);
+                    $this->authentication->login($user, $this->input->post('remember', false) === '1');
                     redirect('');
                 }
                 $this->db->insert('login_attempts', ['ip_address' => $this->input->ip_address()]);
@@ -46,8 +51,23 @@ class Auth extends MY_Controller
 
     public function logout(): void
     {
+        if ($this->input->method() === 'get') {
+            if (!$this->currentUser) { redirect('login'); return; }
+            $this->render('auth/logout');
+            return;
+        }
         $this->requirePost();
-        $this->session->sess_destroy();
+        try {
+            $this->authentication->forget();
+        } catch (\Throwable $exception) {
+            log_message('error', 'Remembered logout could not be revoked: ' . $exception->getMessage());
+        } finally {
+            $this->session->sess_destroy();
+        }
+        if (strpos((string) $this->input->get_request_header('Accept', true), 'application/json') !== false) {
+            $this->json(true, ['redirect' => site_url('login')]);
+            return;
+        }
         redirect('login');
     }
 }

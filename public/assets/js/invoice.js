@@ -9,6 +9,7 @@
   const arabic = document.documentElement.lang === 'ar';
   const calculator = window.InvoiceTotals;
   const money = value => calculator.format(value, arabic ? 'ar' : 'en');
+  const quantityMinimum = arabic ? 'أدخل كمية صحيحة لا تقل عن 1.' : 'Enter a whole quantity of at least 1.';
   const labels = arabic ? {
     failed: 'تعذر حفظ الفاتورة. حدّث الصفحة وحاول مرة أخرى.',
     product: 'اختر منتجاً من نتائج البحث لكل بند.',
@@ -41,19 +42,22 @@
     if (!hint.id) hint.id = `invoice-stock-${++stockSequence}`;
     quantity.setAttribute('aria-describedby', hint.id);
     quantity.disabled = !selected;
+    quantity.min = '1';
     quantity.max = selected ? String(available) : '2147483647';
     quantity.setCustomValidity('');
     const requested = Number(quantity.value);
     const exceeds = selected && (available === 0 || requested > available);
-    quantity.classList.toggle('is-invalid', exceeds);
-    quantity.setAttribute('aria-invalid', String(exceeds));
+    const invalidQuantity = selected && (!/^\d+$/.test(quantity.value) || !Number.isSafeInteger(requested) || requested < 1);
+    quantity.classList.toggle('is-invalid', exceeds || invalidQuantity);
+    quantity.setAttribute('aria-invalid', String(exceeds || invalidQuantity));
     row.querySelector('.stock-available').textContent = selected ? `${labels.available}: ${available}` : labels.stockPrompt;
     const feedback = row.querySelector('.stock-feedback');
-    feedback.className = 'stock-feedback' + (exceeds ? ' text-danger' : ' text-muted');
-    feedback.textContent = !selected ? '' : available === 0 ? labels.outOfStock : exceeds ? `${labels.excess}: ${requested - available}` : quantity.value !== '' && Number.isInteger(requested) && requested > 0 ? `${labels.remaining}: ${available - requested}` : '';
+    feedback.className = 'stock-feedback' + (exceeds || invalidQuantity ? ' text-danger' : ' text-muted');
+    feedback.textContent = !selected ? '' : available === 0 ? labels.outOfStock : invalidQuantity ? quantityMinimum : exceeds ? `${labels.excess}: ${requested - available}` : `${labels.remaining}: ${available - requested}`;
     feedback.hidden = !feedback.textContent;
     if (exceeds) quantity.setCustomValidity(available === 0 ? labels.outOfStock : labels.stockLimit(available));
-    return !exceeds;
+    else if (invalidQuantity) quantity.setCustomValidity(quantityMinimum);
+    return !exceeds && !invalidQuantity;
   };
   const validDiscount = value => /^(?:\d+)(?:\.\d{1,2})?$/.test(value.trim()) && Number(value) <= 100;
   const recalculate = () => {

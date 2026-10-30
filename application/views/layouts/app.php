@@ -79,19 +79,22 @@ $adminLinks = [
         </div>
         <div class="navbar-nav ms-auto app-header-actions">
           <a class="btn btn-icon btn-ghost-secondary" href="<?= site_url('language/' . ($lang === 'ar' ? 'en' : 'ar')) ?>" aria-label="<?= e(lang('language')) ?>" title="<?= e(lang('language')) ?>"><svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg><span class="visually-hidden"><?= $lang === 'ar' ? 'English' : 'العربية' ?></span></a>
-          <details class="profile-menu"><summary class="btn btn-icon btn-ghost-secondary" aria-label="<?= e(lang('profile')) ?>" title="<?= e(lang('profile')) ?>"><svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><span class="visually-hidden"><?= e(lang('profile')) ?></span></summary><div class="profile-menu-panel"><a class="profile-menu-link" href="<?= site_url('profile') ?>"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><?= e(lang('profile')) ?></a><?= form_open('logout', ['class' => 'profile-menu-logout']) ?><button class="profile-menu-link" type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"></path></svg><?= e(lang('logout')) ?></button><?= form_close() ?></div></details>
+          <details class="profile-menu"><summary class="btn btn-icon btn-ghost-secondary" aria-label="<?= e(lang('profile')) ?>" title="<?= e(lang('profile')) ?>"><svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><span class="visually-hidden"><?= e(lang('profile')) ?></span></summary><div class="profile-menu-panel"><a class="profile-menu-link" href="<?= site_url('profile') ?>"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><?= e(lang('profile')) ?></a><?= form_open('logout', ['class' => 'profile-menu-logout', 'data-logout-form' => '', 'data-csrf-refresh' => site_url('auth/logout_csrf')]) ?><button class="profile-menu-link" type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"></path></svg><?= e(lang('logout')) ?></button><div class="text-danger small px-3 pb-2" data-logout-error role="alert" hidden></div><?= form_close() ?></div></details>
         </div>
       </div>
     </header>
     <div class="page-body"><div class="container-xl">
       <nav aria-label="breadcrumb" class="pt-3"><ol class="breadcrumb"><?php foreach ($breadcrumbs as $breadcrumb): ?><li class="breadcrumb-item"><a href="<?= e($breadcrumb['url']) ?>"><?= e($breadcrumb['label']) ?></a></li><?php endforeach; ?></ol></nav>
-      <?php if ($flash): ?><div class="alert alert-<?= e($flash['type'] ?? 'info') ?>"><?= e($flash['message'] ?? '') ?></div><?php endif; ?>
+      <?php if ($flash): ?>
+        <?php $flashType = ($flash['type'] ?? 'info') === 'error' ? 'danger' : ($flash['type'] ?? 'info'); ?>
+        <div class="alert alert-<?= e($flashType) ?>" role="<?= $flashType === 'danger' ? 'alert' : 'status' ?>"><?= e($flash['message'] ?? '') ?></div>
+      <?php endif; ?>
       <?= $content ?>
     </div></div>
   </div>
 </div>
-<script src="<?= base_url('public/assets/js/app.js') ?>?v=6"></script>
-<script src="<?= base_url('public/assets/js/selects.js') ?>?v=7"></script>
+<script src="<?= base_url('public/assets/js/app.js') ?>?v=7"></script>
+<script src="<?= base_url('public/assets/js/selects.js') ?>?v=8"></script>
 <script src="<?= base_url('public/assets/js/tables.js') ?>?v=10"></script>
 </body>
 </html>

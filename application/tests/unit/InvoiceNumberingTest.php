@@ -12,6 +12,7 @@ class InvoiceNumberingTest extends TestCase
         return new class($available) {
             public $database = 'numbering_test';
             public $events = [];
+            public $db_debug = false;
             private $available;
             public function __construct(bool $available) { $this->available = $available; }
             public function query($sql, $bindings)

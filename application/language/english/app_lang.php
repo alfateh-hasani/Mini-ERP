@@ -1,10 +1,13 @@
 <?php
+$lang['stock_include_unstocked'] = 'Include products not yet stocked here';
+$lang['stock_products_empty'] = 'No products stocked here. Include new products to add stock.';
+$lang['stock_products_failed'] = 'Unable to load products. Select the warehouse again to retry.';
 $lang['customer_saved'] = 'Customer saved.'; $lang['product_saved'] = 'Product saved.'; $lang['inventory_updated'] = 'Inventory updated.'; $lang['invalid_inventory_adjustment'] = 'Invalid inventory adjustment.'; $lang['invoice_cancelled_restored'] = 'Invoice cancelled and stock restored.'; $lang['category_saved'] = 'Category saved.'; $lang['warehouse_saved'] = 'Warehouse saved.'; $lang['user_saved'] = 'User saved.';
 $lang['login'] = 'Sign in'; $lang['logout'] = 'Sign out'; $lang['email'] = 'Email'; $lang['password'] = 'Password'; $lang['dashboard'] = 'Dashboard'; $lang['invalid_login'] = 'Invalid email or password.'; $lang['account_inactive'] = 'This account is inactive. Please contact an administrator.'; $lang['forbidden'] = 'You are not allowed to access this resource.';
 $lang['inventory'] = 'Inventory'; $lang['customers'] = 'Customers'; $lang['invoices'] = 'Invoices'; $lang['new_invoice'] = 'New invoice'; $lang['reports'] = 'Reports'; $lang['products'] = 'Products'; $lang['categories'] = 'Categories'; $lang['warehouses'] = 'Warehouses'; $lang['users'] = 'Users';
 $lang['add'] = 'Add'; $lang['edit'] = 'Edit'; $lang['save'] = 'Save'; $lang['cancel'] = 'Cancel'; $lang['create_invoice'] = 'Create invoice'; $lang['customer'] = 'Customer'; $lang['warehouse'] = 'Warehouse'; $lang['product'] = 'Product'; $lang['quantity'] = 'Quantity'; $lang['discount'] = 'Discount'; $lang['total'] = 'Total'; $lang['status'] = 'Status'; $lang['code'] = 'Code'; $lang['name'] = 'Name'; $lang['arabic_name'] = 'Arabic name'; $lang['category'] = 'Category'; $lang['price'] = 'Price'; $lang['unit'] = 'Unit'; $lang['alert_quantity'] = 'Alert quantity';
 $lang['low_stock_report'] = 'Low stock report'; $lang['export_csv'] = 'Export CSV'; $lang['address'] = 'Address'; $lang['phone'] = 'Phone'; $lang['role'] = 'Role'; $lang['active'] = 'Active'; $lang['inactive'] = 'Inactive'; $lang['add_line'] = 'Add line'; $lang['remove'] = 'Remove';
-$lang['add_product'] = 'Add product'; $lang['edit_product'] = 'Edit product'; $lang['english_name'] = 'English name'; $lang['arabic_name'] = 'Arabic name'; $lang['english_unit'] = 'English unit'; $lang['arabic_unit'] = 'Arabic unit'; $lang['initial_stock'] = 'Initial stock'; $lang['no_initial_stock'] = 'Do not create inventory yet'; $lang['sar_price'] = 'Price (SAR)';
+$lang['add_product'] = 'Add product'; $lang['edit_product'] = 'Edit product'; $lang['english_name'] = 'English name'; $lang['arabic_name'] = 'Arabic name'; $lang['initial_stock'] = 'Initial stock'; $lang['no_initial_stock'] = 'Do not create inventory yet'; $lang['sar_price'] = 'Price (SAR)';
 $lang['stat_products'] = 'Products'; $lang['stat_stock'] = 'Stock units'; $lang['stat_invoices'] = 'Invoices'; $lang['stat_sales'] = 'Sales'; $lang['initial_quantity'] = 'Initial stock';
 $lang['add_customer'] = 'Add customer'; $lang['edit_customer'] = 'Edit customer'; $lang['add_user'] = 'Add user'; $lang['no_warehouse'] = 'No warehouse'; $lang['admin'] = 'Admin'; $lang['warehouse_user'] = 'Warehouse user'; $lang['language'] = 'Language'; $lang['number'] = 'Number'; $lang['issued'] = 'Issued'; $lang['cancelled'] = 'Cancelled'; $lang['confirm_cancel_invoice'] = 'Cancel this invoice?';
 $lang['settings'] = 'Settings'; $lang['company_name'] = 'Company name'; $lang['invoice_prefix'] = 'Invoice prefix'; $lang['settings_saved'] = 'Settings saved.';
@@ -71,3 +74,23 @@ $lang['invoice_cancel_failed'] = 'Unable to cancel this invoice. It may already 
 $lang['inventory_adjustment_help'] = 'Set final quantity replaces the current balance. Add or remove changes the current balance and requires a reason.';
 
 $lang['stock_shortfall'] = 'Shortfall to alert level';
+$lang['inventory_warehouse_required'] = 'Select an active warehouse.';
+$lang['inventory_product_required'] = 'Select an active product.';
+$lang['inventory_quantity_invalid'] = 'Enter a whole quantity from 0 to 2,147,483,647.';
+$lang['inventory_mode_invalid'] = 'Select a valid adjustment type.';
+$lang['inventory_reason_required'] = 'A reason is required when adding or removing stock.';
+$lang['inventory_reason_invalid'] = 'Enter a reason of no more than 255 characters.';
+$lang['inventory_positive_quantity'] = 'Enter a quantity greater than zero when adding or removing stock.';
+$lang['inventory_not_stocked'] = 'This product has no stock record in the selected warehouse.';
+$lang['inventory_insufficient_stock'] = 'The quantity to remove exceeds the available stock.';
+$lang['inventory_stock_limit'] = 'The resulting stock cannot exceed 2,147,483,647.';
+$lang['logout_confirmation'] = 'Do you want to sign out of your account?';
+$lang['remember_me'] = 'Remember me';
+$lang['remember_help'] = 'Stay signed in on this device for up to 30 days. Use only on a private device.';
+$lang['remember_failed'] = 'You are signed in, but this device could not be remembered. Please select Remember me next time.';
+$lang['invoice_save_failed'] = 'Could not save the invoice. Please try again.';
+$lang['product_save_invalid'] = 'Check the product details, code uniqueness, and selected warehouse/category.';
+$lang['product_save_failed'] = 'Could not save the product. No changes were saved. Please try again.';
+$lang['stock_enrolment_help'] = 'To stock a product in a new warehouse, choose Add stock or Set final quantity. A stock record is created automatically.';
+
+$lang['inventory_update_failed'] = 'Could not update stock. No changes were saved. Please try again.';

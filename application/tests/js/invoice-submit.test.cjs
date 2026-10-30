@@ -33,6 +33,17 @@ function setup(request, customer = '1', quantityValue = '1', availableQty = '37'
   return { handlers, notice, submit, context, quantity, fields };
 }
 
+test('invoice quantities enforce min 1 and reject empty, zero, negative or fractional values', async () => {
+  for (const value of ['', '0', '-1', '1.5']) {
+    let called = false;
+    const state = setup(async () => { called = true; }, '1', value);
+    assert.equal(state.quantity.min, '1');
+    await state.handlers.submit({ preventDefault() {} });
+    assert.equal(called, false);
+    assert.match(state.notice.textContent, /at least 1/);
+  }
+});
+
 test('failed submission displays an error and restores the save button', async () => {
   const state = setup(async () => { throw new Error('Request failed'); });
   await state.handlers.submit({ preventDefault() {} });
