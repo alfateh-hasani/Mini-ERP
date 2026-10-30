@@ -12,9 +12,11 @@
   <div class="col-md-2 mb-3"><label class="form-label"><?= lang('sar_price') ?></label><input class="form-control" name="price" value="<?= $value('price') ?>" required></div>
   <div class="col-md-2 mb-3"><label class="form-label"><?= lang('alert_quantity') ?></label><input class="form-control" name="alert_quantity" value="<?= $value('alert_quantity') ?>" required></div>
   <?php if (!$product): ?>
-    <div class="col-md-6 mb-3"><label class="form-label"><?= lang('warehouse') ?></label><select class="form-select" name="warehouse_id"><option value=""><?= lang('no_initial_stock') ?></option><?php foreach ($warehouses as $warehouse): ?><option value="<?= $warehouse['id'] ?>"><?= e($lang === 'ar' ? $warehouse['name_ar'] : $warehouse['name']) ?></option><?php endforeach; ?></select></div>
-    <div class="col-md-6 mb-3"><label class="form-label"><?= lang('initial_stock') ?></label><input class="form-control" type="number" min="0" name="initial_quantity" value="0"></div>
+    <div class="col-md-6 mb-3"><label class="form-label"><?= lang('warehouse') ?></label><select class="form-select" name="warehouse_id" data-initial-warehouse><option value=""><?= lang('no_initial_stock') ?></option><?php foreach ($warehouses as $warehouse): ?><option value="<?= $warehouse['id'] ?>"><?= e($lang === 'ar' ? $warehouse['name_ar'] : $warehouse['name']) ?></option><?php endforeach; ?></select></div>
+    <div class="col-md-6 mb-3" data-initial-stock hidden><label class="form-label"><?= lang('initial_stock') ?></label><input class="form-control" type="number" min="0" max="2147483647" step="1" name="initial_quantity" value="0" disabled></div>
   <?php endif; ?>
 </div>
 <button class="btn btn-primary"><?= lang('save') ?></button><?= form_close() ?>
 </div></div>
+
+<script src="<?= base_url('public/assets/js/product-form.js') ?>?v=1" defer></script>
