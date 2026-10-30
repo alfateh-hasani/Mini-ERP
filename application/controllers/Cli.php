@@ -76,8 +76,12 @@ class Cli extends CI_Controller
             ['FOOD-006', 'Instant Coffee', 'قهوة سريعة التحضير', 'pack', 'عبوة', '29.00', 5, 12, 'Food & Beverage'],
         ];
         $generalProducts = [];
+        $demoCategories = array_keys($categoryIds);
         for ($number = 1; $number <= 16; $number++) {
-            $generalProducts[] = [sprintf('GEN-%03d', $number), 'General Item ' . $number, 'منتج عام ' . $number, 'piece', 'قطعة', number_format(10 + $number, 2, '.', ''), 5, 20 + $number, 'General'];
+            // Existing demo IDs keep their order on reruns, so distribute the
+            // legacy GEN catalogue across categories rather than only interleaving inserts.
+            $category = $demoCategories[($number - 1) % count($demoCategories)];
+            $generalProducts[] = [sprintf('GEN-%03d', $number), 'General Item ' . $number, 'منتج عام ' . $number, 'piece', 'قطعة', number_format(10 + $number, 2, '.', ''), 5, 20 + $number, $category];
         }
         $catalogueProducts = $products;
         $mixedProducts = [];
