@@ -5,14 +5,31 @@ class Invoices extends MY_Controller
 {
     public function create(): void
     {
-        $this->requireAuth(); $scope = $this->warehouseScope();
-        $data = ['customers' => $this->db->order_by('name')->get('customers')->result_array(), 'selected_customer_id' => (int) $this->input->get('customer_id', true), 'products' => $this->db->where('status', 'active')->where('deleted_at IS NULL', null, false)->order_by('code')->get('products')->result_array(), 'warehouses' => $scope ? $this->db->where('id', $scope)->get('warehouses')->result_array() : $this->db->where('status', 'active')->get('warehouses')->result_array(), 'scope' => $scope];
+        $this->requireAuth();
+        $scope = $this->warehouseScope(null, false);
+        if ($scope && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($scope)) {
+            $this->render('invoices/unavailable');
+            return;
+        }
+        $warehouses = $scope
+            ? $this->db->where('id', $scope)->get('warehouses')->result_array()
+            : $this->db->where('status', STATUS_ACTIVE)->order_by('name')->get('warehouses')->result_array();
+        if (!$warehouses) {
+            $this->render('invoices/unavailable');
+            return;
+        }
+        $data = [
+            'customers' => $this->db->order_by('name')->get('customers')->result_array(),
+            'selected_customer_id' => (int) $this->input->get('customer_id', true),
+            'warehouses' => $warehouses,
+            'scope' => $scope,
+        ];
         $this->render('invoices/create', $data);
     }
 
     public function index(): void
     {
-        $this->requireAuth(); $scope = $this->warehouseScope($this->input->get('warehouse_id', true));
+        $this->requireAuth(); $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
         $query = $this->db->select('invoices.*, customers.name AS customer_name, warehouses.name AS warehouse_name')->from('invoices')->join('customers', 'customers.id=invoices.customer_id')->join('warehouses', 'warehouses.id=invoices.warehouse_id')->order_by('invoices.id', 'desc');
         if ($scope) { $query->where('invoices.warehouse_id', $scope); }
         $this->render('invoices/index', ['invoices' => $query->get()->result_array()]);
@@ -20,7 +37,7 @@ class Invoices extends MY_Controller
 
     public function data(): void
     {
-        $this->requireAuth(); $scope = $this->warehouseScope($this->input->get('warehouse_id', true));
+        $this->requireAuth(); $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
         $page = max(1, (int) $this->input->get('page', true)); $perPage = min(100, max(10, (int) $this->input->get('per_page', true) ?: 10)); $search = trim((string) $this->input->get('q', true));
         $this->db->start_cache()->from('invoices')->join('customers', 'customers.id=invoices.customer_id')->join('warehouses', 'warehouses.id=invoices.warehouse_id');
         if ($scope) { $this->db->where('invoices.warehouse_id', $scope); }
@@ -33,7 +50,7 @@ class Invoices extends MY_Controller
 
     public function show(int $id): void
     {
-        $this->requireAuth(); $invoice = (new \App\Repositories\InvoiceRepository($this->db))->findScoped($id, $this->warehouseScope());
+        $this->requireAuth(); $invoice = (new \App\Repositories\InvoiceRepository($this->db))->findScoped($id, $this->warehouseScope(null, false));
         if (!$invoice) { show_error(lang('forbidden'), 403); }
         $this->render('invoices/show', ['invoice' => $invoice]);
     }
@@ -44,7 +61,13 @@ class Invoices extends MY_Controller
         $this->requirePost();
         $payload = json_decode((string) $this->input->post('payload', false), true);
         if (!is_array($payload)) { $this->json(false, null, lang('invalid_invoice'), ['code' => 'VALIDATION_FAILED']); return; }
-        try { $this->json(true, $this->invoiceService()->create($payload, (int) $this->currentUser['id'], $this->warehouseScope($payload['warehouse_id'] ?? null)), lang('invoice_saved')); }
+        $scope = $this->warehouseScope($payload['warehouse_id'] ?? null, false);
+        $warehouseId = $scope ?: (int) ($payload['warehouse_id'] ?? 0);
+        if ($warehouseId && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($warehouseId)) {
+            $this->json(false, null, lang('warehouse_inactive'), ['code' => 'WAREHOUSE_INACTIVE']);
+            return;
+        }
+        try { $this->json(true, $this->invoiceService()->create($payload, (int) $this->currentUser['id'], $scope), lang('invoice_saved')); }
         catch (\App\Exceptions\InsufficientStockException $exception) { $this->json(false, null, lang('insufficient_stock'), ['code' => 'INSUFFICIENT_STOCK']); }
         catch (\App\Exceptions\AppException $exception) { $this->json(false, null, lang('invalid_invoice'), ['code' => 'VALIDATION_FAILED']); }
     }

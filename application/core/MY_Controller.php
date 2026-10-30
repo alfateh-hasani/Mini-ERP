@@ -36,20 +36,25 @@ class MY_Controller extends CI_Controller
         }
     }
 
-    /** Admins can select an active warehouse; warehouse users never can. */
-    protected function warehouseScope($requestedId = null): ?int
+    /** Warehouse users cannot widen scope; historical reads may include inactive warehouses. */
+    protected function warehouseScope($requestedId = null, bool $requireActive = true): ?int
     {
         $this->requireAuth();
         if ($this->currentUser['role'] === ROLE_WAREHOUSE) {
             $warehouseId = (int) $this->currentUser['warehouse_id'];
-            if (!$warehouseId || $this->db->where(['id' => $warehouseId, 'status' => STATUS_ACTIVE])->count_all_results('warehouses') !== 1) {
+            if (!$warehouseId) { show_error(lang('warehouse_inactive'), 403); return null; }
+            $query = $this->db->where('id', $warehouseId);
+            if ($requireActive) { $query->where('status', STATUS_ACTIVE); }
+            if ($query->count_all_results('warehouses') !== 1) {
                 show_error(lang('warehouse_inactive'), 403);
             }
             return $warehouseId;
         }
         $warehouseId = $requestedId ? (int) $requestedId : null;
-        if ($warehouseId && $this->db->where(['id' => $warehouseId, 'status' => STATUS_ACTIVE])->count_all_results('warehouses') !== 1) {
-            show_error(lang('forbidden'), 403);
+        if ($warehouseId) {
+            $query = $this->db->where('id', $warehouseId);
+            if ($requireActive) { $query->where('status', STATUS_ACTIVE); }
+            if ($query->count_all_results('warehouses') !== 1) { show_error(lang('forbidden'), 403); }
         }
         return $warehouseId;
     }

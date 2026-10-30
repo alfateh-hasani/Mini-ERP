@@ -6,7 +6,7 @@ class Dashboard extends MY_Controller
     public function index(): void
     {
         $this->requireAuth();
-        $scope = $this->warehouseScope($this->input->get('warehouse_id', true));
+        $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
         $data = ['warehouse_id' => $scope, 'stats' => ['products' => 0, 'stock' => 0, 'invoices' => 0, 'sales' => '0.00'], 'recentInvoices' => [], 'lowStockCount' => 0];
         if ($this->db->table_exists('products')) {
             $data['stats']['products'] = $this->db->where('deleted_at', null)->count_all_results('products');

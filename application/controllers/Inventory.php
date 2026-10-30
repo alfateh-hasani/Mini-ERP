@@ -6,7 +6,11 @@ class Inventory extends MY_Controller
     public function index(): void
     {
         $this->requireAuth();
-        $scope = $this->warehouseScope($this->input->get('warehouse_id', true));
+        $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
+        if ($scope && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($scope)) {
+            $this->render('inventory/unavailable');
+            return;
+        }
         $query = $this->db->select('inventory.*, products.code, products.name, products.name_ar, products.alert_quantity, warehouses.name AS warehouse_name')->from('inventory')->join('products', 'products.id=inventory.product_id')->join('warehouses', 'warehouses.id=inventory.warehouse_id')->order_by('products.code');
         if ($scope) { $query->where('inventory.warehouse_id', $scope); }
         $this->render('inventory/index', ['items' => $query->get()->result_array(), 'scope' => $scope, 'warehouses' => $this->currentUser['role'] === ROLE_ADMIN ? $this->db->where('status', STATUS_ACTIVE)->order_by('name')->get('warehouses')->result_array() : [], 'products' => $this->currentUser['role'] === ROLE_ADMIN ? $this->db->where('status', STATUS_ACTIVE)->where('deleted_at IS NULL', null, false)->order_by('code')->get('products')->result_array() : []]);
@@ -16,7 +20,11 @@ class Inventory extends MY_Controller
     public function data(): void
     {
         $this->requireAuth();
-        $scope = $this->warehouseScope($this->input->get('warehouse_id', true));
+        $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
+        if ($scope && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($scope)) {
+            $this->json(false, null, lang('warehouse_inactive'), ['code' => 'WAREHOUSE_INACTIVE']);
+            return;
+        }
         $page = max(1, (int) $this->input->get('page', true));
         $perPage = min(100, max(10, (int) $this->input->get('per_page', true) ?: 10));
         $search = trim((string) $this->input->get('q', true));

@@ -5,7 +5,12 @@ class Reports extends MY_Controller
 {
     public function data(): void
     {
-        $this->requireAuth(); $scope = $this->warehouseScope($this->input->get('warehouse_id', true));
+        $this->requireAuth();
+        $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
+        if ($scope && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($scope)) {
+            $this->json(false, null, lang('warehouse_inactive'), ['code' => 'WAREHOUSE_INACTIVE']);
+            return;
+        }
         $page = max(1, (int) $this->input->get('page', true)); $perPage = min(100, max(10, (int) $this->input->get('per_page', true) ?: 10)); $search = trim((string) $this->input->get('q', true));
         $this->db->start_cache();
         $this->db->from('inventory')->join('products', 'products.id=inventory.product_id')->join('warehouses', 'warehouses.id=inventory.warehouse_id')->where('inventory.quantity <= products.alert_quantity', null, false);
@@ -18,7 +23,12 @@ class Reports extends MY_Controller
 
     public function low_stock(): void
     {
-        $this->requireAuth(); $scope = $this->warehouseScope($this->input->get('warehouse_id', true));
+        $this->requireAuth();
+        $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
+        if ($scope && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($scope)) {
+            $this->render('reports/unavailable');
+            return;
+        }
         $query = $this->db->select('warehouses.name AS warehouse, products.code, products.name, products.name_ar, inventory.quantity, products.alert_quantity')->from('inventory')->join('products', 'products.id=inventory.product_id')->join('warehouses', 'warehouses.id=inventory.warehouse_id')->where('inventory.quantity <= products.alert_quantity', null, false)->order_by('products.code');
         if ($scope) { $query->where('inventory.warehouse_id', $scope); }
         $rows = $query->get()->result_array();
