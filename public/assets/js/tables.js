@@ -55,7 +55,8 @@
     var rows = Array.prototype.slice.call(body.rows);
     var source = table.getAttribute('data-source');
     var fields = (table.getAttribute('data-fields') || '').split(',').filter(Boolean);
-    var state = { page: 1, pageSize: 10, query: '', filters: {} };
+    var state = { page: 1, pageSize: 10, query: table.getAttribute('data-query') || '', filters: {} };
+    var exportLink = document.getElementById(table.getAttribute('data-export-target'));
     var requestController;
     var searchTimer;
     var toolbar = element('div', 'table-controls');
@@ -68,6 +69,7 @@
     var buttons = element('div', 'table-pages');
 
     search.type = 'search';
+    search.value = state.query;
     search.placeholder = labels.search;
     search.setAttribute('aria-label', labels.search);
     [10, 25, 50, 100].forEach(function (value) {
@@ -106,7 +108,18 @@
       control.addEventListener('change', function () { state.filters[key] = control.value; state.page = 1; render(); });
     });
 
+    function syncExport() {
+      if (!exportLink) return;
+      var url = new URL(exportLink.href, window.location.origin);
+      url.searchParams.set('q', state.query);
+      Object.keys(state.filters).forEach(function (key) { url.searchParams.set(key, state.filters[key]); });
+      url.searchParams.delete('page');
+      url.searchParams.delete('per_page');
+      exportLink.href = url.toString();
+    }
+
     function loadServerPage() {
+      syncExport();
       if (requestController) requestController.abort();
       requestController = new AbortController();
       table.setAttribute('aria-busy', 'true');
@@ -222,6 +235,7 @@
       clearTimeout(searchTimer);
       if (requestController) requestController.abort();
       state.query = search.value.trim(); state.page = 1;
+      syncExport();
       searchTimer = setTimeout(render, source ? 250 : 0);
     });
     length.addEventListener('change', function () { state.pageSize = Number(length.value); state.page = 1; render(); });
