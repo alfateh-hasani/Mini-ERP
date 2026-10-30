@@ -52,6 +52,8 @@ class InvoiceRepository extends BaseRepository
         if ($warehouseId) { $query->where('warehouse_id', $warehouseId); }
         $invoice = $query->get('invoices')->row_array();
         if (!$invoice) { return null; }
+        $creator = $this->db->select('name')->where('id', (int) $invoice['created_by'])->get('users')->row_array();
+        $invoice['created_by_name'] = $creator['name'] ?? '';
         $invoice['items'] = $this->db->where('invoice_id', $id)->order_by('product_id')->get('invoice_items')->result_array();
         return $invoice;
     }

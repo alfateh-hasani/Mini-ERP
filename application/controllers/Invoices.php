@@ -30,7 +30,7 @@ class Invoices extends MY_Controller
     public function index(): void
     {
         $this->requireAuth(); $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
-        $query = $this->db->select('invoices.*, customers.name AS customer_name, warehouses.name AS warehouse_name')->from('invoices')->join('customers', 'customers.id=invoices.customer_id')->join('warehouses', 'warehouses.id=invoices.warehouse_id')->order_by('invoices.id', 'desc');
+        $query = $this->db->select('invoices.*, customers.name AS customer_name, creator.name AS created_by_name, warehouses.name AS warehouse_name')->from('invoices')->join('customers', 'customers.id=invoices.customer_id')->join('users AS creator', 'creator.id=invoices.created_by', 'left')->join('warehouses', 'warehouses.id=invoices.warehouse_id')->order_by('invoices.id', 'desc');
         if ($scope) { $query->where('invoices.warehouse_id', $scope); }
         $this->render('invoices/index', ['invoices' => $query->get()->result_array()]);
     }
@@ -39,11 +39,11 @@ class Invoices extends MY_Controller
     {
         $this->requireAuth(); $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
         $page = max(1, (int) $this->input->get('page', true)); $perPage = min(100, max(10, (int) $this->input->get('per_page', true) ?: 10)); $search = trim((string) $this->input->get('q', true));
-        $this->db->start_cache()->from('invoices')->join('customers', 'customers.id=invoices.customer_id')->join('warehouses', 'warehouses.id=invoices.warehouse_id');
+        $this->db->start_cache()->from('invoices')->join('customers', 'customers.id=invoices.customer_id')->join('users AS creator', 'creator.id=invoices.created_by', 'left')->join('warehouses', 'warehouses.id=invoices.warehouse_id');
         if ($scope) { $this->db->where('invoices.warehouse_id', $scope); }
-        if ($search !== '') { $this->db->group_start()->like('invoices.invoice_number', $search)->or_like('customers.name', $search)->or_like('warehouses.name', $search)->or_like('invoices.status', $search)->group_end(); }
+        if ($search !== '') { $this->db->group_start()->like('invoices.invoice_number', $search)->or_like('customers.name', $search)->or_like('creator.name', $search)->or_like('warehouses.name', $search)->or_like('invoices.status', $search)->group_end(); }
         $this->db->stop_cache(); $total = $this->db->count_all_results();
-        $rows = $this->db->select('invoices.id, invoices.invoice_number, invoices.status, invoices.total, customers.name AS customer_name, warehouses.name AS warehouse_name, warehouses.name_ar AS warehouse_name_ar')->order_by('invoices.id', 'desc')->limit($perPage, ($page - 1) * $perPage)->get()->result_array(); $this->db->flush_cache();
+        $rows = $this->db->select('invoices.id, invoices.invoice_number, invoices.status, invoices.total, customers.name AS customer_name, creator.name AS created_by_name, warehouses.name AS warehouse_name, warehouses.name_ar AS warehouse_name_ar')->order_by('invoices.id', 'desc')->limit($perPage, ($page - 1) * $perPage)->get()->result_array(); $this->db->flush_cache();
         foreach ($rows as &$row) { if ($this->session->userdata('lang') === 'ar') { $row['warehouse_name'] = $row['warehouse_name_ar']; } $row['status'] = lang($row['status']); $row['total'] = 'SAR ' . number_format((float) $row['total'], 2); $row['show_url'] = site_url('invoices/show/' . $row['id']); }
         $this->json(true, ['rows' => $rows, 'pagination' => ['page'=>$page, 'per_page'=>$perPage, 'total'=>$total, 'total_pages'=>max(1, (int) ceil($total / $perPage))]]);
     }
