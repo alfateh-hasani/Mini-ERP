@@ -27,7 +27,7 @@ class Products extends MY_Controller
         $rows = $this->db->select('products.id, products.code, products.name, products.name_ar, products.price, products.status, categories.name AS category, categories.name_ar AS category_ar')->order_by('products.id', 'desc')->limit($perPage, ($page - 1) * $perPage)->get()->result_array();
         $this->db->flush_cache();
         $arabic = $this->session->userdata('lang') === 'ar';
-        foreach ($rows as &$row) { $row['category'] = $arabic ? $row['category_ar'] : $row['category']; $row['price'] = 'SAR ' . number_format((float) $row['price'], 2); $row['status_value'] = $row['status']; $row['status'] = lang($row['status']); $row['status_url'] = site_url('products/toggle_status/' . $row['id']); $row['edit_url'] = site_url('products/edit/' . $row['id']); $row['edit_label'] = lang('edit'); }
+        foreach ($rows as &$row) { $row['category'] = $arabic ? $row['category_ar'] : $row['category']; $row['price'] = sar($row['price']); $row['status_value'] = $row['status']; $row['status'] = lang($row['status']); $row['status_url'] = site_url('products/toggle_status/' . $row['id']); $row['edit_url'] = site_url('products/edit/' . $row['id']); $row['edit_label'] = lang('edit'); }
         $this->json(true, ['rows' => $rows, 'pagination' => ['page' => $page, 'per_page' => $perPage, 'total' => $total, 'total_pages' => max(1, (int) ceil($total / $perPage))]]);
     }
 

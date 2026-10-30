@@ -8,7 +8,7 @@
   const submit = form.querySelector('[type="submit"]');
   const arabic = document.documentElement.lang === 'ar';
   const calculator = window.InvoiceTotals;
-  const money = value => calculator.format(value);
+  const money = value => calculator.format(value, arabic ? 'ar' : 'en');
   const labels = arabic ? {
     failed: 'تعذر حفظ الفاتورة. حدّث الصفحة وحاول مرة أخرى.',
     product: 'اختر منتجاً من نتائج البحث لكل بند.',

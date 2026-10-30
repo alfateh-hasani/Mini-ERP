@@ -25,9 +25,9 @@
       <button class="btn btn-outline-primary align-self-start" type="button" id="add-line">+ <?= e(lang('add_line')) ?></button>
       <div class="invoice-summary">
         <h3 class="card-title"><?= e(lang('invoice_summary')) ?></h3>
-        <div><span><?= e(lang('before_discount')) ?></span><output id="invoice-subtotal">SAR 0.00</output></div>
-        <div class="text-muted"><span><?= e(lang('discount_amount')) ?></span><output id="invoice-discount">SAR 0.00</output></div>
-        <div class="invoice-grand-total"><strong><?= e(lang('after_discount')) ?></strong><output id="invoice-total" aria-live="polite">SAR 0.00</output></div>
+        <div><span><?= e(lang('before_discount')) ?></span><output id="invoice-subtotal"><?= e(sar(0)) ?></output></div>
+        <div class="text-muted"><span><?= e(lang('discount_amount')) ?></span><output id="invoice-discount"><?= e(sar(0)) ?></output></div>
+        <div class="invoice-grand-total"><strong><?= e(lang('after_discount')) ?></strong><output id="invoice-total" aria-live="polite"><?= e(sar(0)) ?></output></div>
         <button class="btn btn-primary w-100 mt-3" type="submit"><?= e(lang('save_invoice')) ?></button>
       </div>
     </div>
@@ -35,5 +35,5 @@
   <div id="invoice-message" class="mt-3" role="alert" aria-live="assertive" tabindex="-1"></div>
 </div></div>
 <template id="invoice-line-template"><?php $this->load->view('invoices/_line'); ?></template>
-<script src="<?= base_url('public/assets/js/invoice-totals.js') ?>?v=2"></script>
-<script src="<?= base_url('public/assets/js/invoice.js') ?>?v=7"></script>
+<script src="<?= base_url('public/assets/js/invoice-totals.js') ?>?v=3"></script>
+<script src="<?= base_url('public/assets/js/invoice.js') ?>?v=8"></script>

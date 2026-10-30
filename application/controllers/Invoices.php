@@ -44,7 +44,7 @@ class Invoices extends MY_Controller
         if ($search !== '') { $this->db->group_start()->like('invoices.invoice_number', $search)->or_like('customers.name', $search)->or_like('creator.name', $search)->or_like('warehouses.name', $search)->or_like('invoices.status', $search)->group_end(); }
         $this->db->stop_cache(); $total = $this->db->count_all_results();
         $rows = $this->db->select('invoices.id, invoices.invoice_number, invoices.status, invoices.total, customers.name AS customer_name, creator.name AS created_by_name, warehouses.name AS warehouse_name, warehouses.name_ar AS warehouse_name_ar')->order_by('invoices.id', 'desc')->limit($perPage, ($page - 1) * $perPage)->get()->result_array(); $this->db->flush_cache();
-        foreach ($rows as &$row) { if ($this->session->userdata('lang') === 'ar') { $row['warehouse_name'] = $row['warehouse_name_ar']; } $row['status'] = lang($row['status']); $row['total'] = 'SAR ' . number_format((float) $row['total'], 2); $row['show_url'] = site_url('invoices/show/' . $row['id']); }
+        foreach ($rows as &$row) { if ($this->session->userdata('lang') === 'ar') { $row['warehouse_name'] = $row['warehouse_name_ar']; } $row['status'] = lang($row['status']); $row['total'] = sar($row['total']); $row['show_url'] = site_url('invoices/show/' . $row['id']); }
         $this->json(true, ['rows' => $rows, 'pagination' => ['page'=>$page, 'per_page'=>$perPage, 'total'=>$total, 'total_pages'=>max(1, (int) ceil($total / $perPage))]]);
     }
 

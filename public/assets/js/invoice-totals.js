@@ -17,10 +17,11 @@
     const discount = (subtotal * rate + 5000n) / 10000n;
     return { unit, subtotal, discount, total: subtotal - discount };
   };
-  const format = halalas => {
+  const format = (halalas, language = 'en') => {
     const integer = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(halalas / 100n);
     const fraction = (halalas % 100n).toString().padStart(2, '0');
-    return `SAR ${integer}.${fraction}`;
+    const symbol = language.startsWith('ar') ? 'س.ر' : 'SAR';
+    return `${symbol} ${integer}.${fraction}`;
   };
   return { line, format };
 });
