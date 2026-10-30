@@ -9,3 +9,7 @@ $lang['stat_products'] = 'Products'; $lang['stat_stock'] = 'Stock units'; $lang[
 $lang['add_customer'] = 'Add customer'; $lang['edit_customer'] = 'Edit customer'; $lang['add_user'] = 'Add user'; $lang['no_warehouse'] = 'No warehouse'; $lang['admin'] = 'Admin'; $lang['warehouse_user'] = 'Warehouse user'; $lang['language'] = 'Language'; $lang['number'] = 'Number'; $lang['issued'] = 'Issued'; $lang['cancelled'] = 'Cancelled'; $lang['confirm_cancel_invoice'] = 'Cancel this invoice?';
 $lang['settings'] = 'Settings'; $lang['company_name'] = 'Company name'; $lang['invoice_prefix'] = 'Invoice prefix'; $lang['settings_saved'] = 'Settings saved.';
 $lang['method_not_allowed'] = 'Method not allowed.'; $lang['too_many_login_attempts'] = 'Too many sign-in attempts. Please wait 15 minutes.'; $lang['category_name_taken'] = 'Category name is already in use.'; $lang['duplicate_customer'] = 'A customer with this phone number or email already exists.'; $lang['invoice_saved'] = 'Invoice saved.'; $lang['invalid_invoice'] = 'Please review the invoice details and try again.'; $lang['insufficient_stock'] = 'There is not enough stock for one or more items.';
+$lang['menu'] = 'Menu';
+$lang['close'] = 'Close';
+$lang['search'] = 'Search';
+$lang['no_results'] = 'No matching options';
