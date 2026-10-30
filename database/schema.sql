@@ -112,12 +112,6 @@ CREATE TABLE customers (
   CONSTRAINT fk_customers_created_by FOREIGN KEY (created_by) REFERENCES users(id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE invoice_counters (
-  counter_date DATE NOT NULL,
-  last_number INT UNSIGNED NOT NULL DEFAULT 0,
-  PRIMARY KEY (counter_date)
-) ENGINE=InnoDB;
-
 CREATE TABLE invoices (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   invoice_number VARCHAR(40) NOT NULL,

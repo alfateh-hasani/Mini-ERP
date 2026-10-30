@@ -15,6 +15,7 @@ class InvoiceServiceTest extends TestCase
             public array $locked = []; public array $decrements = []; public array $invoice = [];
             public function __construct() {} public function warehouseIsActive(int $id): bool { return true; } public function customerExists(int $id): bool { return true; }
             public function transaction(callable $work) { return $work(); }
+            public function withAdvisoryLock(string $resource, callable $work) { return $work(); }
             public function lockInventory(int $warehouseId, array $ids): array { $this->locked=$ids; return [['product_id'=>2,'quantity'=>10,'code'=>'B','name'=>'B','name_ar'=>'ب','unit'=>'piece','price'=>'10.00'],['product_id'=>5,'quantity'=>10,'code'=>'A','name'=>'A','name_ar'=>'أ','unit'=>'piece','price'=>'20.00']]; }
             public function decrement(int $warehouseId, int $productId, int $quantity): void { $this->decrements[$productId]=$quantity; }
             public function nextNumber(): string { return 'INV-20261029-0001'; }

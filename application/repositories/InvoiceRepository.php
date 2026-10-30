@@ -3,6 +3,19 @@ namespace App\Repositories;
 
 class InvoiceRepository extends BaseRepository
 {
+    private $numberingLocked = false;
+    /** Hold the numbering lock until the complete invoice transaction commits. */
+    public function numberedTransaction(callable $work)
+    {
+        return $this->withAdvisoryLock('invoice-number', function () use ($work) {
+            $this->numberingLocked = true;
+            try {
+                return $this->transaction($work);
+            } finally {
+                $this->numberingLocked = false;
+            }
+        });
+    }
     public function warehouseIsActive(int $warehouseId): bool
     {
         return $this->db->where(['id' => $warehouseId, 'status' => 'active'])->count_all_results('warehouses') === 1;
@@ -28,14 +41,17 @@ class InvoiceRepository extends BaseRepository
 
     public function nextNumber(): string
     {
-        $date = date('Y-m-d');
-        $this->db->query('INSERT IGNORE INTO invoice_counters (counter_date, last_number) VALUES (?, 0)', [$date]);
-        $counter = $this->db->query('SELECT last_number FROM invoice_counters WHERE counter_date = ? FOR UPDATE', [$date])->row_array();
-        $next = (int) $counter['last_number'] + 1;
-        $this->db->where('counter_date', $date)->update('invoice_counters', ['last_number' => $next]);
+        if (!$this->numberingLocked) { throw new \LogicException('Allocate invoice numbers inside numberedTransaction().'); }
         $prefix = $this->db->select('setting_value')->where('setting_key', 'invoice_prefix')->get('settings')->row_array();
-        $prefix = strtoupper(preg_replace('/[^A-Z0-9]/', '', (string) ($prefix['setting_value'] ?? 'INV')));
-        return sprintf('%s-%s-%04d', $prefix ?: 'INV', date('Ymd'), $next);
+        $prefix = preg_replace('/[^A-Z0-9]/', '', strtoupper((string) ($prefix['setting_value'] ?? 'INV')));
+        $stem = ($prefix ?: 'INV') . '-' . date('Ymd') . '-';
+        // Include cancelled invoices; COUNT()+1 can reuse numbers after gaps.
+        // Call inside numberedTransaction(), never as an unlocked allocation.
+        $row = $this->db->query(
+            'SELECT COALESCE(MAX(CAST(SUBSTRING(invoice_number, ?) AS UNSIGNED)), 0) + 1 AS next_number FROM invoices WHERE invoice_number LIKE ? AND invoice_number REGEXP ?',
+            [strlen($stem) + 1, $stem . '%', '^' . $stem . '[0-9]+$']
+        )->row_array();
+        return $stem . str_pad((string) $row['next_number'], 4, '0', STR_PAD_LEFT);
     }
 
     public function insertInvoice(array $invoice, array $items): int

@@ -21,7 +21,7 @@ class InvoiceService
         if (!$warehouseId || empty($payload['customer_id']) || empty($payload['items']) || !is_array($payload['items'])) { throw new ValidationException('Warehouse, customer and at least one item are required.'); }
         if (!$this->invoices->warehouseIsActive($warehouseId) || !$this->invoices->customerExists((int) $payload['customer_id'])) { throw new ValidationException('Selected warehouse or customer does not exist.'); }
         $items = $this->aggregate($payload['items']);
-        return $this->invoices->transaction(function () use ($items, $payload, $userId, $warehouseId): array {
+        return $this->invoices->numberedTransaction(function () use ($items, $payload, $userId, $warehouseId): array {
             $products = [];
             foreach ($this->invoices->lockInventory($warehouseId, array_keys($items)) as $product) { $products[(int) $product['product_id']] = $product; }
             if (count($products) !== count($items)) { throw new ValidationException('One or more products are inactive or not stocked in this warehouse.'); }
