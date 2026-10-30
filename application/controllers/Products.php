@@ -79,7 +79,7 @@ class Products extends MY_Controller
         $this->requireAdmin();
         $this->config->load('units');
         $units = $this->config->item('units');
-        foreach (['code' => 'required|alpha_dash|max_length[50]', 'name' => 'required|max_length[200]', 'name_ar' => 'required|max_length[200]', 'category_id' => 'required|is_natural_no_zero', 'unit' => 'required|in_list[' . implode(',', array_keys($units)) . ']', 'price' => 'required|decimal|greater_than_equal_to[0]', 'alert_quantity' => 'required|is_natural'] as $field => $rules) { $this->form_validation->set_rules($field, lang($field) ?: $field, $rules); }
+        foreach (['code' => 'required|alpha_dash|max_length[50]', 'name' => 'required|max_length[200]', 'name_ar' => 'required|max_length[200]', 'category_id' => 'required|is_natural_no_zero', 'unit' => 'required|in_list[' . implode(',', array_keys($units)) . ']', 'price' => 'required|numeric|greater_than_equal_to[0]', 'alert_quantity' => 'required|is_natural'] as $field => $rules) { $this->form_validation->set_rules($field, lang($field) ?: $field, $rules); }
         if (!$this->form_validation->run()) { $this->form($id ? $this->db->where('id', $id)->get('products')->row_array() : null); return; }
         try {
             $input = $this->input->post(null, true);
