@@ -3,6 +3,19 @@ namespace App\Repositories;
 
 class InvoiceRepository extends BaseRepository
 {
+    private $numberingLocked = false;
+    /** Hold the numbering lock until the complete invoice transaction commits. */
+    public function numberedTransaction(callable $work)
+    {
+        return $this->withAdvisoryLock('invoice-number', function () use ($work) {
+            $this->numberingLocked = true;
+            try {
+                return $this->transaction($work);
+            } finally {
+                $this->numberingLocked = false;
+            }
+        });
+    }
     public function warehouseIsActive(int $warehouseId): bool
     {
         return $this->db->where(['id' => $warehouseId, 'status' => 'active'])->count_all_results('warehouses') === 1;
@@ -28,14 +41,17 @@ class InvoiceRepository extends BaseRepository
 
     public function nextNumber(): string
     {
-        $date = date('Y-m-d');
-        $this->db->query('INSERT IGNORE INTO invoice_counters (counter_date, last_number) VALUES (?, 0)', [$date]);
-        $counter = $this->db->query('SELECT last_number FROM invoice_counters WHERE counter_date = ? FOR UPDATE', [$date])->row_array();
-        $next = (int) $counter['last_number'] + 1;
-        $this->db->where('counter_date', $date)->update('invoice_counters', ['last_number' => $next]);
+        if (!$this->numberingLocked) { throw new \LogicException('Allocate invoice numbers inside numberedTransaction().'); }
         $prefix = $this->db->select('setting_value')->where('setting_key', 'invoice_prefix')->get('settings')->row_array();
-        $prefix = strtoupper(preg_replace('/[^A-Z0-9]/', '', (string) ($prefix['setting_value'] ?? 'INV')));
-        return sprintf('%s-%s-%04d', $prefix ?: 'INV', date('Ymd'), $next);
+        $prefix = preg_replace('/[^A-Z0-9]/', '', strtoupper((string) ($prefix['setting_value'] ?? 'INV')));
+        $stem = ($prefix ?: 'INV') . '-' . date('Ymd') . '-';
+        // Include cancelled invoices; COUNT()+1 can reuse numbers after gaps.
+        // Call inside numberedTransaction(), never as an unlocked allocation.
+        $row = $this->db->query(
+            'SELECT COALESCE(MAX(CAST(SUBSTRING(invoice_number, ?) AS UNSIGNED)), 0) + 1 AS next_number FROM invoices WHERE invoice_number LIKE ? AND invoice_number REGEXP ?',
+            [strlen($stem) + 1, $stem . '%', '^' . $stem . '[0-9]+$']
+        )->row_array();
+        return $stem . str_pad((string) $row['next_number'], 4, '0', STR_PAD_LEFT);
     }
 
     public function insertInvoice(array $invoice, array $items): int
@@ -48,9 +64,14 @@ class InvoiceRepository extends BaseRepository
 
     public function findScoped(int $id, ?int $warehouseId): ?array
     {
-        $query = $this->db->where('id', $id);
-        if ($warehouseId) { $query->where('warehouse_id', $warehouseId); }
-        $invoice = $query->get('invoices')->row_array();
+        $query = $this->db->select('invoices.*, customers.name AS customer_name, customers.phone AS customer_phone, warehouses.name AS warehouse_name, warehouses.name_ar AS warehouse_name_ar, warehouses.status AS warehouse_status, creator.name AS created_by_name, canceller.name AS cancelled_by_name')
+            ->from('invoices')->join('customers', 'customers.id=invoices.customer_id')
+            ->join('warehouses', 'warehouses.id=invoices.warehouse_id')
+            ->join('users AS creator', 'creator.id=invoices.created_by', 'left')
+            ->join('users AS canceller', 'canceller.id=invoices.cancelled_by', 'left')
+            ->where('invoices.id', $id);
+        if ($warehouseId) { $query->where('invoices.warehouse_id', $warehouseId); }
+        $invoice = $query->get()->row_array();
         if (!$invoice) { return null; }
         $invoice['items'] = $this->db->where('invoice_id', $id)->order_by('product_id')->get('invoice_items')->result_array();
         return $invoice;

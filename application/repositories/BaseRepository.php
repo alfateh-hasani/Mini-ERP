@@ -15,6 +15,21 @@ class BaseRepository
         return $this->db;
     }
 
+    /** Run cooperative work under a database-scoped MySQL advisory lock. */
+    public function withAdvisoryLock(string $resource, callable $work)
+    {
+        $name = 'mini-erp:' . sha1($this->db->database . ':' . $resource);
+        $result = $this->db->query('SELECT GET_LOCK(?, 10) AS acquired', [$name])->row_array();
+        if ((int) ($result['acquired'] ?? 0) !== 1) {
+            throw new \App\Exceptions\ValidationException('The operation is busy. Please retry.');
+        }
+        try {
+            return $work();
+        } finally {
+            $this->db->query('SELECT RELEASE_LOCK(?)', [$name]);
+        }
+    }
+
     public function transaction(callable $work)
     {
         $this->db->trans_begin();

@@ -17,13 +17,24 @@ Demo login after seeding: `test@smartlife.com` / `87654321`. Change it before de
 
 - `composer test` runs PHPUnit.
 - `composer lint` runs PHP_CodeSniffer after dependencies are installed.
-- `php index.php cli/migrate` applies the included migrations.
+- `php index.php cli/migrate` applies the included migrations (including migration 014, which removes the legacy invoice counter table).
+- `php application/tests/integration/invoice_numbering.php` verifies numbering with concurrent MySQL connections in an isolated temporary database; the database user needs CREATE/DROP DATABASE permissions.
 - `php index.php cli/seed` idempotently creates or backfills demo warehouses, users, products, inventory, customers, and invoices.
 
 ## Security and business rules
 
+Inventory supports warehouse and product filters plus inclusive minimum/maximum stock quantities. Leave either quantity bound empty for no limit; use `0` to include zero stock. Product choices follow the selected warehouse. Apply filters to update the results, or Reset to clear filters and table search. Warehouse users remain restricted to their assigned warehouse.
+
+Admins can browse stock in inactive warehouses. Inactive warehouses are marked in the inventory filter and are read-only; quantity adjustments require an active warehouse.
+
+Invoice creation requires an explicit customer selection. Each item shows its catalogue unit price and totals before/after its discount; the summary updates as products, quantities, discounts, and lines change. Preview calculations use integer halalas and the server's half-up rounding. A compact line-discount column follows the percentage input; per-unit discount detail panels are omitted. Discounts accept 0 through 100 percent; clearing the field hides that line's before/after amounts until a valid value is entered (use 0 for no discount). Saved prices and totals are still calculated by the server.
+
+Invoice product rows show compact available/remaining stock badges. Quantity fields enforce the available quantity as the maximum and flag over-stock entries inline. Product or warehouse changes clear the previous stock limit; the server rechecks stock under lock when saving.
+
 - SAR is fixed; there is no currencies table, selector, conversion, or exchange-rate feature.
 - CI3 CSRF is enabled. Static JavaScript reads the token from layout metadata, sends it in `FormData`, and refreshes it from each JSON response.
 - Role and effective warehouse scope are enforced centrally in `MY_Controller`; warehouse users cannot widen scope with a submitted warehouse ID.
-- Invoice creation locks warehouse inventory by product ID in ascending order, allocates a number from a locked daily counter, and writes product snapshots. Cancellation locks the invoice and inventory rows before restoring stock.
+- Invoice creation locks warehouse inventory by product ID in ascending order, allocates the next daily number from retained invoices under a database-scoped advisory lock, and writes product snapshots. Cancellation locks the invoice and inventory rows before restoring stock.
 - Import `database/schema.sql` for the canonical fresh installation. Migrations are an equivalent application installation path.
+
+See [DATABASE_REVIEW.md](DATABASE_REVIEW.md) for the column-by-column schema review and unapplied recommendations. Invoice numbers must be allocated through `InvoiceRepository::numberedTransaction()`; existing invoices are retained, including cancellations.

@@ -19,7 +19,7 @@ Date: 2026-10-29
 | Store invoice item snapshots | Product names, units, codes, and prices must remain historically correct after a product edit. |
 | One controller set | Avoids duplicate behaviour and makes authorization a reusable warehouse-scope concern. |
 | Pessimistic inventory locking | Invoice processing needs atomic stock checks; use ordered `SELECT ... FOR UPDATE`, not a second optimistic locking scheme. |
-| Counter-row invoice numbering | `COUNT()` cannot safely allocate numbers under concurrent requests. A dated counter row plus a unique index can. |
+| Counter-free invoice numbering (v3.3) | Query the retained daily maximum under a database-scoped advisory lock held through transaction completion; keep the unique index. |
 | Database-backed duplicate protection | Service checks improve messages but cannot prevent races; nullable unique indexes are the final authority. |
 | `LIKE` search | It reliably supports partial names and hyphenated codes at this project scale. |
 | CSRF token in request body | This follows CI3's default CSRF verification behaviour. Static JavaScript cannot evaluate PHP. |
@@ -31,7 +31,7 @@ Date: 2026-10-29
 
 - Authentication/session tables: `users`, `login_attempts`, `ci_sessions`
 - Catalogue and stock: `categories`, `products`, `warehouses`, `inventory`
-- Sales: `customers`, `invoice_counters`, `invoices`, `invoice_items`
+- Sales: `customers`, `invoices`, `invoice_items`
 - Configuration: `settings`
 
 It includes the critical uniqueness and foreign-key constraints, SAR monetary fields, item snapshots, and does not include a currency or inventory-version table.

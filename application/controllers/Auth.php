@@ -3,11 +3,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Auth extends MY_Controller
 {
+    public function csrf(): void
+    {
+        $this->requireAuth();
+        $this->output->set_header('Cache-Control: no-store');
+        $this->json(true);
+    }
+
     public function login(): void
     {
         if ($this->currentUser) { redirect(''); }
         if ($this->input->method() === 'post') {
-            $this->db->where('attempted_at >=', date('Y-m-d H:i:s', time() - 900))->delete('login_attempts');
+            $this->db->where('attempted_at <', date('Y-m-d H:i:s', time() - 900))->delete('login_attempts');
             $attempts = $this->db->where('ip_address', $this->input->ip_address())->count_all_results('login_attempts');
             if ($attempts >= 5) {
                 $data['error'] = lang('too_many_login_attempts');

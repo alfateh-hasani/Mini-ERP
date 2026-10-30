@@ -42,19 +42,19 @@ class Cli extends CI_Controller
         ]);
         $this->firstOrCreate('users', ['email' => 'ahmed@smartlife.com'], [
             'name' => 'Riyadh Warehouse', 'email' => 'ahmed@smartlife.com',
-            'password_hash' => password_hash('pass@1234', PASSWORD_BCRYPT, ['cost' => 12]),
+            'password_hash' => password_hash('87654321', PASSWORD_BCRYPT, ['cost' => 12]),
             'role' => 'user_warehouse', 'warehouse_id' => $warehouseIds['Riyadh'],
             'preferred_lang' => 'ar', 'status' => 'active',
         ]);
         $this->firstOrCreate('users', ['email' => 'sara@smartlife.com'], [
             'name' => 'Jeddah Warehouse', 'email' => 'sara@smartlife.com',
-            'password_hash' => password_hash('pass@1234', PASSWORD_BCRYPT, ['cost' => 12]),
+            'password_hash' => password_hash('87654321', PASSWORD_BCRYPT, ['cost' => 12]),
             'role' => 'user_warehouse', 'warehouse_id' => $warehouseIds['Jeddah'],
             'preferred_lang' => 'en', 'status' => 'active',
         ]);
         $this->firstOrCreate('users', ['email' => 'khalid@smartlife.com'], [
             'name' => 'Dammam Warehouse', 'email' => 'khalid@smartlife.com',
-            'password_hash' => password_hash('pass@1234', PASSWORD_BCRYPT, ['cost' => 12]),
+            'password_hash' => password_hash('87654321', PASSWORD_BCRYPT, ['cost' => 12]),
             'role' => 'user_warehouse', 'warehouse_id' => $warehouseIds['Dammam'],
             'preferred_lang' => 'ar', 'status' => 'active',
         ]);
@@ -76,8 +76,12 @@ class Cli extends CI_Controller
             ['FOOD-006', 'Instant Coffee', 'قهوة سريعة التحضير', 'pack', 'عبوة', '29.00', 5, 12, 'Food & Beverage'],
         ];
         $generalProducts = [];
+        $demoCategories = array_keys($categoryIds);
         for ($number = 1; $number <= 16; $number++) {
-            $generalProducts[] = [sprintf('GEN-%03d', $number), 'General Item ' . $number, 'منتج عام ' . $number, 'piece', 'قطعة', number_format(10 + $number, 2, '.', ''), 5, 20 + $number, 'General'];
+            // Existing demo IDs keep their order on reruns, so distribute the
+            // legacy GEN catalogue across categories rather than only interleaving inserts.
+            $category = $demoCategories[($number - 1) % count($demoCategories)];
+            $generalProducts[] = [sprintf('GEN-%03d', $number), 'General Item ' . $number, 'منتج عام ' . $number, 'piece', 'قطعة', number_format(10 + $number, 2, '.', ''), 5, 20 + $number, $category];
         }
         $catalogueProducts = $products;
         $mixedProducts = [];

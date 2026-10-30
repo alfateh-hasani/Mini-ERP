@@ -1,5 +1,6 @@
 <?php
 $section = (string) $this->uri->segment(1);
+if ($section === 'invoices' && in_array($this->uri->segment(2), ['create', 'store'], true)) { $section = 'invoices/create'; }
 $isAdmin = $current_user && $current_user['role'] === ROLE_ADMIN;
 $navIcon = static function (string $icon): string {
     $paths = [
@@ -21,7 +22,7 @@ $mainLinks = [
     ['dashboard', '', lang('dashboard'), 'dashboard'],
     ['inventory', 'inventory', lang('inventory'), 'inventory'],
     ['invoices', 'invoices', lang('invoices'), 'invoices'],
-    ['invoices/create', 'invoices', lang('new_invoice'), 'new_invoice'],
+    ['invoices/create', 'invoices/create', lang('new_invoice'), 'new_invoice'],
     ['reports/low_stock', 'reports', lang('reports'), 'reports'],
 ];
 if ($isAdmin) { array_splice($mainLinks, 2, 0, [['customers', 'customers', lang('customers'), 'customers']]); }
@@ -39,10 +40,13 @@ $adminLinks = [
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="csrf-name" content="<?= e($this->security->get_csrf_token_name()) ?>">
+  <meta name="csrf-cookie" content="<?= e($this->config->item('cookie_prefix') . $this->config->item('csrf_cookie_name')) ?>">
+  <meta name="csrf-refresh" content="<?= e(site_url('auth/csrf')) ?>">
   <meta name="csrf-hash" content="<?= e($this->security->get_csrf_hash()) ?>">
+  <script src="<?= base_url('public/assets/js/validation.js') ?>?v=1" defer></script>
   <title>SmartLife ERP</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/css/tabler<?= $dir === 'rtl' ? '.rtl' : '' ?>.min.css">
-  <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=7">
+  <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=17">
 </head>
 <body data-select-search-placeholder="<?= e(lang('search')) ?>" data-select-no-results="<?= e(lang('no_results')) ?>">
 <div class="page">
@@ -86,8 +90,8 @@ $adminLinks = [
     </div></div>
   </div>
 </div>
-<script src="<?= base_url('public/assets/js/app.js') ?>?v=4"></script>
-<script src="<?= base_url('public/assets/js/selects.js') ?>?v=3"></script>
-<script src="<?= base_url('public/assets/js/tables.js') ?>?v=7"></script>
+<script src="<?= base_url('public/assets/js/app.js') ?>?v=6"></script>
+<script src="<?= base_url('public/assets/js/selects.js') ?>?v=7"></script>
+<script src="<?= base_url('public/assets/js/tables.js') ?>?v=10"></script>
 </body>
 </html>

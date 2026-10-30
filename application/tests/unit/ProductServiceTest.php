@@ -8,6 +8,14 @@ use PHPUnit\Framework\TestCase;
 
 class ProductServiceTest extends TestCase
 {
+    public function testInvoiceSearchWithoutWarehouseDoesNotQueryTheCatalogue(): void
+    {
+        $repository = new class extends ProductRepository {
+            public function __construct() {}
+        };
+        self::assertSame([], $repository->activeSearch('GEN', null));
+        self::assertSame([], $repository->activeSearch('GEN', 0));
+    }
     public function testExistingCodeIsRejectedEvenWhenInputHasDifferentCase(): void
     {
         $repository = new class extends ProductRepository {

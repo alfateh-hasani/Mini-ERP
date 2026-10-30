@@ -9,9 +9,9 @@
     previous: '\u0627\u0644\u0633\u0627\u0628\u0642', next: '\u0627\u0644\u062a\u0627\u0644\u064a',
     noRecords: '\u0644\u0627 \u062a\u0648\u062c\u062f \u0633\u062c\u0644\u0627\u062a \u0645\u0637\u0627\u0628\u0642\u0629',
     confirmStatus: '\u0647\u0644 \u062a\u0631\u064a\u062f \u062a\u063a\u064a\u064a\u0631 \u062d\u0627\u0644\u0629 \u0647\u0630\u0627 \u0627\u0644\u0633\u062c\u0644\u061f',
-    confirm: '\u062a\u0623\u0643\u064a\u062f', cancel: '\u0625\u0644\u063a\u0627\u0621', updateFailed: '\u062a\u0639\u0630\u0631 \u062a\u062d\u062f\u064a\u062b \u0627\u0644\u062d\u0627\u0644\u0629. \u064a\u0631\u062c\u0649 \u0627\u0644\u0645\u062d\u0627\u0648\u0644\u0629 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649.'
+    confirm: '\u062a\u0623\u0643\u064a\u062f', cancel: '\u0625\u0644\u063a\u0627\u0621', loadFailed: 'تعذر تحميل السجلات. يرجى المحاولة مرة أخرى.', updateFailed: '\u062a\u0639\u0630\u0631 \u062a\u062d\u062f\u064a\u062b \u0627\u0644\u062d\u0627\u0644\u0629. \u064a\u0631\u062c\u0649 \u0627\u0644\u0645\u062d\u0627\u0648\u0644\u0629 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649.'
   } : {
-    search: 'Search', rows: 'rows per page', showing: 'Showing', of: 'of',
+    search: 'Search', rows: 'rows per page', showing: 'Showing', of: 'of', loadFailed: 'Unable to load records. Please try again.',
     records: 'records', previous: 'Previous', next: 'Next', noRecords: 'No matching records',
     confirmStatus: 'Do you want to change this record’s status?', confirm: 'Confirm', cancel: 'Cancel', updateFailed: 'Unable to update the status. Please try again.'
   };
@@ -56,6 +56,8 @@
     var source = table.getAttribute('data-source');
     var fields = (table.getAttribute('data-fields') || '').split(',').filter(Boolean);
     var state = { page: 1, pageSize: 10, query: '', filters: {} };
+    var requestController;
+    var searchTimer;
     var toolbar = element('div', 'table-controls');
     var searchLabel = element('label', 'table-search-label', labels.search);
     var search = element('input', 'form-control table-search');
@@ -66,6 +68,7 @@
     var buttons = element('div', 'table-pages');
 
     search.type = 'search';
+    search.placeholder = labels.search;
     search.setAttribute('aria-label', labels.search);
     [10, 25, 50, 100].forEach(function (value) {
       var option = element('option', '', value);
@@ -75,26 +78,48 @@
     searchLabel.appendChild(search);
     lengthLabel.appendChild(length);
     toolbar.appendChild(searchLabel);
-    toolbar.appendChild(lengthLabel);
+    footer.appendChild(lengthLabel);
     footer.appendChild(info);
     footer.appendChild(buttons);
-    table.parentNode.insertBefore(toolbar, table);
-    table.parentNode.insertBefore(footer, table.nextSibling);
+    // Controls belong outside the horizontally scrolling table viewport.
+    var viewport = table.parentNode;
+    viewport.parentNode.insertBefore(toolbar, viewport);
+    viewport.parentNode.insertBefore(footer, viewport.nextSibling);
+    var filterForm = document.querySelector('[data-table-filter-form="' + table.id + '"]');
+    if (filterForm) {
+      new FormData(filterForm).forEach(function (value, key) { state.filters[key] = value; });
+      table.addEventListener('table:filters', function (event) {
+        state.filters = event.detail.filters;
+        state.page = 1;
+        if (event.detail.resetSearch) { state.query = ''; search.value = ''; }
+        clearTimeout(searchTimer);
+        render();
+      });
+    }
     Array.prototype.forEach.call(document.querySelectorAll('[data-table-filter]'), function (control) {
       if (control.getAttribute('data-table-filter') !== table.id) return;
       var key = control.getAttribute('data-filter-key');
       if (!key) return;
+      var filterGroup = control.closest('[data-table-filter-group]');
+      if (filterGroup) toolbar.appendChild(filterGroup);
       state.filters[key] = control.value;
       control.addEventListener('change', function () { state.filters[key] = control.value; state.page = 1; render(); });
     });
 
     function loadServerPage() {
+      if (requestController) requestController.abort();
+      requestController = new AbortController();
+      table.setAttribute('aria-busy', 'true');
       var url = new URL(source, window.location.origin);
       url.searchParams.set('page', state.page);
       url.searchParams.set('per_page', state.pageSize);
       url.searchParams.set('q', state.query);
       Object.keys(state.filters).forEach(function (key) { url.searchParams.set(key, state.filters[key]); });
-      fetch(url.toString(), { credentials: 'same-origin' }).then(function (response) { return response.json(); }).then(function (response) {
+      fetch(url.toString(), { credentials: 'same-origin', signal: requestController.signal }).then(function (response) {
+        if (!response.ok) throw new Error(labels.loadFailed);
+        return response.json();
+      }).then(function (response) {
+        if (!response.success) throw new Error((response.error || {}).message || labels.loadFailed);
         var payload = response.data || {};
         body.textContent = '';
         (payload.rows || []).forEach(function (row) {
@@ -104,6 +129,8 @@
             var td = document.createElement('td');
             if (field === 'action' && row.edit_url) {
               var link = document.createElement('a'); link.href = row.edit_url; link.className = 'btn btn-sm'; link.textContent = row.edit_label || 'Edit'; td.appendChild(link);
+            } else if (field === 'stock_shortfall') {
+              td.appendChild(element('span', Number(row[field]) > 0 ? 'text-danger fw-bold' : 'text-muted', Number(row[field]) > 0 ? row[field] : '\u2014'));
             } else if (field === 'number' && row.show_url) {
               var number = document.createElement('a'); number.href = row.show_url; number.textContent = row.invoice_number; td.appendChild(number);
             } else if (field === 'status' && row.status_url) {
@@ -139,7 +166,13 @@
         rows = Array.prototype.slice.call(body.rows);
         state.total = payload.pagination ? payload.pagination.total : rows.length;
         state.totalPages = payload.pagination ? payload.pagination.total_pages : 1;
+        if (payload.pagination) state.page = payload.pagination.page;
         render(true);
+        table.setAttribute('aria-busy', 'false');
+      }).catch(function (error) {
+        if (error.name === 'AbortError') return;
+        table.setAttribute('aria-busy', 'false');
+        info.textContent = error.message || labels.loadFailed;
       });
     }
 
@@ -185,7 +218,12 @@
       buttons.appendChild(pageButton(labels.next, state.page + 1, state.page === totalPages));
     }
 
-    search.addEventListener('input', function () { state.query = search.value.trim(); state.page = 1; render(); });
+    search.addEventListener('input', function () {
+      clearTimeout(searchTimer);
+      if (requestController) requestController.abort();
+      state.query = search.value.trim(); state.page = 1;
+      searchTimer = setTimeout(render, source ? 250 : 0);
+    });
     length.addEventListener('change', function () { state.pageSize = Number(length.value); state.page = 1; render(); });
     render();
   }
