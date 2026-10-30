@@ -64,12 +64,15 @@ class InvoiceRepository extends BaseRepository
 
     public function findScoped(int $id, ?int $warehouseId): ?array
     {
-        $query = $this->db->where('id', $id);
-        if ($warehouseId) { $query->where('warehouse_id', $warehouseId); }
-        $invoice = $query->get('invoices')->row_array();
+        $query = $this->db->select('invoices.*, customers.name AS customer_name, customers.phone AS customer_phone, warehouses.name AS warehouse_name, warehouses.name_ar AS warehouse_name_ar, warehouses.status AS warehouse_status, creator.name AS created_by_name, canceller.name AS cancelled_by_name')
+            ->from('invoices')->join('customers', 'customers.id=invoices.customer_id')
+            ->join('warehouses', 'warehouses.id=invoices.warehouse_id')
+            ->join('users AS creator', 'creator.id=invoices.created_by', 'left')
+            ->join('users AS canceller', 'canceller.id=invoices.cancelled_by', 'left')
+            ->where('invoices.id', $id);
+        if ($warehouseId) { $query->where('invoices.warehouse_id', $warehouseId); }
+        $invoice = $query->get()->row_array();
         if (!$invoice) { return null; }
-        $creator = $this->db->select('name')->where('id', (int) $invoice['created_by'])->get('users')->row_array();
-        $invoice['created_by_name'] = $creator['name'] ?? '';
         $invoice['items'] = $this->db->where('invoice_id', $id)->order_by('product_id')->get('invoice_items')->result_array();
         return $invoice;
     }

@@ -52,7 +52,8 @@ class Invoices extends MY_Controller
     {
         $this->requireAuth(); $invoice = (new \App\Repositories\InvoiceRepository($this->db))->findScoped($id, $this->warehouseScope(null, false));
         if (!$invoice) { show_error(lang('forbidden'), 403); }
-        $this->render('invoices/show', ['invoice' => $invoice]);
+        $this->config->load('units');
+        $this->render('invoices/show', ['invoice' => $invoice, 'units' => $this->config->item('units')]);
     }
 
     public function store(): void
