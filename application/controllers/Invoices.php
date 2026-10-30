@@ -77,7 +77,7 @@ class Invoices extends MY_Controller
         $this->requireAuth();
         $this->requirePost();
         try { $this->invoiceService()->cancel($id, (int) $this->currentUser['id'], $this->warehouseScope()); $this->session->set_flashdata('flash', ['type' => 'success', 'message' => lang('invoice_cancelled_restored')]); }
-        catch (\Throwable $exception) { $this->session->set_flashdata('flash', ['type' => 'error', 'message' => $exception->getMessage()]); }
+        catch (\Throwable $exception) { $this->session->set_flashdata('flash', ['type' => 'error', 'message' => lang('invoice_cancel_failed')]); }
         redirect('invoices/show/' . $id);
     }
 }

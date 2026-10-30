@@ -43,6 +43,7 @@ $adminLinks = [
   <meta name="csrf-cookie" content="<?= e($this->config->item('cookie_prefix') . $this->config->item('csrf_cookie_name')) ?>">
   <meta name="csrf-refresh" content="<?= e(site_url('auth/csrf')) ?>">
   <meta name="csrf-hash" content="<?= e($this->security->get_csrf_hash()) ?>">
+  <script src="<?= base_url('public/assets/js/validation.js') ?>?v=1" defer></script>
   <title>SmartLife ERP</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/css/tabler<?= $dir === 'rtl' ? '.rtl' : '' ?>.min.css">
   <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=8">

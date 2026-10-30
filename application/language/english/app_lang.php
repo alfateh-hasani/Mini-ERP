@@ -36,4 +36,6 @@ $lang['add_stock'] = 'Add stock';
 $lang['remove_stock'] = 'Remove stock';
 $lang['adjustment_reason'] = 'Reason';
 $lang['required_for_add_remove'] = 'Required for add or remove';
+$lang['product_code_taken'] = 'This product code is already in use.';
+$lang['invoice_cancel_failed'] = 'Unable to cancel this invoice. It may already be cancelled or outside your warehouse scope.';
 $lang['inventory_adjustment_help'] = 'Set final quantity replaces the current balance. Add or remove changes the current balance and requires a reason.';

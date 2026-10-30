@@ -92,7 +92,7 @@ class Products extends MY_Controller
             $this->session->set_flashdata('flash', ['type' => 'success', 'message' => lang('product_saved')]);
             redirect('products');
         } catch (\App\Exceptions\ValidationException $exception) {
-            $this->session->set_flashdata('flash', ['type' => 'error', 'message' => $exception->getMessage()]);
+            $this->session->set_flashdata('flash', ['type' => 'error', 'message' => lang('product_code_taken')]);
             redirect($id ? 'products/edit/' . $id : 'products/create');
         }
     }

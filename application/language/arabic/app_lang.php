@@ -36,4 +36,6 @@ $lang['add_stock'] = 'إضافة إلى المخزون';
 $lang['remove_stock'] = 'سحب من المخزون';
 $lang['adjustment_reason'] = 'السبب';
 $lang['required_for_add_remove'] = 'مطلوب للإضافة أو السحب';
+$lang['product_code_taken'] = 'رمز المنتج مستخدم بالفعل.';
+$lang['invoice_cancel_failed'] = 'تعذر إلغاء الفاتورة. قد تكون ملغاة بالفعل أو خارج نطاق مستودعك.';
 $lang['inventory_adjustment_help'] = 'تعيين الكمية النهائية يستبدل الرصيد الحالي. الإضافة أو السحب يغير الرصيد الحالي ويتطلب كتابة السبب.';
