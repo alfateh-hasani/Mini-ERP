@@ -22,12 +22,15 @@ class ProductRepository extends BaseRepository
 
     public function activeSearch(string $term, ?int $warehouseId): array
     {
+        if (!$warehouseId) { return []; }
         $this->db->select('products.*, inventory.quantity AS available_qty')
-            ->from('products')->join('inventory', 'inventory.product_id = products.id', 'left')
+            ->from('products')->join('inventory', 'inventory.product_id = products.id')
+            ->join('warehouses', 'warehouses.id = inventory.warehouse_id')
+            ->where('warehouses.status', 'active')
+            ->where('inventory.warehouse_id', $warehouseId)
             ->where('products.status', 'active')->where('products.deleted_at IS NULL', null, false)
             ->group_start()->like('products.code', $term)->or_like('products.name', $term)->or_like('products.name_ar', $term)->group_end()
             ->order_by('products.code')->limit(20);
-        if ($warehouseId) { $this->db->where('inventory.warehouse_id', $warehouseId); }
         return $this->db->get()->result_array();
     }
 }

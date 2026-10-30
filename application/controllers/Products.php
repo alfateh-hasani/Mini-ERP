@@ -60,7 +60,11 @@ class Products extends MY_Controller
     public function search(): void
     {
         $this->requireAuth();
-        $scope = $this->warehouseScope($this->input->get('warehouse_id', true));
+        $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
+        if (!$scope || !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($scope)) {
+            $this->json(true, ['results' => []]);
+            return;
+        }
         $this->json(true, ['results' => $this->productService()->search((string) $this->input->get('q', true), $scope)]);
     }
 
