@@ -42,19 +42,19 @@ class Cli extends CI_Controller
         ]);
         $this->firstOrCreate('users', ['email' => 'ahmed@smartlife.com'], [
             'name' => 'Riyadh Warehouse', 'email' => 'ahmed@smartlife.com',
-            'password_hash' => password_hash('pass@1234', PASSWORD_BCRYPT, ['cost' => 12]),
+            'password_hash' => password_hash('87654321', PASSWORD_BCRYPT, ['cost' => 12]),
             'role' => 'user_warehouse', 'warehouse_id' => $warehouseIds['Riyadh'],
             'preferred_lang' => 'ar', 'status' => 'active',
         ]);
         $this->firstOrCreate('users', ['email' => 'sara@smartlife.com'], [
             'name' => 'Jeddah Warehouse', 'email' => 'sara@smartlife.com',
-            'password_hash' => password_hash('pass@1234', PASSWORD_BCRYPT, ['cost' => 12]),
+            'password_hash' => password_hash('87654321', PASSWORD_BCRYPT, ['cost' => 12]),
             'role' => 'user_warehouse', 'warehouse_id' => $warehouseIds['Jeddah'],
             'preferred_lang' => 'en', 'status' => 'active',
         ]);
         $this->firstOrCreate('users', ['email' => 'khalid@smartlife.com'], [
             'name' => 'Dammam Warehouse', 'email' => 'khalid@smartlife.com',
-            'password_hash' => password_hash('pass@1234', PASSWORD_BCRYPT, ['cost' => 12]),
+            'password_hash' => password_hash('87654321', PASSWORD_BCRYPT, ['cost' => 12]),
             'role' => 'user_warehouse', 'warehouse_id' => $warehouseIds['Dammam'],
             'preferred_lang' => 'ar', 'status' => 'active',
         ]);
