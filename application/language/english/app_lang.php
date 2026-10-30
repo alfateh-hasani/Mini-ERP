@@ -1,4 +1,5 @@
 <?php
+$lang['invalid_report_filters'] = 'Invalid report filters. Select a warehouse and try again.';
 $lang['stock_include_unstocked'] = 'Include products not yet stocked here';
 $lang['stock_products_empty'] = 'No products stocked here. Include new products to add stock.';
 $lang['stock_products_failed'] = 'Unable to load products. Select the warehouse again to retry.';
