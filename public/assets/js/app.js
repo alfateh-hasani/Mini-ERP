@@ -7,6 +7,7 @@
   const toggle = document.querySelector('[data-sidebar-toggle]');
   const close = document.querySelector('[data-sidebar-close]');
   const backdrop = document.querySelector('[data-sidebar-backdrop]');
+  const profileMenu = document.querySelector('.profile-menu');
 
   window.erpFetch = async (url, options = {}) => {
     const body = options.body instanceof FormData ? options.body : new FormData();
@@ -37,6 +38,9 @@
   close?.addEventListener('click', closeSidebar);
   backdrop?.addEventListener('click', closeSidebar);
   sidebar?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeSidebar));
-  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeSidebar(); });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') { closeSidebar(); profileMenu?.removeAttribute('open'); }
+  });
+  document.addEventListener('click', (event) => { if (profileMenu && !profileMenu.contains(event.target)) profileMenu.removeAttribute('open'); });
   window.addEventListener('resize', () => { if (window.innerWidth >= 992) closeSidebar(); });
 })();
