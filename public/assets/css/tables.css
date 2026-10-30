@@ -84,6 +84,7 @@
 .invoice-summary { padding: 1.25rem; border: 1px solid var(--tblr-border-color, #d9dee5); border-radius: .5rem; background: #f8fafc; width: 25rem; max-width: 100%; }
 .invoice-summary > div { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: .75rem; }
 .invoice-summary output { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.invoice-money, .invoice-summary output { direction: ltr; unicode-bidi: isolate; }
 .invoice-grand-total { border-top: 1px solid var(--tblr-border-color, #d9dee5); padding-top: 1rem; font-size: 1.1rem; color: var(--tblr-primary, #066fd1); font-weight: 700; }
 @media (max-width: 1199.98px) {
   .invoice-editor-table, .invoice-editor-table tbody { display: block; }

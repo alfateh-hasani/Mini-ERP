@@ -22,4 +22,6 @@ test('invalid in-progress input produces no misleading totals', () => {
 test('formatting preserves halalas without floating point loss', () => {
   assert.equal(totals.format(6615n, 'en-US'), 'SAR 66.15');
   assert.equal(totals.format(1n, 'en-US'), 'SAR 0.01');
+  assert.equal(totals.format(4500n, 'ar-SA'), 'SAR 45.00');
+  assert.equal(totals.format(123456n, 'ar-SA'), 'SAR 1,234.56');
 });

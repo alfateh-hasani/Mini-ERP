@@ -35,5 +35,5 @@
   <div id="invoice-message" class="mt-3" role="alert" aria-live="assertive" tabindex="-1"></div>
 </div></div>
 <template id="invoice-line-template"><?php $this->load->view('invoices/_line'); ?></template>
-<script src="<?= base_url('public/assets/js/invoice-totals.js') ?>?v=1"></script>
-<script src="<?= base_url('public/assets/js/invoice.js') ?>?v=5"></script>
+<script src="<?= base_url('public/assets/js/invoice-totals.js') ?>?v=2"></script>
+<script src="<?= base_url('public/assets/js/invoice.js') ?>?v=6"></script>
