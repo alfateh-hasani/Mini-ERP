@@ -17,7 +17,7 @@
     if (select.dataset.searchableReady === 'true') return;
     select.dataset.searchableReady = 'true';
     let options = Array.from(select.options).map((option) => ({ value: option.value, label: option.textContent.trim(), disabled: option.disabled }));
-    const initial = select.selectedIndex >= 0 ? select.options[select.selectedIndex].textContent.trim() : '';
+    const initial = select.required && !select.value ? '' : (select.selectedIndex >= 0 ? select.options[select.selectedIndex].textContent.trim() : '');
     const id = select.id || `searchable-select-${++sequence}`;
     const inputId = `${id}-input`;
     const listId = `${id}-list`;
@@ -42,7 +42,7 @@
     input.type = 'search';
     input.autocomplete = 'off';
     input.value = initial;
-    input.placeholder = searchPlaceholder;
+    input.placeholder = select.dataset.placeholder || searchPlaceholder;
     input.disabled = select.disabled;
     input.setAttribute('role', 'combobox');
     input.setAttribute('aria-autocomplete', 'list');
@@ -70,8 +70,10 @@
     const choose = (item) => {
       const changed = select.value !== item.value;
       select.value = item.value;
-      previousLabel = item.label;
-      input.value = item.label;
+      previousLabel = select.required && !item.value ? '' : item.label;
+      input.value = previousLabel;
+      select.setCustomValidity('');
+      input.setCustomValidity('');
       if (changed) select.dispatchEvent(new Event('change', { bubbles: true }));
       close();
     };
@@ -147,8 +149,16 @@
     input.addEventListener('blur', () => window.setTimeout(() => { if (!wrapper.contains(document.activeElement)) { commitTypedValue(); close(); } }, 120));
     select.addEventListener('change', () => {
       const selected = select.options[select.selectedIndex];
-      if (selected) { previousLabel = selected.textContent.trim(); input.value = previousLabel; }
+      select.setCustomValidity(''); input.setCustomValidity('');
+      if (selected) { previousLabel = select.required && !selected.value ? '' : selected.textContent.trim(); input.value = previousLabel; }
     });
+    select.addEventListener('invalid', event => {
+      event.preventDefault();
+      input.setCustomValidity(select.validationMessage);
+      input.focus();
+      input.reportValidity();
+    });
+    input.addEventListener('input', () => { input.setCustomValidity(''); select.setCustomValidity(''); });
     select.addEventListener('erp:options-updated', () => {
       options = Array.from(select.options).map(option => ({ value: option.value, label: option.textContent.trim(), disabled: option.disabled }));
       previousLabel = select.selectedOptions[0]?.textContent.trim() || '';

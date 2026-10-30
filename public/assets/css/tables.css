@@ -73,6 +73,32 @@
 .profile-card { max-width: 42rem; }
 .product-filters { min-width: 12rem; }
 .inventory-filters { padding: 1rem; border-bottom: 1px solid var(--tblr-border-color, #d9dee5); background: var(--tblr-bg-surface-secondary, #f8fafc); }
+.invoice-customer-picker .searchable-select { flex: 1; min-width: 0; }
+.invoice-editor-table .invoice-product-cell { width: 32%; min-width: 14rem; }
+.invoice-editor-table .quantity, .invoice-editor-table .discount { min-width: 5rem; width: 5.5rem; }
+.invoice-editor-table td { vertical-align: top; padding-block: 1rem; }
+.invoice-money { display: block; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.invoice-editor-table output { padding-top: .6rem; }
+.invoice-editor-table .discount-amount { margin-top: .25rem; font-size: .75rem; }
+.invoice-footer { display: flex; justify-content: space-between; align-items: start; gap: 1.5rem; margin-top: 1.5rem; }
+.invoice-summary { padding: 1.25rem; border: 1px solid var(--tblr-border-color, #d9dee5); border-radius: .5rem; background: #f8fafc; width: 25rem; max-width: 100%; }
+.invoice-summary > div { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: .75rem; }
+.invoice-summary output { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.invoice-grand-total { border-top: 1px solid var(--tblr-border-color, #d9dee5); padding-top: 1rem; font-size: 1.1rem; color: var(--tblr-primary, #066fd1); font-weight: 700; }
+@media (max-width: 1199.98px) {
+  .invoice-editor-table, .invoice-editor-table tbody { display: block; }
+  .invoice-editor-table thead { display: none; }
+  .invoice-editor-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem 1rem; border: 1px solid var(--tblr-border-color, #d9dee5); border-radius: .5rem; padding: 1rem; margin-bottom: 1rem; }
+  .invoice-editor-table td { display: block; border: 0; padding: 0; min-width: 0; }
+  .invoice-editor-table td[data-label]::before { content: attr(data-label); display: block; margin-bottom: .35rem; font-size: .8rem; color: var(--tblr-muted, #667382); }
+  .invoice-editor-table .invoice-product-cell, .invoice-remove-cell { grid-column: 1 / -1; width: auto; min-width: 0; }
+  .invoice-editor-table .quantity, .invoice-editor-table .discount { width: 100%; }
+  .invoice-remove-cell { text-align: end; }
+}
+@media (max-width: 575.98px) {
+  .invoice-footer { flex-direction: column; }
+  .invoice-summary { width: 100%; }
+}
 .inventory-filter-heading { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
 .inventory-filter-fields { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(15rem, 2fr) repeat(2, minmax(7rem, 1fr)) auto; gap: .75rem; align-items: end; }
 .inventory-filter-fields > div { min-width: 0; }

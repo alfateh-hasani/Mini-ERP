@@ -26,6 +26,8 @@ Inventory supports warehouse and product filters plus inclusive minimum/maximum 
 
 Admins can browse stock in inactive warehouses. Inactive warehouses are marked in the inventory filter and are read-only; quantity adjustments require an active warehouse.
 
+Invoice creation requires an explicit customer selection. Each item shows its catalogue unit price and totals before/after its discount; the summary updates as products, quantities, discounts, and lines change. Preview calculations use integer halalas and the server's half-up rounding. Saved prices and totals are still calculated by the server.
+
 - SAR is fixed; there is no currencies table, selector, conversion, or exchange-rate feature.
 - CI3 CSRF is enabled. Static JavaScript reads the token from layout metadata, sends it in `FormData`, and refreshes it from each JSON response.
 - Role and effective warehouse scope are enforced centrally in `MY_Controller`; warehouse users cannot widen scope with a submitted warehouse ID.

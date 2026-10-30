@@ -4,11 +4,11 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 const path = require('node:path');
 
-function setup(request) {
+function setup(request, customer = '1') {
   const handlers = {};
   const submit = { disabled: false, textContent: 'Save' };
   const notice = { focus() {}, textContent: '' };
-  const row = { querySelector: selector => ({ value: selector === '.product-id' ? '5' : '1' }) };
+  const row = { dataset: { unitPrice: '10.00' }, querySelector: selector => ({ value: selector === '.product-id' ? '5' : '1' }) };
   const lines = { addEventListener() {}, querySelectorAll: () => [row] };
   const form = {
     action: 'http://localhost/invoices/store', dataset: {},
@@ -18,12 +18,13 @@ function setup(request) {
   const nodes = {
     '#invoice-form': form, '#invoice-lines': lines, '#invoice-message': notice,
     '#warehouse_id': { value: '3', addEventListener() {} },
-    '#customer_id': { value: '1' }, '#add-line': { addEventListener() {} }
+    '#customer_id': { value: customer, addEventListener() {} }, '#add-line': { addEventListener() {} }
   };
+  ['#invoice-subtotal', '#invoice-discount', '#invoice-total'].forEach(id => { nodes[id] = {}; });
   const context = {
     FormData, WeakMap, setTimeout, clearTimeout,
     document: { documentElement: { lang: 'en' }, querySelector: selector => nodes[selector] },
-    window: { erpFetch: request, location: { assign: url => { context.redirect = url; } } }
+    window: { InvoiceTotals: require('../../../public/assets/js/invoice-totals.js'), erpFetch: request, location: { assign: url => { context.redirect = url; } } }
   };
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../../../public/assets/js/invoice.js'), 'utf8'), context);
   return { handlers, notice, submit, context };
@@ -47,4 +48,12 @@ test('business validation errors are visible', async () => {
   const state = setup(async () => ({ success: false, error: { message: 'Warehouse inactive' } }));
   await state.handlers.submit({ preventDefault() {} });
   assert.equal(state.notice.textContent, 'Warehouse inactive');
+});
+
+test('an invoice cannot be submitted without explicitly choosing a customer', async () => {
+  let called = false;
+  const state = setup(async () => { called = true; }, '');
+  await state.handlers.submit({ preventDefault() {} });
+  assert.equal(called, false);
+  assert.equal(state.notice.textContent, 'Select a customer before saving the invoice.');
 });
