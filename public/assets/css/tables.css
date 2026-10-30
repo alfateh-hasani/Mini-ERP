@@ -71,6 +71,12 @@
 .profile-menu-link:hover, .profile-menu-link:focus-visible { background: rgba(var(--tblr-primary-rgb), .08); color: var(--tblr-primary); outline: 0; }
 .profile-menu-logout { margin: 0; }
 .profile-card { max-width: 42rem; }
+.product-filters { border-bottom: 1px solid var(--tblr-border-color); max-width: 22rem; }
+
+@media (min-width: 992px) {
+  #app-sidebar { align-self: flex-start; height: 100dvh; position: sticky; top: 0; }
+  .page-wrapper { min-width: 0; }
+}
 .mobile-sidebar-backdrop { background: rgba(0, 0, 0, .45); inset: 0; position: fixed; z-index: 1039; }
 
 @media (max-width: 991.98px) {

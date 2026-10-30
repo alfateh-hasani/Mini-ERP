@@ -55,7 +55,7 @@
     var rows = Array.prototype.slice.call(body.rows);
     var source = table.getAttribute('data-source');
     var fields = (table.getAttribute('data-fields') || '').split(',').filter(Boolean);
-    var state = { page: 1, pageSize: 10, query: '' };
+    var state = { page: 1, pageSize: 10, query: '', filters: {} };
     var toolbar = element('div', 'table-controls');
     var searchLabel = element('label', 'table-search-label', labels.search);
     var search = element('input', 'form-control table-search');
@@ -80,12 +80,20 @@
     footer.appendChild(buttons);
     table.parentNode.insertBefore(toolbar, table);
     table.parentNode.insertBefore(footer, table.nextSibling);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-table-filter]'), function (control) {
+      if (control.getAttribute('data-table-filter') !== table.id) return;
+      var key = control.getAttribute('data-filter-key');
+      if (!key) return;
+      state.filters[key] = control.value;
+      control.addEventListener('change', function () { state.filters[key] = control.value; state.page = 1; render(); });
+    });
 
     function loadServerPage() {
       var url = new URL(source, window.location.origin);
       url.searchParams.set('page', state.page);
       url.searchParams.set('per_page', state.pageSize);
       url.searchParams.set('q', state.query);
+      Object.keys(state.filters).forEach(function (key) { url.searchParams.set(key, state.filters[key]); });
       fetch(url.toString(), { credentials: 'same-origin' }).then(function (response) { return response.json(); }).then(function (response) {
         var payload = response.data || {};
         body.textContent = '';

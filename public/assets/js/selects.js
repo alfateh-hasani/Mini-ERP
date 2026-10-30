@@ -154,6 +154,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('form select.form-select:not([data-no-search])').forEach(enhance);
+    document.querySelectorAll('select.form-select:not([data-no-search])').forEach(enhance);
   });
 })();
