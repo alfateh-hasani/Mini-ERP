@@ -118,6 +118,11 @@ try {
     $config = [];
     require $projectRoot . 'application/config/units.php';
     authAssert(strpos($arabicForm['body'], $config['units']['piece']['ar']) !== false, 'Product form did not use the configured Arabic unit label.');
+    $form = authRequest($client, $base, '/users/create');
+    preg_match('/name="(csrf_[^"]+)" value="([^"]+)"/', $form['body'], $csrf);
+    $response = authRequest($client, $base, '/users/store', ['name' => 'Warehouse validation', 'email' => 'warehouse-validation@example.test', 'password' => 'valid-test-password', 'role' => 'user_warehouse', 'warehouse_id' => '', $csrf[1] => $csrf[2]]);
+    authAssert(strpos($response['body'], 'حقل المستودع مطلوب.') !== false, 'Arabic warehouse required message is missing.');
+    authAssert(strpos($response['body'], '&lt;p&gt;') === false, 'Arabic validation shows literal paragraph tags.');
     authRequest($client, $base, '/language/en');
     $db->insert('users', ['id' => 2, 'name' => 'Original name', 'email' => 'second@example.test', 'password_hash' => 'not-used-for-login', 'role' => 'user_warehouse', 'warehouse_id' => 1]);
     foreach (['/users/store', '/users/update/2'] as $action) {
@@ -154,6 +159,25 @@ try {
     authAssert((bool) preg_match('/class="alert alert-danger" role="alert"/', $response['body']), 'Error flash is not rendered as a danger alert.');
     authAssert(strpos($response['body'], 'alert-error') === false, 'Unsupported error alert class remains.');
     echo "PASS: user create/edit errors preserve non-password fields, duplicate email has inline invalid styling, and error flashes use danger styling.\n";
+    $stockInput = ['warehouse_id' => '1', 'product_id' => '1', 'mode' => 'add', 'quantity' => '5', 'reason' => ''];
+    $form = authRequest($client, $base, '/inventory');
+    preg_match('/name="(csrf_[^"]+)" value="([^"]+)"/', $form['body'], $csrf);
+    $response = authRequest($client, $base, '/inventory/adjust', $stockInput + [$csrf[1] => $csrf[2]]);
+    authAssert(strpos($response['body'], 'A reason is required when adding or removing stock.') !== false, 'Missing stock reason returns an unexplained generic error.');
+    authAssert(strpos($response['body'], 'id="stock-reason-error"') !== false, 'Stock reason lacks inline feedback.');
+    authAssert((bool) preg_match('/name="quantity" value="5"/', $response['body']), 'Stock validation lost quantity.');
+    authAssert((bool) preg_match('/value="add" selected/', $response['body']), 'Stock validation lost adjustment mode.');
+    authAssert($db->count_all('inventory') === 0, 'Invalid stock adjustment created a stock row.');
+    preg_match('/name="(csrf_[^"]+)" value="([^"]+)"/', $response['body'], $csrf);
+    $stockInput['reason'] = 'Delivery receipt';
+    $response = authRequest($client, $base, '/inventory/adjust', $stockInput + [$csrf[1] => $csrf[2]]);
+    authAssert((int) $db->where(['warehouse_id' => 1, 'product_id' => 1])->get('inventory')->row_array()['quantity'] === 5, 'Valid add stock failed.');
+    preg_match('/name="(csrf_[^"]+)" value="([^"]+)"/', $response['body'], $csrf);
+    $stockInput['mode'] = 'remove'; $stockInput['quantity'] = '6';
+    $response = authRequest($client, $base, '/inventory/adjust', $stockInput + [$csrf[1] => $csrf[2]]);
+    authAssert(strpos($response['body'], 'The quantity to remove exceeds the available stock.') !== false, 'Insufficient stock has no specific error.');
+    authAssert((int) $db->where(['warehouse_id' => 1, 'product_id' => 1])->get('inventory')->row_array()['quantity'] === 5, 'Rejected removal changed stock.');
+    echo "PASS: Arabic warehouse errors have no HTML wrappers; stock reason/quantity errors are specific, preserve input, and valid additions succeed.\n";
     foreach ([['not' => 'a string'], json_encode(['warehouse_id' => [], 'customer_id' => 1, 'items' => []]), json_encode(['warehouse_id' => 1, 'customer_id' => 1, 'items' => [['product_id' => 1, 'quantity' => '1.9']]])] as $payload) {
         $csrf = json_decode(authRequest($client, $base, '/auth/csrf')['body'], true);
         $response = json_decode(authRequest($client, $base, '/invoices/store', ['csrf_mini_erp' => $csrf['csrf_hash'], 'payload' => $payload])['body'], true);

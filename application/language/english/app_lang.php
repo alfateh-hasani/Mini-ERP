@@ -71,6 +71,16 @@ $lang['invoice_cancel_failed'] = 'Unable to cancel this invoice. It may already 
 $lang['inventory_adjustment_help'] = 'Set final quantity replaces the current balance. Add or remove changes the current balance and requires a reason.';
 
 $lang['stock_shortfall'] = 'Shortfall to alert level';
+$lang['inventory_warehouse_required'] = 'Select an active warehouse.';
+$lang['inventory_product_required'] = 'Select an active product.';
+$lang['inventory_quantity_invalid'] = 'Enter a whole quantity from 0 to 2,147,483,647.';
+$lang['inventory_mode_invalid'] = 'Select a valid adjustment type.';
+$lang['inventory_reason_required'] = 'A reason is required when adding or removing stock.';
+$lang['inventory_reason_invalid'] = 'Enter a reason of no more than 255 characters.';
+$lang['inventory_positive_quantity'] = 'Enter a quantity greater than zero when adding or removing stock.';
+$lang['inventory_not_stocked'] = 'This product has no stock record in the selected warehouse.';
+$lang['inventory_insufficient_stock'] = 'The quantity to remove exceeds the available stock.';
+$lang['inventory_stock_limit'] = 'The resulting stock cannot exceed 2,147,483,647.';
 $lang['logout_confirmation'] = 'Do you want to sign out of your account?';
 $lang['remember_me'] = 'Remember me';
 $lang['remember_help'] = 'Stay signed in on this device for up to 30 days. Use only on a private device.';

@@ -71,6 +71,16 @@ $lang['invoice_cancel_failed'] = 'تعذر إلغاء الفاتورة. قد ت�
 $lang['inventory_adjustment_help'] = 'تعيين الكمية النهائية يستبدل الرصيد الحالي. الإضافة أو السحب يغير الرصيد الحالي ويتطلب كتابة السبب.';
 
 $lang['stock_shortfall'] = 'النقص عن حد التنبيه';
+$lang['inventory_warehouse_required'] = 'اختر مستودعًا نشطًا.';
+$lang['inventory_product_required'] = 'اختر منتجًا نشطًا.';
+$lang['inventory_quantity_invalid'] = 'أدخل كمية صحيحة من 0 إلى 2,147,483,647.';
+$lang['inventory_mode_invalid'] = 'اختر نوع تعديل صالحًا.';
+$lang['inventory_reason_required'] = 'سبب التعديل مطلوب عند إضافة المخزون أو سحبه.';
+$lang['inventory_reason_invalid'] = 'أدخل سببًا لا يتجاوز 255 حرفًا.';
+$lang['inventory_positive_quantity'] = 'أدخل كمية أكبر من صفر عند إضافة المخزون أو سحبه.';
+$lang['inventory_not_stocked'] = 'لا يوجد سجل مخزون لهذا المنتج في المستودع المحدد.';
+$lang['inventory_insufficient_stock'] = 'الكمية المطلوب سحبها تتجاوز المخزون المتاح.';
+$lang['inventory_stock_limit'] = 'لا يمكن أن يتجاوز المخزون بعد التعديل 2,147,483,647.';
 $lang['logout_confirmation'] = 'هل تريد تسجيل الخروج من حسابك؟';
 $lang['remember_me'] = 'تذكرني';
 $lang['remember_help'] = 'البقاء مسجلاً على هذا الجهاز لمدة تصل إلى 30 يومًا. استخدم الخيار على جهازك الشخصي فقط.';

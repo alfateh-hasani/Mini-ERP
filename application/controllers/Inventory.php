@@ -16,6 +16,7 @@ class Inventory extends MY_Controller
         $this->render('inventory/index', [
             'items' => $page['rows'],
             'scope' => $scope,
+            'adjustment' => $this->session->flashdata('inventory_adjustment') ?: ['values' => [], 'errors' => []],
             'filter_products' => $repository->productOptions($scope),
             'filter_warehouses' => $this->currentUser['role'] === ROLE_ADMIN
                 ? $this->db->order_by('name')->get('warehouses')->result_array()
@@ -63,16 +64,28 @@ class Inventory extends MY_Controller
     {
         $this->requireAdmin();
         $this->requirePost();
+        $input = $this->input->post(null, true) ?: [];
+        $errors = [];
         try {
-            $this->inventoryService()->adjust($this->input->post(null, true) ?: [], (int) $this->currentUser['id']);
+            $this->inventoryService()->adjust($input, (int) $this->currentUser['id']);
             $flash = ['type' => 'success', 'message' => lang('inventory_updated')];
+        } catch (\App\Exceptions\InventoryAdjustmentException $exception) {
+            foreach ($exception->fieldErrors() as $field => $key) { $errors[$field] = lang($key); }
+            $flash = ['type' => 'error', 'message' => reset($errors)];
         } catch (\App\Exceptions\ValidationException $exception) {
             $flash = ['type' => 'error', 'message' => lang('invalid_inventory_adjustment')];
         } catch (\Throwable $exception) {
             log_message('error', 'Inventory adjustment failed: ' . $exception->getMessage());
             $flash = ['type' => 'error', 'message' => lang('inventory_update_failed')];
         }
+        if ($flash['type'] === 'error') {
+            $values = [];
+            foreach (['warehouse_id', 'product_id', 'mode', 'quantity', 'reason'] as $field) {
+                if (isset($input[$field]) && is_scalar($input[$field])) { $values[$field] = mb_substr((string) $input[$field], 0, 1024); }
+            }
+            $this->session->set_flashdata('inventory_adjustment', ['values' => $values, 'errors' => $errors, 'message' => $flash['message']]);
+        }
         $this->session->set_flashdata('flash', $flash);
-        redirect('inventory');
+        redirect($flash['type'] === 'error' ? 'inventory#inventory-adjustment' : 'inventory');
     }
 }

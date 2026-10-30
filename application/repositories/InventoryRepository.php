@@ -6,13 +6,13 @@ class InventoryRepository extends BaseRepository
     public function lockActiveWarehouse(int $id): void
     {
         $row = $this->db->query('SELECT id FROM warehouses WHERE id = ? AND status = ? FOR UPDATE', [$id, 'active'])->row_array();
-        if (!$row) { throw new \App\Exceptions\ValidationException('Warehouse is inactive or missing.'); }
+        if (!$row) { throw new \App\Exceptions\InventoryAdjustmentException(['warehouse_id' => 'inventory_warehouse_required']); }
     }
 
     public function lockActiveProduct(int $id): void
     {
         $row = $this->db->query('SELECT id FROM products WHERE id = ? AND status = ? AND deleted_at IS NULL FOR UPDATE', [$id, 'active'])->row_array();
-        if (!$row) { throw new \App\Exceptions\ValidationException('Product is inactive or missing.'); }
+        if (!$row) { throw new \App\Exceptions\InventoryAdjustmentException(['product_id' => 'inventory_product_required']); }
     }
 
     public function lockStock(int $warehouseId, int $productId): ?array
