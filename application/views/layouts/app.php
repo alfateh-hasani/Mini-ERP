@@ -42,7 +42,7 @@ $adminLinks = [
   <meta name="csrf-hash" content="<?= e($this->security->get_csrf_hash()) ?>">
   <title>SmartLife ERP</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/css/tabler<?= $dir === 'rtl' ? '.rtl' : '' ?>.min.css">
-  <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=5">
+  <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=6">
 </head>
 <body data-select-search-placeholder="<?= e(lang('search')) ?>" data-select-no-results="<?= e(lang('no_results')) ?>">
 <div class="page">
@@ -75,7 +75,7 @@ $adminLinks = [
         </div>
         <div class="navbar-nav ms-auto app-header-actions">
           <a class="btn btn-icon btn-ghost-secondary" href="<?= site_url('language/' . ($lang === 'ar' ? 'en' : 'ar')) ?>" aria-label="<?= e(lang('language')) ?>" title="<?= e(lang('language')) ?>"><svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg><span class="visually-hidden"><?= $lang === 'ar' ? 'English' : 'العربية' ?></span></a>
-          <?= form_open('logout', ['class' => 'nav-item']) ?><button class="btn btn-icon btn-ghost-secondary" type="submit" aria-label="<?= e(lang('logout')) ?>" title="<?= e(lang('logout')) ?>"><svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"></path></svg><span class="visually-hidden"><?= e(lang('logout')) ?></span></button><?= form_close() ?>
+          <details class="profile-menu"><summary class="btn btn-icon btn-ghost-secondary" aria-label="<?= e(lang('profile')) ?>" title="<?= e(lang('profile')) ?>"><svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><span class="visually-hidden"><?= e(lang('profile')) ?></span></summary><div class="profile-menu-panel"><a class="profile-menu-link" href="<?= site_url('profile') ?>"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><?= e(lang('profile')) ?></a><?= form_open('logout', ['class' => 'profile-menu-logout']) ?><button class="profile-menu-link" type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"></path></svg><?= e(lang('logout')) ?></button><?= form_close() ?></div></details>
         </div>
       </div>
     </header>
@@ -86,7 +86,7 @@ $adminLinks = [
     </div></div>
   </div>
 </div>
-<script src="<?= base_url('public/assets/js/app.js') ?>?v=3"></script>
+<script src="<?= base_url('public/assets/js/app.js') ?>?v=4"></script>
 <script src="<?= base_url('public/assets/js/selects.js') ?>?v=2"></script>
 <script src="<?= base_url('public/assets/js/tables.js') ?>?v=6"></script>
 </body>
