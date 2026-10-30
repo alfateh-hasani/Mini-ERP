@@ -10,7 +10,7 @@ function setup(request, customer = '1', quantityValue = '1', availableQty = '37'
   const notice = { focus() {}, textContent: '' };
   const quantity = { value: quantityValue, classList: { toggle() {} }, setAttribute() {}, focus() {}, setCustomValidity(message) { this.validationMessage = message; } };
   const fields = { '.quantity': quantity, '.product-id': { value: '5' }, '.discount': { value: discount, classList: { toggle() {} }, setAttribute() {}, setCustomValidity() {}, focus() {} } };
-  ['.quantity-stock', '.stock-available', '.stock-feedback', '.unit-price', '.line-subtotal', '.line-total', '.discount-amount', '.unit-after-discount', '.unit-net-price', '.unit-discount-detail', '.unit-discount', '.line-discount-detail', '.discount-error', '.discount-breakdown'].forEach(selector => { fields[selector] = {}; });
+  ['.quantity-stock', '.stock-available', '.stock-feedback', '.unit-price', '.line-subtotal', '.line-total', '.discount-amount', '.discount-error'].forEach(selector => { fields[selector] = {}; });
   const row = { dataset: { unitPrice: '10.00', availableQty }, querySelector: selector => fields[selector] };
   const lines = { addEventListener() {}, querySelectorAll: () => [row] };
   const form = {
@@ -87,20 +87,17 @@ test('zero stock blocks submission with an explicit message', async () => {
   assert.equal(state.notice.textContent, 'Out of stock.');
 });
 
-test('unit savings are distinguished from the full line discount', () => {
+test('the discount column shows savings for the whole line', () => {
   const state = setup(async () => {}, '1', '5', '37', '15');
-  assert.equal(state.fields['.unit-discount'].textContent, 'SAR 1.50');
-  assert.equal(state.fields['.unit-net-price'].textContent, 'SAR 8.50');
   assert.equal(state.fields['.discount-amount'].textContent, 'SAR 7.50');
   assert.equal(state.fields['.line-total'].textContent, 'SAR 42.50');
-  assert.equal(state.fields['.unit-after-discount'].hidden, false);
+  assert.equal(state.fields['.discount-amount'].hidden, false);
 });
 
-test('zero discount hides redundant discount details', () => {
+test('zero discount displays a zero line discount', () => {
   const state = setup(async () => {}, '1', '1', '37', '0');
-  assert.equal(state.fields['.unit-after-discount'].hidden, true);
-  assert.equal(state.fields['.unit-discount-detail'].hidden, true);
-  assert.equal(state.fields['.line-discount-detail'].hidden, true);
+  assert.equal(state.fields['.discount-amount'].textContent, 'SAR 0.00');
+  assert.equal(state.fields['.discount-amount'].hidden, false);
 });
 
 test('empty discount hides before and after amounts and prevents saving', async () => {

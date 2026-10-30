@@ -74,18 +74,11 @@
       const selected = !!row.querySelector('.product-id').value;
       const amount = selected && stockValid && discountValid ? calculator.line(row.dataset.unitPrice, row.querySelector('.quantity').value, discountValue) : null;
       const unit = selected ? calculator.line(row.dataset.unitPrice, '1', '0') : null;
-      const discountedUnit = selected && discountValid ? calculator.line(row.dataset.unitPrice, '1', discountValue) : null;
-      const hasDiscount = !!discountedUnit && Number(row.querySelector('.discount').value) > 0;
       row.querySelector('.unit-price').textContent = unit ? money(unit.unit) : '—';
-      row.querySelector('.unit-after-discount').hidden = !hasDiscount;
-      row.querySelector('.unit-net-price').textContent = hasDiscount ? money(discountedUnit.total) : '';
-      row.querySelector('.unit-discount-detail').hidden = !hasDiscount;
-      row.querySelector('.unit-discount').textContent = hasDiscount ? money(discountedUnit.discount) : '';
       row.querySelector('.line-subtotal').textContent = amount ? money(amount.subtotal) : '—';
       row.querySelector('.line-total').textContent = amount ? money(amount.total) : '—';
-      row.querySelector('.discount-amount').textContent = amount ? money(amount.discount) : '';
-      row.querySelector('.line-discount-detail').hidden = !amount || amount.discount === 0n;
-      row.querySelector('.discount-breakdown').hidden = !hasDiscount;
+      row.querySelector('.discount-amount').textContent = amount ? money(amount.discount) : '?';
+      row.querySelector('.discount-amount').hidden = !discountValid;
       row.querySelector('.line-subtotal').hidden = !discountValid;
       row.querySelector('.line-total').hidden = !discountValid;
       if (amount) { subtotal += amount.subtotal; discount += amount.discount; }

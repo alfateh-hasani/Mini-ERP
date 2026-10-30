@@ -18,7 +18,7 @@
       </div>
     </div>
     <table class="table table-vcenter invoice-editor-table">
-      <thead><tr><th scope="col"><?= e(lang('product')) ?></th><th scope="col"><?= e(lang('unit_price')) ?></th><th scope="col"><?= e(lang('quantity')) ?></th><th scope="col"><?= e(lang('discount')) ?> %</th><th scope="col"><?= e(lang('before_discount')) ?></th><th scope="col"><?= e(lang('after_discount')) ?></th><th scope="col"><span class="visually-hidden"><?= e(lang('remove')) ?></span></th></tr></thead>
+      <thead><tr><th scope="col"><?= e(lang('product')) ?></th><th scope="col"><?= e(lang('unit_price')) ?></th><th scope="col"><?= e(lang('quantity')) ?></th><th scope="col"><?= e(lang('discount')) ?> %</th><th scope="col"><?= e(lang('line_discount')) ?></th><th scope="col"><?= e(lang('before_discount')) ?></th><th scope="col"><?= e(lang('after_discount')) ?></th><th scope="col"><span class="visually-hidden"><?= e(lang('remove')) ?></span></th></tr></thead>
       <tbody id="invoice-lines"><?php $this->load->view('invoices/_line'); ?></tbody>
     </table>
     <div class="invoice-footer">
@@ -36,4 +36,4 @@
 </div></div>
 <template id="invoice-line-template"><?php $this->load->view('invoices/_line'); ?></template>
 <script src="<?= base_url('public/assets/js/invoice-totals.js') ?>?v=3"></script>
-<script src="<?= base_url('public/assets/js/invoice.js') ?>?v=10"></script>
+<script src="<?= base_url('public/assets/js/invoice.js') ?>?v=11"></script>
