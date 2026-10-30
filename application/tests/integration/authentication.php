@@ -119,6 +119,41 @@ try {
     require $projectRoot . 'application/config/units.php';
     authAssert(strpos($arabicForm['body'], $config['units']['piece']['ar']) !== false, 'Product form did not use the configured Arabic unit label.');
     authRequest($client, $base, '/language/en');
+    $db->insert('users', ['id' => 2, 'name' => 'Original name', 'email' => 'second@example.test', 'password_hash' => 'not-used-for-login', 'role' => 'user_warehouse', 'warehouse_id' => 1]);
+    foreach (['/users/store', '/users/update/2'] as $action) {
+        $form = authRequest($client, $base, $action === '/users/store' ? '/users/create' : '/users/edit/2');
+        authAssert((bool) preg_match('/name="(csrf_[^"]+)" value="([^"]+)"/', $form['body'], $csrf), 'Missing user CSRF field.');
+        $input = ['name' => 'Keep "this" & name', 'email' => 'auth@example.test', 'password' => 'new-user-password', 'role' => 'user_warehouse', 'warehouse_id' => '1', 'preferred_lang' => 'en', 'status' => 'inactive', $csrf[1] => $csrf[2]];
+        $response = authRequest($client, $base, $action, $input);
+        $document = new DOMDocument();
+        $oldErrors = libxml_use_internal_errors(true);
+        $document->loadHTML($response['body'], LIBXML_NONET);
+        libxml_clear_errors(); libxml_use_internal_errors($oldErrors);
+        $xpath = new DOMXPath($document);
+        authAssert($xpath->evaluate('string(//input[@name="name"]/@value)') === $input['name'], 'Duplicate user email lost the name.');
+        authAssert($xpath->evaluate('string(//input[@name="email"]/@value)') === $input['email'], 'Duplicate user email lost the submitted email.');
+        authAssert($xpath->query('//input[@name="email" and contains(@class,"is-invalid") and @aria-invalid="true"]')->length === 1, 'Duplicate email is not marked invalid.');
+        authAssert(trim($xpath->evaluate('string(//*[@id="user-email-error" and contains(@class,"invalid-feedback") and @role="alert"])')) !== '', 'Duplicate email has no visible field feedback.');
+        foreach (['role', 'warehouse_id', 'preferred_lang', 'status'] as $field) {
+            authAssert($xpath->evaluate('string(//select[@name="' . $field . '"]/option[@selected]/@value)') === $input[$field], 'User error lost selection: ' . $field);
+        }
+        authAssert($xpath->query('//input[@name="password" and @value]')->length === 0, 'User form echoed a submitted password.');
+        authAssert($db->count_all('users') === 2, 'Duplicate email inserted a user.');
+        authAssert($db->where('id', 2)->get('users')->row_array()['name'] === 'Original name', 'Rejected edit changed the user.');
+    }
+    $form = authRequest($client, $base, '/users/create');
+    preg_match('/name="(csrf_[^"]+)" value="([^"]+)"/', $form['body'], $csrf);
+    $response = authRequest($client, $base, '/users/store', ['name' => 'Keep validation name', 'email' => 'invalid-email', 'password' => 'short', 'role' => 'admin', $csrf[1] => $csrf[2]]);
+    authAssert(strpos($response['body'], 'value="Keep validation name"') !== false, 'Validation lost the user name.');
+    authAssert(strpos($response['body'], 'id="user-email-error"') !== false && strpos($response['body'], 'id="user-password-error"') !== false, 'Validation lacks field feedback.');
+    authAssert(strpos($response['body'], '&lt;p&gt;') === false, 'Validation feedback displays escaped HTML wrappers.');
+    $db->insert('customers', ['name' => 'Existing', 'email' => 'duplicate@example.test']);
+    $form = authRequest($client, $base, '/customers/create');
+    authAssert((bool) preg_match('/name="(csrf_[^"]+)" value="([^"]+)"/', $form['body'], $csrf), 'Missing customer CSRF field.');
+    $response = authRequest($client, $base, '/customers/store', ['name' => 'Duplicate', 'email' => 'duplicate@example.test', $csrf[1] => $csrf[2]]);
+    authAssert((bool) preg_match('/class="alert alert-danger" role="alert"/', $response['body']), 'Error flash is not rendered as a danger alert.');
+    authAssert(strpos($response['body'], 'alert-error') === false, 'Unsupported error alert class remains.');
+    echo "PASS: user create/edit errors preserve non-password fields, duplicate email has inline invalid styling, and error flashes use danger styling.\n";
     foreach ([['not' => 'a string'], json_encode(['warehouse_id' => [], 'customer_id' => 1, 'items' => []]), json_encode(['warehouse_id' => 1, 'customer_id' => 1, 'items' => [['product_id' => 1, 'quantity' => '1.9']]])] as $payload) {
         $csrf = json_decode(authRequest($client, $base, '/auth/csrf')['body'], true);
         $response = json_decode(authRequest($client, $base, '/invoices/store', ['csrf_mini_erp' => $csrf['csrf_hash'], 'payload' => $payload])['body'], true);

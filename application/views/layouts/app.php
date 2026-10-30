@@ -85,7 +85,10 @@ $adminLinks = [
     </header>
     <div class="page-body"><div class="container-xl">
       <nav aria-label="breadcrumb" class="pt-3"><ol class="breadcrumb"><?php foreach ($breadcrumbs as $breadcrumb): ?><li class="breadcrumb-item"><a href="<?= e($breadcrumb['url']) ?>"><?= e($breadcrumb['label']) ?></a></li><?php endforeach; ?></ol></nav>
-      <?php if ($flash): ?><div class="alert alert-<?= e($flash['type'] ?? 'info') ?>"><?= e($flash['message'] ?? '') ?></div><?php endif; ?>
+      <?php if ($flash): ?>
+        <?php $flashType = ($flash['type'] ?? 'info') === 'error' ? 'danger' : ($flash['type'] ?? 'info'); ?>
+        <div class="alert alert-<?= e($flashType) ?>" role="<?= $flashType === 'danger' ? 'alert' : 'status' ?>"><?= e($flash['message'] ?? '') ?></div>
+      <?php endif; ?>
       <?= $content ?>
     </div></div>
   </div>
