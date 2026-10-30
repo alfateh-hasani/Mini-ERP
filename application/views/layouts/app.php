@@ -1,5 +1,6 @@
 <?php
 $section = (string) $this->uri->segment(1);
+if ($section === 'invoices' && in_array($this->uri->segment(2), ['create', 'store'], true)) { $section = 'invoices/create'; }
 $isAdmin = $current_user && $current_user['role'] === ROLE_ADMIN;
 $navIcon = static function (string $icon): string {
     $paths = [
@@ -21,7 +22,7 @@ $mainLinks = [
     ['dashboard', '', lang('dashboard'), 'dashboard'],
     ['inventory', 'inventory', lang('inventory'), 'inventory'],
     ['invoices', 'invoices', lang('invoices'), 'invoices'],
-    ['invoices/create', 'invoices', lang('new_invoice'), 'new_invoice'],
+    ['invoices/create', 'invoices/create', lang('new_invoice'), 'new_invoice'],
     ['reports/low_stock', 'reports', lang('reports'), 'reports'],
 ];
 if ($isAdmin) { array_splice($mainLinks, 2, 0, [['customers', 'customers', lang('customers'), 'customers']]); }
