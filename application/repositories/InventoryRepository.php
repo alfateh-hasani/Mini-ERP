@@ -3,6 +3,35 @@ namespace App\Repositories;
 
 class InventoryRepository extends BaseRepository
 {
+    public function lockActiveWarehouse(int $id): void
+    {
+        $row = $this->db->query('SELECT id FROM warehouses WHERE id = ? AND status = ? FOR UPDATE', [$id, 'active'])->row_array();
+        if (!$row) { throw new \App\Exceptions\ValidationException('Warehouse is inactive or missing.'); }
+    }
+
+    public function lockActiveProduct(int $id): void
+    {
+        $row = $this->db->query('SELECT id FROM products WHERE id = ? AND status = ? AND deleted_at IS NULL FOR UPDATE', [$id, 'active'])->row_array();
+        if (!$row) { throw new \App\Exceptions\ValidationException('Product is inactive or missing.'); }
+    }
+
+    public function lockStock(int $warehouseId, int $productId): ?array
+    {
+        return $this->db->query('SELECT id, quantity FROM inventory WHERE warehouse_id = ? AND product_id = ? FOR UPDATE', [$warehouseId, $productId])->row_array();
+    }
+
+    public function writeAdjustment(int $warehouseId, int $productId, int $before, int $after, string $mode, ?string $reason, int $userId): void
+    {
+        if (!$this->db->where(['warehouse_id' => $warehouseId, 'product_id' => $productId])->update('inventory', ['quantity' => $after])) {
+            throw new \RuntimeException('Stock write failed.');
+        }
+        if (!$this->db->insert('inventory_movements', [
+            'warehouse_id' => $warehouseId, 'product_id' => $productId, 'movement_type' => $mode,
+            'quantity_before' => $before, 'quantity_change' => $after - $before, 'quantity_after' => $after,
+            'reason' => $reason, 'created_by' => $userId,
+        ])) { throw new \RuntimeException('Stock movement write failed.'); }
+    }
+
     public function page(?int $warehouseId, array $filters, int $page, int $perPage, string $search): array
     {
         $this->db->start_cache();

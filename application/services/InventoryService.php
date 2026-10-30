@@ -30,6 +30,30 @@ class InventoryService
         return $filters;
     }
 
+    public function adjust(array $input, int $userId): void
+    {
+        $warehouseId = NumericInput::integer($input['warehouse_id'] ?? null);
+        $productId = NumericInput::integer($input['product_id'] ?? null);
+        $quantity = NumericInput::integer($input['quantity'] ?? null, 0, NumericInput::MAX_QUANTITY);
+        $mode = $input['mode'] ?? null;
+        $reason = $input['reason'] ?? '';
+        if (!is_string($mode) || !in_array($mode, ['set', 'add', 'remove'], true) || !is_string($reason)) {
+            throw new ValidationException('Invalid inventory adjustment.');
+        }
+        $reason = trim($reason);
+        if (mb_strlen($reason) > 255 || ($mode !== 'set' && $reason === '')) { throw new ValidationException('Invalid adjustment reason.'); }
+        $this->inventory->transaction(function () use ($warehouseId, $productId, $quantity, $mode, $reason, $userId): void {
+            $this->inventory->lockActiveWarehouse($warehouseId);
+            $this->inventory->lockActiveProduct($productId);
+            $row = $this->inventory->lockStock($warehouseId, $productId);
+            if (!$row) { throw new ValidationException('Product is not stocked in this warehouse.'); }
+            $before = NumericInput::integer($row['quantity'], 0, NumericInput::MAX_QUANTITY);
+            $after = $mode === 'set' ? $quantity : ($mode === 'add' ? $before + $quantity : $before - $quantity);
+            if ($after < 0 || $after > NumericInput::MAX_QUANTITY) { throw new ValidationException('Invalid resulting stock quantity.'); }
+            $this->inventory->writeAdjustment($warehouseId, $productId, $before, $after, $mode, $reason ?: null, $userId);
+        });
+    }
+
     public function page(array $input, ?int $warehouseId): array
     {
         foreach (['page', 'per_page', 'q'] as $field) {

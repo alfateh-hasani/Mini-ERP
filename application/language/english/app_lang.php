@@ -71,3 +71,5 @@ $lang['invoice_cancel_failed'] = 'Unable to cancel this invoice. It may already 
 $lang['inventory_adjustment_help'] = 'Set final quantity replaces the current balance. Add or remove changes the current balance and requires a reason.';
 
 $lang['stock_shortfall'] = 'Shortfall to alert level';
+
+$lang['inventory_update_failed'] = 'Could not update stock. No changes were saved. Please try again.';
