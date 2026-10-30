@@ -42,7 +42,7 @@ $adminLinks = [
   <meta name="csrf-hash" content="<?= e($this->security->get_csrf_hash()) ?>">
   <title>SmartLife ERP</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/css/tabler<?= $dir === 'rtl' ? '.rtl' : '' ?>.min.css">
-  <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=4">
+  <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=5">
 </head>
 <body data-select-search-placeholder="<?= e(lang('search')) ?>" data-select-no-results="<?= e(lang('no_results')) ?>">
 <div class="page">
