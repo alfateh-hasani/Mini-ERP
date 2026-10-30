@@ -9,8 +9,8 @@ function setup(request, customer = '1', quantityValue = '1', availableQty = '37'
   const submit = { disabled: false, textContent: 'Save' };
   const notice = { focus() {}, textContent: '' };
   const quantity = { value: quantityValue, classList: { toggle() {} }, setAttribute() {}, focus() {}, setCustomValidity(message) { this.validationMessage = message; } };
-  const fields = { '.quantity': quantity, '.product-id': { value: '5' }, '.discount': { value: discount } };
-  ['.quantity-stock', '.stock-available', '.stock-feedback', '.unit-price', '.line-subtotal', '.line-total', '.discount-amount', '.unit-after-discount', '.unit-net-price', '.unit-discount-detail', '.unit-discount', '.line-discount-detail'].forEach(selector => { fields[selector] = {}; });
+  const fields = { '.quantity': quantity, '.product-id': { value: '5' }, '.discount': { value: discount, classList: { toggle() {} }, setAttribute() {}, setCustomValidity() {}, focus() {} } };
+  ['.quantity-stock', '.stock-available', '.stock-feedback', '.unit-price', '.line-subtotal', '.line-total', '.discount-amount', '.unit-after-discount', '.unit-net-price', '.unit-discount-detail', '.unit-discount', '.line-discount-detail', '.discount-error', '.discount-breakdown'].forEach(selector => { fields[selector] = {}; });
   const row = { dataset: { unitPrice: '10.00', availableQty }, querySelector: selector => fields[selector] };
   const lines = { addEventListener() {}, querySelectorAll: () => [row] };
   const form = {
@@ -101,4 +101,28 @@ test('zero discount hides redundant discount details', () => {
   assert.equal(state.fields['.unit-after-discount'].hidden, true);
   assert.equal(state.fields['.unit-discount-detail'].hidden, true);
   assert.equal(state.fields['.line-discount-detail'].hidden, true);
+});
+
+test('empty discount hides before and after amounts and prevents saving', async () => {
+  let sent = false;
+  const state = setup(async () => { sent = true; }, '1', '1', '37', '');
+  assert.equal(state.fields['.line-subtotal'].hidden, true);
+  assert.equal(state.fields['.line-total'].hidden, true);
+  await state.handlers.submit({ preventDefault() {} });
+  assert.equal(sent, false);
+});
+
+test('zero and 100 percent show amounts while out-of-range values block saving', async () => {
+  for (const discount of ['0', '100']) {
+    const state = setup(async () => {}, '1', '1', '37', discount);
+    assert.equal(state.fields['.line-subtotal'].hidden, false);
+    assert.equal(state.fields['.line-total'].hidden, false);
+  }
+  for (const discount of ['-1', '100.01']) {
+    let sent = false;
+    const state = setup(async () => { sent = true; }, '1', '1', '37', discount);
+    assert.equal(state.fields['.discount-error'].hidden, false);
+    await state.handlers.submit({ preventDefault() {} });
+    assert.equal(sent, false);
+  }
 });

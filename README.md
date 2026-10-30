@@ -26,7 +26,7 @@ Inventory supports warehouse and product filters plus inclusive minimum/maximum 
 
 Admins can browse stock in inactive warehouses. Inactive warehouses are marked in the inventory filter and are read-only; quantity adjustments require an active warehouse.
 
-Invoice creation requires an explicit customer selection. Each item shows its catalogue unit price and totals before/after its discount; the summary updates as products, quantities, discounts, and lines change. Preview calculations use integer halalas and the server's half-up rounding. Unit discounts and discounted unit prices are labelled separately from full-line discounts. Saved prices and totals are still calculated by the server.
+Invoice creation requires an explicit customer selection. Each item shows its catalogue unit price and totals before/after its discount; the summary updates as products, quantities, discounts, and lines change. Preview calculations use integer halalas and the server's half-up rounding. A grouped discount breakdown distinguishes unit savings, net unit price, and full-line savings. Discounts accept 0 through 100 percent; clearing the field hides that line's before/after amounts until a valid value is entered (use 0 for no discount). Saved prices and totals are still calculated by the server.
 
 Invoice product rows show compact available/remaining stock badges. Quantity fields enforce the available quantity as the maximum and flag over-stock entries inline. Product or warehouse changes clear the previous stock limit; the server rechecks stock under lock when saving.
 

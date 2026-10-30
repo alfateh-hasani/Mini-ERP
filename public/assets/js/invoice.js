@@ -14,12 +14,14 @@
     product: 'اختر منتجاً من نتائج البحث لكل بند.',
     customer: 'اختر العميل قبل حفظ الفاتورة.', duplicate: 'المنتج مضاف بالفعل. عدّل كميته في البند الموجود.',
     stockPrompt: 'اختر المنتج لعرض المخزون المتاح.', available: 'المتاح', remaining: 'المتبقي', excess: 'تجاوزت المتاح بـ', outOfStock: 'لا يوجد مخزون متاح.', stockLimit: maximum => `الكمية تتجاوز المخزون المتاح. الحد الأقصى ${maximum}.`,
+    discountRange: 'أدخل خصماً من 0 إلى 100%.',
     saving: 'جارٍ الحفظ…', search: 'تعذر البحث عن المنتجات. حاول مرة أخرى.'
   } : {
     failed: 'Unable to save the invoice. Refresh the page and try again.',
     product: 'Select a product from the search results for every line.',
     customer: 'Select a customer before saving the invoice.', duplicate: 'This product is already added. Update its quantity in the existing line.',
     stockPrompt: 'Select a product to see available stock.', available: 'Available', remaining: 'Remaining', excess: 'Over stock by', outOfStock: 'Out of stock.', stockLimit: maximum => `Quantity exceeds available stock. Maximum: ${maximum}.`,
+    discountRange: 'Enter a discount from 0 to 100%.',
     saving: 'Saving…', search: 'Unable to search products. Please try again.'
   };
   const showError = message => {
@@ -53,15 +55,26 @@
     if (exceeds) quantity.setCustomValidity(available === 0 ? labels.outOfStock : labels.stockLimit(available));
     return !exceeds;
   };
+  const validDiscount = value => /^(?:\d+)(?:\.\d{1,2})?$/.test(value.trim()) && Number(value) <= 100;
   const recalculate = () => {
     let subtotal = 0n, discount = 0n;
     let complete = true;
     lines.querySelectorAll('tr').forEach(row => {
       const stockValid = updateStock(row);
+      const discountInput = row.querySelector('.discount');
+      const discountValue = discountInput.value.trim();
+      const discountValid = validDiscount(discountValue);
+      const discountInvalid = discountValue !== '' && !discountValid;
+      discountInput.setCustomValidity(discountInvalid ? labels.discountRange : '');
+      discountInput.classList.toggle('is-invalid', discountInvalid);
+      discountInput.setAttribute('aria-invalid', String(discountInvalid));
+      const discountError = row.querySelector('.discount-error');
+      discountError.textContent = discountInvalid ? labels.discountRange : '';
+      discountError.hidden = !discountInvalid;
       const selected = !!row.querySelector('.product-id').value;
-      const amount = selected && stockValid ? calculator.line(row.dataset.unitPrice, row.querySelector('.quantity').value, row.querySelector('.discount').value) : null;
+      const amount = selected && stockValid && discountValid ? calculator.line(row.dataset.unitPrice, row.querySelector('.quantity').value, discountValue) : null;
       const unit = selected ? calculator.line(row.dataset.unitPrice, '1', '0') : null;
-      const discountedUnit = selected ? calculator.line(row.dataset.unitPrice, '1', row.querySelector('.discount').value) : null;
+      const discountedUnit = selected && discountValid ? calculator.line(row.dataset.unitPrice, '1', discountValue) : null;
       const hasDiscount = !!discountedUnit && Number(row.querySelector('.discount').value) > 0;
       row.querySelector('.unit-price').textContent = unit ? money(unit.unit) : '—';
       row.querySelector('.unit-after-discount').hidden = !hasDiscount;
@@ -72,6 +85,9 @@
       row.querySelector('.line-total').textContent = amount ? money(amount.total) : '—';
       row.querySelector('.discount-amount').textContent = amount ? money(amount.discount) : '';
       row.querySelector('.line-discount-detail').hidden = !amount || amount.discount === 0n;
+      row.querySelector('.discount-breakdown').hidden = !hasDiscount;
+      row.querySelector('.line-subtotal').hidden = !discountValid;
+      row.querySelector('.line-total').hidden = !discountValid;
       if (amount) { subtotal += amount.subtotal; discount += amount.discount; }
       if (selected && !amount) complete = false;
     });
@@ -173,6 +189,12 @@
     if (!document.querySelector('#customer_id').value) {
       showError(labels.customer);
       document.querySelector('#customer_id-input')?.focus();
+      return;
+    }
+    const invalidDiscount = [...lines.querySelectorAll('tr')].find(row => !validDiscount(row.querySelector('.discount').value));
+    if (invalidDiscount) {
+      showError(labels.discountRange);
+      invalidDiscount.querySelector('.discount').focus();
       return;
     }
     const items = [...lines.querySelectorAll('tr')].map(row => ({
