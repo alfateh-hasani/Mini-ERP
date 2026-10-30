@@ -7,6 +7,7 @@ class Products extends MY_Controller
     {
         $this->requireAdmin();
         $data['products'] = $this->db->select('products.*, categories.name AS category')->from('products')->join('categories', 'categories.id=products.category_id')->where('products.deleted_at IS NULL', null, false)->order_by('products.id', 'desc')->get()->result_array();
+        $data['categories'] = $this->db->order_by('name')->get('categories')->result_array();
         $this->render('products/index', $data);
     }
 
@@ -16,8 +17,10 @@ class Products extends MY_Controller
         $page = max(1, (int) $this->input->get('page', true));
         $perPage = min(100, max(10, (int) $this->input->get('per_page', true) ?: 10));
         $search = trim((string) $this->input->get('q', true));
+        $categoryId = (int) $this->input->get('category_id', true);
         $this->db->start_cache();
         $this->db->from('products')->join('categories', 'categories.id=products.category_id')->where('products.deleted_at IS NULL', null, false);
+        if ($categoryId > 0) { $this->db->where('products.category_id', $categoryId); }
         if ($search !== '') { $this->db->group_start()->like('products.code', $search)->or_like('products.name', $search)->or_like('products.name_ar', $search)->or_like('categories.name', $search)->group_end(); }
         $this->db->stop_cache();
         $total = $this->db->count_all_results();
