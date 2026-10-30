@@ -71,6 +71,7 @@ $lang['invoice_cancel_failed'] = 'Unable to cancel this invoice. It may already 
 $lang['inventory_adjustment_help'] = 'Set final quantity replaces the current balance. Add or remove changes the current balance and requires a reason.';
 
 $lang['stock_shortfall'] = 'Shortfall to alert level';
+$lang['invoice_save_failed'] = 'Could not save the invoice. Please try again.';
 $lang['product_save_invalid'] = 'Check the product details, code uniqueness, and selected warehouse/category.';
 $lang['product_save_failed'] = 'Could not save the product. No changes were saved. Please try again.';
 $lang['stock_enrolment_help'] = 'To stock a product in a new warehouse, choose Add stock or Set final quantity. A stock record is created automatically.';

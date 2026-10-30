@@ -60,17 +60,26 @@ class Invoices extends MY_Controller
     {
         $this->requireAuth();
         $this->requirePost();
-        $payload = json_decode((string) $this->input->post('payload', false), true);
+        $raw = $this->input->post('payload', false);
+        $payload = is_string($raw) ? json_decode($raw, true) : null;
         if (!is_array($payload)) { $this->json(false, null, lang('invalid_invoice'), ['code' => 'VALIDATION_FAILED']); return; }
-        $scope = $this->warehouseScope($payload['warehouse_id'] ?? null, false);
-        $warehouseId = $scope ?: (int) ($payload['warehouse_id'] ?? 0);
-        if ($warehouseId && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($warehouseId)) {
-            $this->json(false, null, lang('warehouse_inactive'), ['code' => 'WAREHOUSE_INACTIVE']);
-            return;
+        try {
+            $requested = isset($payload['warehouse_id']) ? \App\Services\NumericInput::integer($payload['warehouse_id']) : null;
+            $scope = $this->warehouseScope($requested, false);
+            $warehouseId = $scope ?: $requested;
+            if ($warehouseId && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($warehouseId)) {
+                $this->json(false, null, lang('warehouse_inactive'), ['code' => 'WAREHOUSE_INACTIVE']);
+                return;
+            }
+            $this->json(true, $this->invoiceService()->create($payload, (int) $this->currentUser['id'], $scope), lang('invoice_saved'));
+        } catch (\App\Exceptions\InsufficientStockException $exception) {
+            $this->json(false, null, lang('insufficient_stock'), ['code' => 'INSUFFICIENT_STOCK']);
+        } catch (\App\Exceptions\AppException $exception) {
+            $this->json(false, null, lang('invalid_invoice'), ['code' => 'VALIDATION_FAILED']);
+        } catch (\Throwable $exception) {
+            log_message('error', 'Invoice save failed: ' . $exception->getMessage());
+            $this->json(false, null, lang('invoice_save_failed'), ['code' => 'SAVE_FAILED']);
         }
-        try { $this->json(true, $this->invoiceService()->create($payload, (int) $this->currentUser['id'], $scope), lang('invoice_saved')); }
-        catch (\App\Exceptions\InsufficientStockException $exception) { $this->json(false, null, lang('insufficient_stock'), ['code' => 'INSUFFICIENT_STOCK']); }
-        catch (\App\Exceptions\AppException $exception) { $this->json(false, null, lang('invalid_invoice'), ['code' => 'VALIDATION_FAILED']); }
     }
 
     public function cancel(int $id): void
