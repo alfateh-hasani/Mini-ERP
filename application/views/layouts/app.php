@@ -44,7 +44,7 @@ $adminLinks = [
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/css/tabler<?= $dir === 'rtl' ? '.rtl' : '' ?>.min.css">
   <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=4">
 </head>
-<body>
+<body data-select-search-placeholder="<?= e(lang('search')) ?>" data-select-no-results="<?= e(lang('no_results')) ?>">
 <div class="page">
   <div class="mobile-sidebar-backdrop" data-sidebar-backdrop hidden></div>
   <aside id="app-sidebar" class="navbar navbar-vertical navbar-expand-lg" aria-label="<?= e(lang('dashboard')) ?>">
@@ -86,7 +86,8 @@ $adminLinks = [
     </div></div>
   </div>
 </div>
-<script src="<?= base_url('public/assets/js/app.js') ?>?v=2"></script>
-<script src="<?= base_url('public/assets/js/tables.js') ?>?v=4"></script>
+<script src="<?= base_url('public/assets/js/app.js') ?>?v=3"></script>
+<script src="<?= base_url('public/assets/js/selects.js') ?>?v=1"></script>
+<script src="<?= base_url('public/assets/js/tables.js') ?>?v=5"></script>
 </body>
 </html>
