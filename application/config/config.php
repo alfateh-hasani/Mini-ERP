@@ -386,7 +386,8 @@ $config['encryption_key'] = getenv('CI_ENCRYPTION_KEY') ?: 'replace-this-develop
 $config['sess_driver'] = 'database';
 $config['sess_cookie_name'] = 'ci_session';
 $config['sess_samesite'] = 'Lax';
-$config['sess_expiration'] = 7200;
+// Two hours of inactivity; enforced by Authentication as well as the session cookie.
+$config['sess_expiration'] = 120 * 60;
 $config['sess_save_path'] = 'ci_sessions';
 $config['sess_match_ip'] = FALSE;
 $config['sess_time_to_update'] = 300;
@@ -411,7 +412,7 @@ $config['sess_regenerate_destroy'] = TRUE;
 $config['cookie_prefix']	= '';
 $config['cookie_domain']	= '';
 $config['cookie_path']		= '/';
-$config['cookie_secure']	= FALSE;
+$config['cookie_secure'] = is_https() || strpos((string) getenv('APP_BASE_URL'), 'https://') === 0;
 $config['cookie_httponly'] 	= TRUE;
 $config['cookie_samesite'] 	= 'Lax';
 

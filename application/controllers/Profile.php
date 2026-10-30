@@ -41,11 +41,11 @@ class Profile extends MY_Controller
         $data = ['name' => trim((string) $this->input->post('name', true)), 'email' => $email, 'preferred_lang' => $this->input->post('preferred_lang', true) === 'en' ? 'en' : 'ar'];
         if ($newPassword !== '') { $data['password_hash'] = password_hash($newPassword, PASSWORD_BCRYPT, ['cost' => 12]); }
         $this->db->where('id', (int) $user['id'])->update('users', $data);
-        $sessionUser = $this->currentUser;
-        $sessionUser['name'] = $data['name'];
-        $this->session->set_userdata('user', $sessionUser);
-        $this->session->set_userdata('lang', $data['preferred_lang']);
-        $this->session->sess_regenerate(true);
+        if ($newPassword !== '') {
+            $this->authentication->revokeUser((int) $user['id']);
+            $this->authentication->forget();
+        }
+        $this->authentication->refresh(array_replace($user, $data));
         $this->session->set_flashdata('flash', ['type' => 'success', 'message' => lang('profile_saved')]);
         redirect('profile');
     }

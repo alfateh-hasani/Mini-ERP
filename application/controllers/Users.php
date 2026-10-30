@@ -18,6 +18,7 @@ class Users extends MY_Controller
             return;
         }
         $this->db->where('id', $id)->update('users', ['status' => $status]);
+        $this->authentication->revokeUser($id);
         $this->json(true, ['id' => $id, 'status' => $status, 'label' => lang($status)], lang('status_updated'));
     }
     public function data(): void
@@ -35,7 +36,7 @@ class Users extends MY_Controller
         $email=strtolower(trim((string)$this->input->post('email',true))); $duplicate=$this->db->where('email',$email); if ($id) { $duplicate->where('id !=',$id); } if ($duplicate->count_all_results('users')) { $this->session->set_flashdata('flash',['type'=>'error','message'=>lang('email_taken')]); redirect($id?'users/edit/'.$id:'users/create'); }
         $status=$this->input->post('status',true)===STATUS_INACTIVE?STATUS_INACTIVE:STATUS_ACTIVE; if ($id===(int)$this->currentUser['id']&&$status===STATUS_INACTIVE) { $this->session->set_flashdata('flash',['type'=>'error','message'=>lang('cannot_deactivate_self')]); redirect('users/edit/'.$id); }
         $data=['name'=>trim((string)$this->input->post('name',true)),'email'=>$email,'role'=>$role,'warehouse_id'=>$role===ROLE_WAREHOUSE?(int)$this->input->post('warehouse_id',true):null,'preferred_lang'=>$this->input->post('preferred_lang',true)==='en'?'en':'ar','status'=>$status]; $password=(string)$this->input->post('password',false); if ($password!=='') { $data['password_hash']=password_hash($password,PASSWORD_BCRYPT,['cost'=>12]); }
-        if ($id) { $this->db->where('id',$id)->update('users',$data); } else { $this->db->insert('users',$data); }
+        if ($id) { $this->db->where('id',$id)->update('users',$data); $this->authentication->revokeUser($id); } else { $this->db->insert('users',$data); }
         $this->session->set_flashdata('flash',['type'=>'success','message'=>'User saved.']); redirect('users');
     }
 }
