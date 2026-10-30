@@ -66,7 +66,6 @@ CREATE TABLE products (
   name VARCHAR(200) NOT NULL,
   name_ar VARCHAR(200) NOT NULL,
   unit VARCHAR(30) NOT NULL,
-  unit_ar VARCHAR(30) NOT NULL,
   price DECIMAL(12,2) NOT NULL,
   alert_quantity INT UNSIGNED NOT NULL DEFAULT 0,
   status ENUM('active','inactive') NOT NULL DEFAULT 'active',

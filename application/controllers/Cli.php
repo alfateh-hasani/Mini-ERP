@@ -59,21 +59,22 @@ class Cli extends CI_Controller
             'preferred_lang' => 'ar', 'status' => 'active',
         ]);
 
+        // code, English name, Arabic name, unit code, price, alert level, starting stock, category.
         $products = [
-            ['ELEC-001', 'Wireless Keyboard', 'لوحة مفاتيح لاسلكية', 'piece', 'قطعة', '120.00', 5, 45, 'Electronics'],
-            ['ELEC-002', 'Wireless Mouse', 'فأرة لاسلكية', 'piece', 'قطعة', '75.00', 5, 30, 'Electronics'],
-            ['OFF-001', 'A4 Copy Paper', 'ورق تصوير A4', 'ream', 'رزمة', '24.50', 10, 80, 'Office Supplies'],
-            ['CLEAN-001', 'Hand Sanitizer', 'معقم يدين', 'bottle', 'عبوة', '18.00', 8, 24, 'Cleaning'],
-            ['FOOD-001', 'Bottled Water', 'مياه معبأة', 'pack', 'عبوة', '12.00', 10, 6, 'Food & Beverage'],
-            ['ELEC-003', 'USB-C Cable', 'كابل يو إس بي سي', 'piece', 'قطعة', '35.00', 10, 55, 'Electronics'],
-            ['ELEC-004', 'Laptop Stand', 'حامل حاسوب محمول', 'piece', 'قطعة', '95.00', 4, 18, 'Electronics'],
-            ['OFF-002', 'Blue Ballpoint Pen', 'قلم حبر أزرق', 'box', 'صندوق', '16.00', 8, 40, 'Office Supplies'],
-            ['OFF-003', 'Stapler', 'دباسة', 'piece', 'قطعة', '28.00', 5, 15, 'Office Supplies'],
-            ['CLEAN-002', 'Surface Cleaner', 'منظف أسطح', 'bottle', 'زجاجة', '22.00', 6, 20, 'Cleaning'],
-            ['FOOD-003', 'Instant Coffee', 'قهوة سريعة التحضير', 'pack', 'عبوة', '29.00', 5, 12, 'Food & Beverage'],
-            ['FOOD-004', 'Instant Coffee', 'قهوة سريعة التحضير', 'pack', 'عبوة', '29.00', 5, 12, 'Food & Beverage'],
-            ['FOOD-005', 'Instant Coffee', 'قهوة سريعة التحضير', 'pack', 'عبوة', '29.00', 5, 12, 'Food & Beverage'],
-            ['FOOD-006', 'Instant Coffee', 'قهوة سريعة التحضير', 'pack', 'عبوة', '29.00', 5, 12, 'Food & Beverage'],
+            ['ELEC-001', 'Wireless Keyboard', 'لوحة مفاتيح لاسلكية', 'piece', '120.00', 5, 45, 'Electronics'],
+            ['ELEC-002', 'Wireless Mouse', 'فأرة لاسلكية', 'piece', '75.00', 5, 30, 'Electronics'],
+            ['OFF-001', 'A4 Copy Paper', 'ورق تصوير A4', 'ream', '24.50', 10, 80, 'Office Supplies'],
+            ['CLEAN-001', 'Hand Sanitizer', 'معقم يدين', 'bottle', '18.00', 8, 24, 'Cleaning'],
+            ['FOOD-001', 'Bottled Water', 'مياه معبأة', 'pack', '12.00', 10, 6, 'Food & Beverage'],
+            ['ELEC-003', 'USB-C Cable', 'كابل يو إس بي سي', 'piece', '35.00', 10, 55, 'Electronics'],
+            ['ELEC-004', 'Laptop Stand', 'حامل حاسوب محمول', 'piece', '95.00', 4, 18, 'Electronics'],
+            ['OFF-002', 'Blue Ballpoint Pen', 'قلم حبر أزرق', 'box', '16.00', 8, 40, 'Office Supplies'],
+            ['OFF-003', 'Stapler', 'دباسة', 'piece', '28.00', 5, 15, 'Office Supplies'],
+            ['CLEAN-002', 'Surface Cleaner', 'منظف أسطح', 'bottle', '22.00', 6, 20, 'Cleaning'],
+            ['FOOD-003', 'Instant Coffee', 'قهوة سريعة التحضير', 'pack', '29.00', 5, 12, 'Food & Beverage'],
+            ['FOOD-004', 'Instant Coffee', 'قهوة سريعة التحضير', 'pack', '29.00', 5, 12, 'Food & Beverage'],
+            ['FOOD-005', 'Instant Coffee', 'قهوة سريعة التحضير', 'pack', '29.00', 5, 12, 'Food & Beverage'],
+            ['FOOD-006', 'Instant Coffee', 'قهوة سريعة التحضير', 'pack', '29.00', 5, 12, 'Food & Beverage'],
         ];
         $generalProducts = [];
         $demoCategories = array_keys($categoryIds);
@@ -81,7 +82,7 @@ class Cli extends CI_Controller
             // Existing demo IDs keep their order on reruns, so distribute the
             // legacy GEN catalogue across categories rather than only interleaving inserts.
             $category = $demoCategories[($number - 1) % count($demoCategories)];
-            $generalProducts[] = [sprintf('GEN-%03d', $number), 'General Item ' . $number, 'منتج عام ' . $number, 'piece', 'قطعة', number_format(10 + $number, 2, '.', ''), 5, 20 + $number, $category];
+            $generalProducts[] = [sprintf('GEN-%03d', $number), 'General Item ' . $number, 'منتج عام ' . $number, 'piece', number_format(10 + $number, 2, '.', ''), 5, 20 + $number, $category];
         }
         $catalogueProducts = $products;
         $mixedProducts = [];
@@ -92,13 +93,13 @@ class Cli extends CI_Controller
         $products = array_merge($mixedProducts, array_slice($generalProducts, count($catalogueProducts)));
         foreach ($products as $product) {
             $productId = $this->firstOrCreate('products', ['code' => $product[0]], [
-                'category_id' => $categoryIds[$product[8]], 'code' => $product[0], 'name' => $product[1], 'name_ar' => $product[2],
-                'unit' => $product[3], 'unit_ar' => $product[4], 'price' => $product[5],
-                'alert_quantity' => $product[6], 'status' => 'active', 'created_by' => $adminId,
+                'category_id' => $categoryIds[$product[7]], 'code' => $product[0], 'name' => $product[1], 'name_ar' => $product[2],
+                'unit' => $product[3], 'price' => $product[4],
+                'alert_quantity' => $product[5], 'status' => 'active', 'created_by' => $adminId,
             ]);
-            $this->db->where('id', $productId)->update('products', ['category_id' => $categoryIds[$product[8]]]);
+            $this->db->where('id', $productId)->update('products', ['category_id' => $categoryIds[$product[7]]]);
             foreach ($warehouseIds as $city => $cityWarehouseId) {
-                $quantity = $city === 'Riyadh' ? $product[7] : ($city === 'Jeddah' ? max(0, $product[7] - 8) : $product[7] + 12);
+                $quantity = $city === 'Riyadh' ? $product[6] : ($city === 'Jeddah' ? max(0, $product[6] - 8) : $product[6] + 12);
                 $this->firstOrCreate('inventory', ['warehouse_id' => $cityWarehouseId, 'product_id' => $productId], [
                     'warehouse_id' => $cityWarehouseId, 'product_id' => $productId, 'quantity' => $quantity,
                 ]);

@@ -66,7 +66,7 @@ try {
     $db->insert('warehouses', ['id' => 1, 'name' => 'One', 'name_ar' => 'One']);
     $db->insert('categories', ['id' => 1, 'name' => 'First', 'name_ar' => 'First']);
     $db->insert('categories', ['id' => 2, 'name' => 'Second', 'name_ar' => 'Second']);
-    $db->insert('products', ['category_id' => 1, 'code' => 'TAKEN', 'name' => 'Existing', 'name_ar' => 'Existing', 'unit' => 'piece', 'unit_ar' => 'Piece', 'price' => '10.00']);
+    $db->insert('products', ['category_id' => 1, 'code' => 'TAKEN', 'name' => 'Existing', 'name_ar' => 'Existing', 'unit' => 'piece', 'price' => '10.00']);
     $db->insert('users', ['id' => 1, 'name' => 'Auth test', 'email' => 'auth@example.test', 'password_hash' => password_hash('test-password-123', PASSWORD_BCRYPT), 'role' => 'admin', 'preferred_lang' => 'en']);
     $socket = stream_socket_server('tcp://127.0.0.1:0', $errorCode, $error);
     authAssert(is_resource($socket), 'Cannot allocate local port.');
@@ -108,10 +108,17 @@ try {
         authAssert($xpath->query('//div[@data-initial-stock and not(@hidden)]//input[@name="initial_quantity" and not(@disabled)]')->length === 1, 'Returned initial stock is hidden or disabled.');
         authAssert($xpath->evaluate('string(//select[@name="category_id"]/option[@selected]/@value)') === '2', 'Product error lost category.');
         authAssert($xpath->evaluate('string(//select[@name="unit"]/option[@selected]/@value)') === 'box', 'Product error lost unit.');
+        authAssert($xpath->evaluate('string(//select[@name="unit"]/option[@selected])') === 'Box', 'Product form did not use the configured English unit label.');
         authAssert($xpath->evaluate('string(//input[@name="name"]/@value)') === $input['name'], 'Product name was lost or double-escaped.');
         authAssert($db->count_all('products') === 1 && $db->count_all('inventory') === 0, 'Invalid product submission wrote data.');
     }
     echo "PASS: validation and duplicate-code errors preserve warehouse, initial stock, category, unit and escaped product values.\n";
+    authRequest($client, $base, '/language/ar');
+    $arabicForm = authRequest($client, $base, '/products/create');
+    $config = [];
+    require $projectRoot . 'application/config/units.php';
+    authAssert(strpos($arabicForm['body'], $config['units']['piece']['ar']) !== false, 'Product form did not use the configured Arabic unit label.');
+    authRequest($client, $base, '/language/en');
     foreach ([['not' => 'a string'], json_encode(['warehouse_id' => [], 'customer_id' => 1, 'items' => []]), json_encode(['warehouse_id' => 1, 'customer_id' => 1, 'items' => [['product_id' => 1, 'quantity' => '1.9']]])] as $payload) {
         $csrf = json_decode(authRequest($client, $base, '/auth/csrf')['body'], true);
         $response = json_decode(authRequest($client, $base, '/invoices/store', ['csrf_mini_erp' => $csrf['csrf_hash'], 'payload' => $payload])['body'], true);

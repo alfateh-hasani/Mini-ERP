@@ -25,7 +25,7 @@ try {
     $db->insert('warehouses', ['id' => 2, 'name' => 'Two', 'name_ar' => 'Two']);
     $db->insert('categories', ['id' => 1, 'name' => 'Test', 'name_ar' => 'Test']);
     $db->insert('users', ['id' => 1, 'name' => 'Test', 'email' => 'stock@example.test', 'password_hash' => 'test-only', 'role' => 'admin']);
-    $db->insert('products', ['id' => 1, 'category_id' => 1, 'code' => 'STOCK', 'name' => 'Test', 'name_ar' => 'Test', 'unit' => 'piece', 'unit_ar' => 'Test', 'price' => '10.00']);
+    $db->insert('products', ['id' => 1, 'category_id' => 1, 'code' => 'STOCK', 'name' => 'Test', 'name_ar' => 'Test', 'unit' => 'piece', 'price' => '10.00']);
     $db->insert('inventory', ['warehouse_id' => 1, 'product_id' => 1, 'quantity' => 10]);
     $service = new InventoryService(new InventoryRepository($db));
     $input = ['warehouse_id' => '1', 'product_id' => '1', 'quantity' => '3', 'mode' => 'add', 'reason' => 'Delivery'];
@@ -49,7 +49,7 @@ try {
     }
     stockAssert((int) $db->get('inventory')->row_array()['quantity'] === 13, 'Validation changed stock.');
     $productService = new \App\Services\ProductService(new \App\Repositories\ProductRepository($db));
-    $product = ['category_id' => '1', 'code' => 'LATER', 'name' => 'Later stock', 'name_ar' => 'Later stock', 'unit' => 'piece', 'unit_ar' => 'Test', 'price' => '10.00', 'alert_quantity' => '1', 'warehouse_id' => '', 'initial_quantity' => ['ignored']];
+    $product = ['category_id' => '1', 'code' => 'LATER', 'name' => 'Later stock', 'name_ar' => 'Later stock', 'unit' => 'piece', 'price' => '10.00', 'alert_quantity' => '1', 'warehouse_id' => '', 'initial_quantity' => ['ignored']];
     $id = $productService->save($product, 1);
     stockAssert($db->where('product_id', $id)->count_all_results('inventory') === 0, 'No warehouse created initial stock.');
     foreach ([1, 2] as $warehouseId) {

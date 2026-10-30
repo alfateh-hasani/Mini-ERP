@@ -69,7 +69,9 @@ try {
     }
     runIsolatedCli($names[1], 'migrate');
     $expected = schemaSnapshot($sql);
+    if ($sql->field_exists('unit_ar', 'products')) { throw new RuntimeException('Fresh schema still duplicates product unit labels.'); }
     $migrated = integration_database($names[1]);
+    if ($migrated->field_exists('unit_ar', 'products')) { throw new RuntimeException('Product migration still duplicates unit labels.'); }
     $migrationMatch = compareSchemas('SQL versus migrations', $expected, schemaSnapshot($migrated));
     $liveMatch = compareSchemas('SQL versus configured database (read-only)', $expected, schemaSnapshot(integration_database()));
     echo 'Migration version: ' . $migrated->get('migrations')->row_array()['version'] . PHP_EOL;
@@ -77,6 +79,13 @@ try {
         foreach ($names as $name) {
             runIsolatedCli($name, 'seed');
             $db = integration_database($name);
+            $config = [];
+            require $projectRoot . 'application/config/units.php';
+            foreach ($db->select('unit')->get('products')->result_array() as $product) {
+                if (!isset($config['units'][$product['unit']])) { throw new RuntimeException('Seeded unit is not in the fixed catalogue.'); }
+            }
+            $keyboard = $db->where('code', 'ELEC-001')->get('products')->row_array();
+            if ($keyboard['unit'] !== 'piece' || $keyboard['price'] !== '120.00' || (int) $keyboard['alert_quantity'] !== 5) { throw new RuntimeException('Seed field mapping changed.'); }
             $counts = [];
             foreach (['warehouses', 'users', 'products', 'inventory', 'customers', 'invoices', 'invoice_items'] as $table) { $counts[$table] = $db->count_all($table); }
             $stock = $db->select('warehouse_id, product_id, quantity')->order_by('warehouse_id, product_id')->get('inventory')->result_array();

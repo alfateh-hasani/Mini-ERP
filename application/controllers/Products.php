@@ -83,7 +83,6 @@ class Products extends MY_Controller
         if (!$this->form_validation->run()) { $this->form($id ? $this->db->where('id', $id)->get('products')->row_array() : null); return; }
         try {
             $input = $this->input->post(null, true);
-            $input['unit_ar'] = $units[$input['unit']]['ar'];
             $this->productService()->save($input, (int) $this->currentUser['id'], $id);
             $this->session->set_flashdata('flash', ['type' => 'success', 'message' => lang('product_saved')]);
             redirect('products');
