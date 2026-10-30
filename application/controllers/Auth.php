@@ -18,8 +18,13 @@ class Auth extends MY_Controller
             $this->form_validation->set_rules('password', lang('password'), 'required|min_length[6]|max_length[100]');
             if ($this->form_validation->run()) {
                 $email = strtolower(trim($this->input->post('email', true)));
-                $user = $this->db->where('email', $email)->where('status', STATUS_ACTIVE)->get('users')->row_array();
+                $user = $this->db->where('email', $email)->get('users')->row_array();
                 if ($user && password_verify($this->input->post('password', false), $user['password_hash'])) {
+                    if ($user['status'] !== STATUS_ACTIVE) {
+                        $data['error'] = lang('account_inactive');
+                        $this->render('auth/login', $data, 'auth');
+                        return;
+                    }
                     $this->session->sess_regenerate(true);
                     $this->session->set_userdata('user', ['id' => (int) $user['id'], 'name' => $user['name'], 'role' => $user['role'], 'warehouse_id' => $user['warehouse_id']]);
                     $this->session->set_userdata('lang', $user['preferred_lang']);

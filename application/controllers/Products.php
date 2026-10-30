@@ -21,10 +21,10 @@ class Products extends MY_Controller
         if ($search !== '') { $this->db->group_start()->like('products.code', $search)->or_like('products.name', $search)->or_like('products.name_ar', $search)->or_like('categories.name', $search)->group_end(); }
         $this->db->stop_cache();
         $total = $this->db->count_all_results();
-        $rows = $this->db->select('products.id, products.code, products.name, products.name_ar, products.price, categories.name AS category, categories.name_ar AS category_ar')->order_by('products.id', 'desc')->limit($perPage, ($page - 1) * $perPage)->get()->result_array();
+        $rows = $this->db->select('products.id, products.code, products.name, products.name_ar, products.price, products.status, categories.name AS category, categories.name_ar AS category_ar')->order_by('products.id', 'desc')->limit($perPage, ($page - 1) * $perPage)->get()->result_array();
         $this->db->flush_cache();
         $arabic = $this->session->userdata('lang') === 'ar';
-        foreach ($rows as &$row) { $row['category'] = $arabic ? $row['category_ar'] : $row['category']; $row['price'] = 'SAR ' . number_format((float) $row['price'], 2); $row['edit_url'] = site_url('products/edit/' . $row['id']); $row['edit_label'] = lang('edit'); }
+        foreach ($rows as &$row) { $row['category'] = $arabic ? $row['category_ar'] : $row['category']; $row['price'] = 'SAR ' . number_format((float) $row['price'], 2); $row['status_value'] = $row['status']; $row['status'] = lang($row['status']); $row['status_url'] = site_url('products/toggle_status/' . $row['id']); $row['edit_url'] = site_url('products/edit/' . $row['id']); $row['edit_label'] = lang('edit'); }
         $this->json(true, ['rows' => $rows, 'pagination' => ['page' => $page, 'per_page' => $perPage, 'total' => $total, 'total_pages' => max(1, (int) ceil($total / $perPage))]]);
     }
 
@@ -44,6 +44,15 @@ class Products extends MY_Controller
 
     public function store(): void { $this->requirePost(); $this->save(); }
     public function update(int $id): void { $this->requirePost(); $this->save($id); }
+    public function toggle_status(int $id): void
+    {
+        $this->requirePost(); $this->requireAdmin();
+        $product = $this->db->where('id', $id)->where('deleted_at IS NULL', null, false)->get('products')->row_array();
+        if (!$product) { show_404(); }
+        $status = $product['status'] === STATUS_ACTIVE ? STATUS_INACTIVE : STATUS_ACTIVE;
+        $this->db->where('id', $id)->update('products', ['status' => $status]);
+        $this->json(true, ['id' => $id, 'status' => $status, 'label' => lang($status)], lang('status_updated'));
+    }
 
     public function search(): void
     {
