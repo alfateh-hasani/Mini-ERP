@@ -7,7 +7,7 @@ class Inventory extends MY_Controller
     {
         $this->requireAuth();
         $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
-        if ($scope && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($scope)) {
+        if ($this->currentUser['role'] !== ROLE_ADMIN && $scope && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($scope)) {
             $this->render('inventory/unavailable');
             return;
         }
@@ -17,9 +17,9 @@ class Inventory extends MY_Controller
             'items' => $page['rows'],
             'scope' => $scope,
             'filter_products' => $repository->productOptions($scope),
-            'filter_warehouses' => $scope
-                ? $this->db->where('id', $scope)->get('warehouses')->result_array()
-                : $this->db->where('status', STATUS_ACTIVE)->order_by('name')->get('warehouses')->result_array(),
+            'filter_warehouses' => $this->currentUser['role'] === ROLE_ADMIN
+                ? $this->db->order_by('name')->get('warehouses')->result_array()
+                : $this->db->where('id', $scope)->get('warehouses')->result_array(),
             'warehouses' => $this->currentUser['role'] === ROLE_ADMIN ? $this->db->where('status', STATUS_ACTIVE)->order_by('name')->get('warehouses')->result_array() : [],
             'products' => $this->currentUser['role'] === ROLE_ADMIN ? $this->db->where('status', STATUS_ACTIVE)->where('deleted_at IS NULL', null, false)->order_by('code')->get('products')->result_array() : [],
         ]);
@@ -30,7 +30,7 @@ class Inventory extends MY_Controller
     {
         $this->requireAuth();
         $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
-        if ($scope && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($scope)) {
+        if ($this->currentUser['role'] !== ROLE_ADMIN && $scope && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($scope)) {
             $this->json(false, null, lang('warehouse_inactive'), ['code' => 'WAREHOUSE_INACTIVE']);
             return;
         }
@@ -52,7 +52,7 @@ class Inventory extends MY_Controller
     {
         $this->requireAuth();
         $scope = $this->warehouseScope($this->input->get('warehouse_id', true), false);
-        if ($scope && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($scope)) {
+        if ($this->currentUser['role'] !== ROLE_ADMIN && $scope && !(new \App\Repositories\InvoiceRepository($this->db))->warehouseIsActive($scope)) {
             $this->json(true, ['products' => []]);
             return;
         }

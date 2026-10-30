@@ -38,6 +38,7 @@ $lang['adjustment_reason'] = 'السبب';
 $lang['required_for_add_remove'] = 'مطلوب للإضافة أو السحب';
 $lang['created_by'] = 'أنشأها';
 $lang['filter_inventory'] = 'تصفية المخزون';
+$lang['inventory_read_only'] = 'هذا المستودع غير نشط. يمكنك عرض مخزونه، لكن تعديل الكميات غير متاح.';
 $lang['all_warehouses'] = 'جميع المستودعات';
 $lang['all_products'] = 'جميع المنتجات';
 $lang['quantity_from'] = 'الحد الأدنى للكمية';

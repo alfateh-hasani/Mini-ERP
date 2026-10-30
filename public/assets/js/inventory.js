@@ -13,6 +13,15 @@
     let request;
     let failed = false;
 
+    const updateReadOnly = () => {
+      const inactive = warehouse.selectedOptions[0]?.dataset.inactive === 'true';
+      const adjustment = document.querySelector('[data-inventory-adjustment]');
+      const warning = form.querySelector('[data-inventory-read-only]');
+      if (adjustment) adjustment.disabled = inactive;
+      if (warning) warning.hidden = !inactive;
+    };
+    updateReadOnly();
+
     const showError = message => {
       error.textContent = message;
       error.hidden = !message;
@@ -56,7 +65,7 @@
       new FormData(form).forEach((value, key) => { filters[key] = value; });
       table.dispatchEvent(new CustomEvent('table:filters', { detail: { filters, resetSearch } }));
     };
-    warehouse.addEventListener('change', loadProducts);
+    warehouse.addEventListener('change', () => { updateReadOnly(); loadProducts(); });
     [minimum, maximum].forEach(input => input.addEventListener('input', () => {
       maximum.setCustomValidity('');
       showError('');
@@ -76,6 +85,7 @@
     form.addEventListener('reset', event => {
       event.preventDefault();
       if (!warehouse.disabled) warehouse.value = '';
+      updateReadOnly();
       minimum.value = ''; maximum.value = '';
       maximum.setCustomValidity('');
       loadProducts().then(ok => { if (ok) applyFilters(true); });

@@ -38,6 +38,7 @@ $lang['adjustment_reason'] = 'Reason';
 $lang['required_for_add_remove'] = 'Required for add or remove';
 $lang['created_by'] = 'Created by';
 $lang['filter_inventory'] = 'Filter inventory';
+$lang['inventory_read_only'] = 'This warehouse is inactive. You can view its stock, but quantity adjustments are disabled.';
 $lang['all_warehouses'] = 'All warehouses';
 $lang['all_products'] = 'All products';
 $lang['quantity_from'] = 'Minimum quantity';
