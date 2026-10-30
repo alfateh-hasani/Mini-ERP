@@ -48,7 +48,34 @@ try {
         } catch (\App\Exceptions\ValidationException $exception) {}
     }
     stockAssert((int) $db->get('inventory')->row_array()['quantity'] === 13, 'Validation changed stock.');
+    $productService = new \App\Services\ProductService(new \App\Repositories\ProductRepository($db));
+    $product = ['category_id' => '1', 'code' => 'LATER', 'name' => 'Later stock', 'name_ar' => 'Later stock', 'unit' => 'piece', 'unit_ar' => 'Test', 'price' => '10.00', 'alert_quantity' => '1', 'warehouse_id' => '', 'initial_quantity' => ['ignored']];
+    $id = $productService->save($product, 1);
+    stockAssert($db->where('product_id', $id)->count_all_results('inventory') === 0, 'No warehouse created initial stock.');
+    foreach ([1, 2] as $warehouseId) {
+        $service->adjust(['warehouse_id' => $warehouseId, 'product_id' => $id, 'quantity' => '7', 'mode' => 'add', 'reason' => 'First delivery'], 1);
+        stockAssert((int) $db->where(['warehouse_id' => $warehouseId, 'product_id' => $id])->get('inventory')->row_array()['quantity'] === 7, 'New warehouse enrolment failed.');
+    }
+    $beforeProducts = $db->count_all('products');
+    $db->query("CREATE TRIGGER reject_test_movement BEFORE INSERT ON inventory_movements FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Forced movement failure'");
+    try {
+        // Reject the final movement after product and stock insertion succeed.
+        $productService->save(array_replace($product, ['code' => 'ROLLBACK', 'warehouse_id' => '1', 'initial_quantity' => '4']), 1);
+        throw new LogicException('Expected product/stock transaction failure.');
+    } catch (RuntimeException $exception) {
+        if ($exception instanceof LogicException) { throw $exception; }
+    }
+    $db->query('DROP TRIGGER reject_test_movement');
+    stockAssert($db->count_all('products') === $beforeProducts, 'Failed initial stock left a product behind.');
+    $initialId = $productService->save(array_replace($product, ['code' => 'INITIAL', 'warehouse_id' => '1', 'initial_quantity' => '4']), 1);
+    stockAssert((int) $db->where('product_id', $initialId)->get('inventory')->row_array()['quantity'] === 4, 'Atomic initial stock failed.');
+    $db->where('id', 2)->update('warehouses', ['status' => 'inactive']);
+    try {
+        $service->adjust(['warehouse_id' => 2, 'product_id' => $id, 'quantity' => '1', 'mode' => 'set'], 1);
+        throw new LogicException('Inactive warehouse accepted stock changes.');
+    } catch (\App\Exceptions\ValidationException $exception) {}
     echo "PASS: adjustment success, movement-write failure rollback, and strict quantity validation.\n";
+    echo "PASS: product without stock, later enrolment in two warehouses, atomic initial stock, product rollback and inactive-warehouse protection.\n";
 } finally {
     if ($created) { $admin->query('DROP DATABASE `' . $name . '`'); }
 }

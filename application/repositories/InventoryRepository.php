@@ -20,6 +20,13 @@ class InventoryRepository extends BaseRepository
         return $this->db->query('SELECT id, quantity FROM inventory WHERE warehouse_id = ? AND product_id = ? FOR UPDATE', [$warehouseId, $productId])->row_array();
     }
 
+    public function enrol(int $warehouseId, int $productId): void
+    {
+        if (!$this->db->query('INSERT INTO inventory (warehouse_id, product_id, quantity) VALUES (?, ?, 0) ON DUPLICATE KEY UPDATE id = id', [$warehouseId, $productId])) {
+            throw new \RuntimeException('Cannot enrol product in warehouse.');
+        }
+    }
+
     public function writeAdjustment(int $warehouseId, int $productId, int $before, int $after, string $mode, ?string $reason, int $userId): void
     {
         if (!$this->db->where(['warehouse_id' => $warehouseId, 'product_id' => $productId])->update('inventory', ['quantity' => $after])) {

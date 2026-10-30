@@ -46,7 +46,11 @@ class InventoryService
             $this->inventory->lockActiveWarehouse($warehouseId);
             $this->inventory->lockActiveProduct($productId);
             $row = $this->inventory->lockStock($warehouseId, $productId);
-            if (!$row) { throw new ValidationException('Product is not stocked in this warehouse.'); }
+            if (!$row) {
+                if ($mode === 'remove') { throw new ValidationException('Product is not stocked in this warehouse.'); }
+                $this->inventory->enrol($warehouseId, $productId);
+                $row = $this->inventory->lockStock($warehouseId, $productId);
+            }
             $before = NumericInput::integer($row['quantity'], 0, NumericInput::MAX_QUANTITY);
             $after = $mode === 'set' ? $quantity : ($mode === 'add' ? $before + $quantity : $before - $quantity);
             if ($after < 0 || $after > NumericInput::MAX_QUANTITY) { throw new ValidationException('Invalid resulting stock quantity.'); }
