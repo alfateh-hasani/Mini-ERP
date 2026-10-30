@@ -28,6 +28,8 @@ Admins can browse stock in inactive warehouses. Inactive warehouses are marked i
 
 Invoice creation requires an explicit customer selection. Each item shows its catalogue unit price and totals before/after its discount; the summary updates as products, quantities, discounts, and lines change. Preview calculations use integer halalas and the server's half-up rounding. Saved prices and totals are still calculated by the server.
 
+Invoice quantity fields show available and remaining warehouse stock, enforce the available quantity as the maximum, and flag over-stock entries inline. Product or warehouse changes clear the previous stock limit; the server rechecks stock under lock when saving.
+
 - SAR is fixed; there is no currencies table, selector, conversion, or exchange-rate feature.
 - CI3 CSRF is enabled. Static JavaScript reads the token from layout metadata, sends it in `FormData`, and refreshes it from each JSON response.
 - Role and effective warehouse scope are enforced centrally in `MY_Controller`; warehouse users cannot widen scope with a submitted warehouse ID.

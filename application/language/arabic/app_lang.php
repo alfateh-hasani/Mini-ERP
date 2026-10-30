@@ -39,6 +39,7 @@ $lang['required_for_add_remove'] = 'مطلوب للإضافة أو السحب';
 $lang['created_by'] = 'أنشأها';
 $lang['select_customer'] = 'اختر العميل';
 $lang['unit_price'] = 'سعر الوحدة';
+$lang['select_product_for_stock'] = 'اختر المنتج لعرض المخزون المتاح.';
 $lang['before_discount'] = 'قبل الخصم';
 $lang['after_discount'] = 'بعد الخصم';
 $lang['discount_amount'] = 'قيمة الخصم';

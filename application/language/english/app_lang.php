@@ -39,6 +39,7 @@ $lang['required_for_add_remove'] = 'Required for add or remove';
 $lang['created_by'] = 'Created by';
 $lang['select_customer'] = 'Select a customer';
 $lang['unit_price'] = 'Unit price';
+$lang['select_product_for_stock'] = 'Select a product to see available stock.';
 $lang['before_discount'] = 'Before discount';
 $lang['after_discount'] = 'After discount';
 $lang['discount_amount'] = 'Discount amount';

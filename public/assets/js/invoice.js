@@ -13,11 +13,13 @@
     failed: 'تعذر حفظ الفاتورة. حدّث الصفحة وحاول مرة أخرى.',
     product: 'اختر منتجاً من نتائج البحث لكل بند.',
     customer: 'اختر العميل قبل حفظ الفاتورة.', duplicate: 'المنتج مضاف بالفعل. عدّل كميته في البند الموجود.',
+    stockPrompt: 'اختر المنتج لعرض المخزون المتاح.', available: 'المتاح', remaining: 'المتبقي', excess: 'تجاوزت المتاح بـ', outOfStock: 'لا يوجد مخزون متاح.', stockLimit: maximum => `الكمية تتجاوز المخزون المتاح. الحد الأقصى ${maximum}.`,
     saving: 'جارٍ الحفظ…', search: 'تعذر البحث عن المنتجات. حاول مرة أخرى.'
   } : {
     failed: 'Unable to save the invoice. Refresh the page and try again.',
     product: 'Select a product from the search results for every line.',
     customer: 'Select a customer before saving the invoice.', duplicate: 'This product is already added. Update its quantity in the existing line.',
+    stockPrompt: 'Select a product to see available stock.', available: 'Available', remaining: 'Remaining', excess: 'Over stock by', outOfStock: 'Out of stock.', stockLimit: maximum => `Quantity exceeds available stock. Maximum: ${maximum}.`,
     saving: 'Saving…', search: 'Unable to search products. Please try again.'
   };
   const showError = message => {
@@ -28,12 +30,35 @@
   const clearMessage = () => { notice.textContent = ''; notice.className = 'mt-3'; };
   document.querySelector('#customer_id').addEventListener('change', clearMessage);
   const hide = picker => picker.querySelector('.product-results').classList.add('d-none');
+  let stockSequence = 0;
+  const updateStock = row => {
+    const quantity = row.querySelector('.quantity');
+    const hint = row.querySelector('.quantity-stock');
+    const selected = !!row.querySelector('.product-id').value;
+    const available = selected ? Number(row.dataset.availableQty) : null;
+    if (!hint.id) hint.id = `invoice-stock-${++stockSequence}`;
+    quantity.setAttribute('aria-describedby', hint.id);
+    quantity.disabled = !selected;
+    quantity.max = selected ? String(available) : '2147483647';
+    quantity.setCustomValidity('');
+    const requested = Number(quantity.value);
+    const exceeds = selected && (available === 0 || requested > available);
+    quantity.classList.toggle('is-invalid', exceeds);
+    quantity.setAttribute('aria-invalid', String(exceeds));
+    row.querySelector('.stock-available').textContent = selected ? `${labels.available}: ${available}` : labels.stockPrompt;
+    const feedback = row.querySelector('.stock-feedback');
+    feedback.className = 'stock-feedback' + (exceeds ? ' text-danger' : ' text-muted');
+    feedback.textContent = !selected ? '' : available === 0 ? labels.outOfStock : exceeds ? `${labels.excess}: ${requested - available}` : quantity.value !== '' && Number.isInteger(requested) && requested > 0 ? `${labels.remaining}: ${available - requested}` : '';
+    if (exceeds) quantity.setCustomValidity(available === 0 ? labels.outOfStock : labels.stockLimit(available));
+    return !exceeds;
+  };
   const recalculate = () => {
     let subtotal = 0n, discount = 0n;
     let complete = true;
     lines.querySelectorAll('tr').forEach(row => {
+      const stockValid = updateStock(row);
       const selected = !!row.querySelector('.product-id').value;
-      const amount = selected ? calculator.line(row.dataset.unitPrice, row.querySelector('.quantity').value, row.querySelector('.discount').value) : null;
+      const amount = selected && stockValid ? calculator.line(row.dataset.unitPrice, row.querySelector('.quantity').value, row.querySelector('.discount').value) : null;
       const unit = selected ? calculator.line(row.dataset.unitPrice, '1', '0') : null;
       row.querySelector('.unit-price').textContent = unit ? money(unit.unit) : '—';
       row.querySelector('.line-subtotal').textContent = amount ? money(amount.subtotal) : '—';
@@ -84,6 +109,7 @@
           input.value = button.textContent;
           picker.querySelector('.product-id').value = product.id;
           row.dataset.unitPrice = String(product.price);
+          row.dataset.availableQty = String(product.available_qty);
           hide(picker);
           clearMessage();
           recalculate();
@@ -102,6 +128,7 @@
     // Invalidate the selected ID immediately, before the debounce fires.
     input.closest('.product-picker').querySelector('.product-id').value = '';
     delete input.closest('tr').dataset.unitPrice;
+    delete input.closest('tr').dataset.availableQty;
     recalculate();
     hide(input.closest('.product-picker'));
     pending.get(input)?.abort();
@@ -123,6 +150,7 @@
     pending.get(input)?.abort(); clearTimeout(timers.get(input));
     input.value = ''; picker.querySelector('.product-id').value = ''; hide(picker);
     delete picker.closest('tr').dataset.unitPrice;
+    delete picker.closest('tr').dataset.availableQty;
     });
     recalculate();
   });
@@ -145,6 +173,13 @@
       discount_percent: row.querySelector('.discount').value
     }));
     if (!items.length || items.some(item => !item.product_id)) { showError(labels.product); return; }
+    const invalidStock = [...lines.querySelectorAll('tr')].find(row => !updateStock(row));
+    if (invalidStock) {
+      const quantity = invalidStock.querySelector('.quantity');
+      showError(quantity.validationMessage);
+      quantity.focus();
+      return;
+    }
     const originalLabel = submit.textContent;
     submit.disabled = true; submit.textContent = labels.saving;
     notice.textContent = ''; notice.className = 'mt-3';
