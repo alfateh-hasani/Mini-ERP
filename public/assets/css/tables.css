@@ -18,6 +18,19 @@
 .table-search { min-width: 14rem; }
 .table-length { min-width: 5rem; }
 .table-pages { display: flex; flex-wrap: wrap; gap: .25rem; }
+.status-switch { background: var(--tblr-border-color, #d9dee5); border: 0; border-radius: 99px; cursor: pointer; height: 1.5rem; padding: .1875rem; transition: background-color .15s ease; width: 2.65rem; }
+.status-switch:hover { filter: brightness(.95); }
+.status-switch:focus-visible { outline: 2px solid var(--tblr-primary); outline-offset: 2px; }
+.status-switch:disabled { cursor: wait; opacity: .65; }
+.status-switch.is-active { background: var(--tblr-success, #2fb344); }
+.status-switch-track { background: #fff; border-radius: 50%; box-shadow: 0 .0625rem .1875rem rgba(0, 0, 0, .2); display: block; height: 1.125rem; transform: translateX(0); transition: transform .15s ease; width: 1.125rem; }
+[dir="ltr"] .status-switch.is-active .status-switch-track { transform: translateX(1.15rem); }
+[dir="rtl"] .status-switch.is-active .status-switch-track { transform: translateX(-1.15rem); }
+.status-confirm-dialog { background: var(--tblr-bg-surface, #fff); border: 0; border-radius: .5rem; box-shadow: 0 1rem 3rem rgba(0, 0, 0, .2); color: inherit; max-width: min(92vw, 26rem); padding: 0; }
+.status-confirm-dialog::backdrop { background: rgba(0, 0, 0, .45); }
+.status-confirm-dialog-content { padding: 1.25rem; }
+.status-confirm-dialog-content p { margin: 0; }
+.status-confirm-dialog-actions { display: flex; gap: .5rem; justify-content: flex-end; }
 
 .searchable-select { position: relative; }
 .searchable-select-native { display: none; }
