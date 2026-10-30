@@ -37,6 +37,11 @@ class InventoryService
         }
         $page = max(1, (int) ($input['page'] ?? 1));
         $perPage = min(100, max(10, (int) ($input['per_page'] ?? 10)));
-        return $this->inventory->page($warehouseId, $this->filters($input), $page, $perPage, trim((string) ($input['q'] ?? '')));
+        $result = $this->inventory->page($warehouseId, $this->filters($input), $page, $perPage, trim((string) ($input['q'] ?? '')));
+        foreach ($result['rows'] as &$row) {
+            $row['stock_shortfall'] = max(0, (int) $row['alert_quantity'] - (int) $row['quantity']);
+        }
+        unset($row);
+        return $result;
     }
 }

@@ -129,6 +129,8 @@
             var td = document.createElement('td');
             if (field === 'action' && row.edit_url) {
               var link = document.createElement('a'); link.href = row.edit_url; link.className = 'btn btn-sm'; link.textContent = row.edit_label || 'Edit'; td.appendChild(link);
+            } else if (field === 'stock_shortfall') {
+              td.appendChild(element('span', Number(row[field]) > 0 ? 'text-danger fw-bold' : 'text-muted', Number(row[field]) > 0 ? row[field] : '\u2014'));
             } else if (field === 'number' && row.show_url) {
               var number = document.createElement('a'); number.href = row.show_url; number.textContent = row.invoice_number; td.appendChild(number);
             } else if (field === 'status' && row.status_url) {

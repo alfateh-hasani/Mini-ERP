@@ -69,3 +69,5 @@ $lang['filter_products_failed'] = 'Unable to load products. Select the warehouse
 $lang['product_code_taken'] = 'This product code is already in use.';
 $lang['invoice_cancel_failed'] = 'Unable to cancel this invoice. It may already be cancelled or outside your warehouse scope.';
 $lang['inventory_adjustment_help'] = 'Set final quantity replaces the current balance. Add or remove changes the current balance and requires a reason.';
+
+$lang['stock_shortfall'] = 'Shortfall to alert level';
