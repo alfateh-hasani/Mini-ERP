@@ -68,10 +68,10 @@ class Products extends MY_Controller
         $this->json(true, ['results' => $this->productService()->search((string) $this->input->get('q', true), $scope)]);
     }
 
-    private function form(?array $product = null): void
+    private function form(?array $product = null, ?string $error = null): void
     {
         $this->config->load('units');
-        $this->render('products/form', ['product' => $product, 'categories' => $this->db->where('status', 'active')->order_by('name')->get('categories')->result_array(), 'warehouses' => $this->db->where('status', 'active')->order_by('name')->get('warehouses')->result_array(), 'units' => $this->config->item('units')]);
+        $this->render('products/form', ['product' => $product, 'form_error' => $error, 'categories' => $this->db->where('status', 'active')->order_by('name')->get('categories')->result_array(), 'warehouses' => $this->db->where('status', 'active')->order_by('name')->get('warehouses')->result_array(), 'units' => $this->config->item('units')]);
     }
 
     private function save(?int $id = null): void
@@ -88,12 +88,11 @@ class Products extends MY_Controller
             $this->session->set_flashdata('flash', ['type' => 'success', 'message' => lang('product_saved')]);
             redirect('products');
         } catch (\App\Exceptions\ValidationException $exception) {
-            $this->session->set_flashdata('flash', ['type' => 'error', 'message' => lang('product_save_invalid')]);
-            redirect($id ? 'products/edit/' . $id : 'products/create');
+            $error = lang('product_save_invalid');
         } catch (\Throwable $exception) {
             log_message('error', 'Product save failed: ' . $exception->getMessage());
-            $this->session->set_flashdata('flash', ['type' => 'error', 'message' => lang('product_save_failed')]);
-            redirect($id ? 'products/edit/' . $id : 'products/create');
+            $error = lang('product_save_failed');
         }
+        $this->form($id ? $this->db->where('id', $id)->get('products')->row_array() : null, $error);
     }
 }

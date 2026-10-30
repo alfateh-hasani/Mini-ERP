@@ -64,6 +64,9 @@ try {
     $schema = preg_replace('/^(?:CREATE DATABASE|USE ).*;\r?\n/m', '', file_get_contents($projectRoot . 'database/schema.sql'));
     foreach (explode(';', $schema) as $statement) { if (trim($statement) !== '') { authAssert((bool) $db->query($statement), 'Cannot install schema.'); } }
     $db->insert('warehouses', ['id' => 1, 'name' => 'One', 'name_ar' => 'One']);
+    $db->insert('categories', ['id' => 1, 'name' => 'First', 'name_ar' => 'First']);
+    $db->insert('categories', ['id' => 2, 'name' => 'Second', 'name_ar' => 'Second']);
+    $db->insert('products', ['category_id' => 1, 'code' => 'TAKEN', 'name' => 'Existing', 'name_ar' => 'Existing', 'unit' => 'piece', 'unit_ar' => 'Piece', 'price' => '10.00']);
     $db->insert('users', ['id' => 1, 'name' => 'Auth test', 'email' => 'auth@example.test', 'password_hash' => password_hash('test-password-123', PASSWORD_BCRYPT), 'role' => 'admin', 'preferred_lang' => 'en']);
     $socket = stream_socket_server('tcp://127.0.0.1:0', $errorCode, $error);
     authAssert(is_resource($socket), 'Cannot allocate local port.');
@@ -89,6 +92,26 @@ try {
     $session = authCookie($client, 'ci_session');
     authAssert($session !== null && abs($session['expires'] - time() - 7200) < 10, 'Session cookie is not 120 minutes.');
     authAssert(authCookie($client, 'erp_remember') === null, 'Unchecked login created a persistent cookie.');
+    foreach ([['code' => 'NEW', 'price' => 'not-money'], ['code' => 'TAKEN', 'price' => '25']] as $invalidProduct) {
+        $form = authRequest($client, $base, '/products/create');
+        authAssert((bool) preg_match('/name="(csrf_[^"]+)" value="([^"]+)"/', $form['body'], $csrf), 'Missing product CSRF field.');
+        $input = array_replace(['name' => 'Keep "me" & values', 'name_ar' => 'Test', 'category_id' => '2', 'unit' => 'box', 'alert_quantity' => '3', 'warehouse_id' => '1', 'initial_quantity' => '17', $csrf[1] => $csrf[2]], $invalidProduct);
+        $response = authRequest($client, $base, '/products/store', $input);
+        $document = new DOMDocument();
+        $oldErrors = libxml_use_internal_errors(true);
+        $document->loadHTML($response['body'], LIBXML_NONET);
+        libxml_clear_errors();
+        libxml_use_internal_errors($oldErrors);
+        $xpath = new DOMXPath($document);
+        authAssert($xpath->evaluate('string(//select[@name="warehouse_id"]/option[@selected]/@value)') === '1', 'Product error lost warehouse selection.');
+        authAssert($xpath->evaluate('string(//input[@name="initial_quantity"]/@value)') === '17', 'Product error lost initial stock.');
+        authAssert($xpath->query('//div[@data-initial-stock and not(@hidden)]//input[@name="initial_quantity" and not(@disabled)]')->length === 1, 'Returned initial stock is hidden or disabled.');
+        authAssert($xpath->evaluate('string(//select[@name="category_id"]/option[@selected]/@value)') === '2', 'Product error lost category.');
+        authAssert($xpath->evaluate('string(//select[@name="unit"]/option[@selected]/@value)') === 'box', 'Product error lost unit.');
+        authAssert($xpath->evaluate('string(//input[@name="name"]/@value)') === $input['name'], 'Product name was lost or double-escaped.');
+        authAssert($db->count_all('products') === 1 && $db->count_all('inventory') === 0, 'Invalid product submission wrote data.');
+    }
+    echo "PASS: validation and duplicate-code errors preserve warehouse, initial stock, category, unit and escaped product values.\n";
     foreach ([['not' => 'a string'], json_encode(['warehouse_id' => [], 'customer_id' => 1, 'items' => []]), json_encode(['warehouse_id' => 1, 'customer_id' => 1, 'items' => [['product_id' => 1, 'quantity' => '1.9']]])] as $payload) {
         $csrf = json_decode(authRequest($client, $base, '/auth/csrf')['body'], true);
         $response = json_decode(authRequest($client, $base, '/invoices/store', ['csrf_mini_erp' => $csrf['csrf_hash'], 'payload' => $payload])['body'], true);
