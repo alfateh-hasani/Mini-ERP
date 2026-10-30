@@ -11,3 +11,5 @@ $lang['add_customer'] = 'إضافة عميل'; $lang['edit_customer'] = 'تعد�
 $lang['method_not_allowed'] = 'الطلب غير مسموح.'; $lang['too_many_login_attempts'] = 'تم تجاوز عدد محاولات تسجيل الدخول. يرجى الانتظار 15 دقيقة.'; $lang['category_name_taken'] = 'اسم التصنيف مستخدم بالفعل.'; $lang['duplicate_customer'] = 'يوجد عميل بنفس رقم الهاتف أو البريد الإلكتروني.'; $lang['invoice_saved'] = 'تم حفظ الفاتورة.'; $lang['invalid_invoice'] = 'يرجى مراجعة بيانات الفاتورة وإعادة المحاولة.'; $lang['insufficient_stock'] = 'المخزون غير كافٍ لواحد أو أكثر من البنود.';
 $lang['menu'] = 'القائمة';
 $lang['close'] = 'إغلاق';
+$lang['search'] = 'بحث';
+$lang['no_results'] = 'لا توجد خيارات مطابقة';
