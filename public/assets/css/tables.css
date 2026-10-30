@@ -60,6 +60,17 @@
 .app-header-brand { align-items: center; display: flex; gap: .5rem; min-width: 0; }
 .app-header-brand .navbar-brand { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .app-header { background: var(--tblr-bg-surface, #fff); border-bottom: 1px solid var(--tblr-border-color); position: sticky; top: 0; z-index: 1030; }
+.profile-menu { position: relative; }
+.profile-menu > summary { list-style: none; }
+.profile-menu > summary::-webkit-details-marker { display: none; }
+.profile-menu-panel { background: var(--tblr-bg-surface, #fff); border: 1px solid var(--tblr-border-color); border-radius: .5rem; box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .12); display: none; inset-inline-end: 0; min-width: 11rem; padding: .35rem; position: absolute; top: calc(100% + .35rem); z-index: 1040; }
+.profile-menu[open] .profile-menu-panel,
+.profile-menu:hover .profile-menu-panel,
+.profile-menu:focus-within .profile-menu-panel { display: block; }
+.profile-menu-link { align-items: center; background: transparent; border: 0; border-radius: .35rem; color: inherit; cursor: pointer; display: flex; font: inherit; gap: .6rem; padding: .55rem .65rem; text-align: start; text-decoration: none; width: 100%; }
+.profile-menu-link:hover, .profile-menu-link:focus-visible { background: rgba(var(--tblr-primary-rgb), .08); color: var(--tblr-primary); outline: 0; }
+.profile-menu-logout { margin: 0; }
+.profile-card { max-width: 42rem; }
 .mobile-sidebar-backdrop { background: rgba(0, 0, 0, .45); inset: 0; position: fixed; z-index: 1039; }
 
 @media (max-width: 991.98px) {
