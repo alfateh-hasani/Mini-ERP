@@ -25,7 +25,7 @@ $needsReason = in_array($value('mode', 'set'), ['add', 'remove'], true);
         </div>
         <div class="col-md-3 mb-2">
           <label class="form-label" for="stock-product_id"><?= e(lang('product')) ?></label>
-          <select class="form-select<?= $invalid('product_id') ?>" id="stock-product_id" name="product_id" <?= $aria('product_id') ?> <?= $products ? '' : 'disabled' ?> required>
+          <select class="form-select<?= $invalid('product_id') ?>" id="stock-product_id" name="product_id" <?= $aria('product_id') ?> <?= $value('warehouse_id', $scope ? (string) $scope : '') !== '' && $products ? '' : 'disabled' ?> required>
             <option value=""><?= e(lang('inventory_product_required')) ?></option>
             <?php foreach ($products as $product): ?><option value="<?= (int) $product['id'] ?>" <?= $value('product_id') === (string) $product['id'] ? 'selected' : '' ?>><?= e($product['code'] . ' — ' . ($lang === 'ar' ? $product['name_ar'] : $product['name'])) ?></option><?php endforeach; ?>
           </select>

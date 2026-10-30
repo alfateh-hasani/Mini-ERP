@@ -54,7 +54,11 @@ test('warehouse changes scope products and removal clears explicit catalogue inc
     fetch: async url => { requests.push(url); return { ok: true, json: async () => ({ success: true, data: { products: [{ id: 9, code: 'TEST', name: 'Scoped' }] } }) }; }
   });
   const change = async field => { await Promise.all(listeners.get(field).map(callback => callback())); await new Promise(resolve => setImmediate(resolve)); };
+  assert.equal(product.disabled, true);
+  assert.equal(include.disabled, true);
+  assert.equal(requests.length, 0);
   warehouse.value = '2'; await change(warehouse);
+  assert.equal(include.disabled, false);
   assert.equal(requests[0].searchParams.get('warehouse_id'), '2');
   assert.equal(requests[0].searchParams.get('include_unstocked'), '0');
   assert.equal(product.options.length, 2);

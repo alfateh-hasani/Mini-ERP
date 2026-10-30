@@ -27,6 +27,7 @@
   let request;
   const refresh = () => product.dispatchEvent(new Event('erp:options-updated'));
   const loadProducts = async () => {
+    include.disabled = !warehouse.value;
     request?.abort();
     const current = new AbortController();
     request = current;
@@ -67,6 +68,12 @@
     }
   });
   // Server-rendered options preserve submitted selections after validation errors.
+  include.disabled = !warehouse.value;
+  if (!warehouse.value) {
+    product.disabled = true;
+    product.replaceChildren(new Option(form.dataset.productPlaceholder, ''));
+    refresh();
+  }
   if (warehouse.value && product.options.length === 1) {
     status.textContent = form.dataset.emptyProducts;
     save.disabled = true;
