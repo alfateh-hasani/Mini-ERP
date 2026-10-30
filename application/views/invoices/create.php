@@ -36,4 +36,4 @@
 </div></div>
 <template id="invoice-line-template"><?php $this->load->view('invoices/_line'); ?></template>
 <script src="<?= base_url('public/assets/js/invoice-totals.js') ?>?v=3"></script>
-<script src="<?= base_url('public/assets/js/invoice.js') ?>?v=8"></script>
+<script src="<?= base_url('public/assets/js/invoice.js') ?>?v=9"></script>

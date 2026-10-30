@@ -4,13 +4,13 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 const path = require('node:path');
 
-function setup(request, customer = '1', quantityValue = '1', availableQty = '37') {
+function setup(request, customer = '1', quantityValue = '1', availableQty = '37', discount = '1') {
   const handlers = {};
   const submit = { disabled: false, textContent: 'Save' };
   const notice = { focus() {}, textContent: '' };
   const quantity = { value: quantityValue, classList: { toggle() {} }, setAttribute() {}, focus() {}, setCustomValidity(message) { this.validationMessage = message; } };
-  const fields = { '.quantity': quantity, '.product-id': { value: '5' }, '.discount': { value: '1' } };
-  ['.quantity-stock', '.stock-available', '.stock-feedback', '.unit-price', '.line-subtotal', '.line-total', '.discount-amount'].forEach(selector => { fields[selector] = {}; });
+  const fields = { '.quantity': quantity, '.product-id': { value: '5' }, '.discount': { value: discount } };
+  ['.quantity-stock', '.stock-available', '.stock-feedback', '.unit-price', '.line-subtotal', '.line-total', '.discount-amount', '.unit-after-discount', '.unit-net-price', '.unit-discount-detail', '.unit-discount', '.line-discount-detail'].forEach(selector => { fields[selector] = {}; });
   const row = { dataset: { unitPrice: '10.00', availableQty }, querySelector: selector => fields[selector] };
   const lines = { addEventListener() {}, querySelectorAll: () => [row] };
   const form = {
@@ -85,4 +85,20 @@ test('zero stock blocks submission with an explicit message', async () => {
   await state.handlers.submit({ preventDefault() {} });
   assert.equal(called, false);
   assert.equal(state.notice.textContent, 'Out of stock.');
+});
+
+test('unit savings are distinguished from the full line discount', () => {
+  const state = setup(async () => {}, '1', '5', '37', '15');
+  assert.equal(state.fields['.unit-discount'].textContent, 'SAR 1.50');
+  assert.equal(state.fields['.unit-net-price'].textContent, 'SAR 8.50');
+  assert.equal(state.fields['.discount-amount'].textContent, 'SAR 7.50');
+  assert.equal(state.fields['.line-total'].textContent, 'SAR 42.50');
+  assert.equal(state.fields['.unit-after-discount'].hidden, false);
+});
+
+test('zero discount hides redundant discount details', () => {
+  const state = setup(async () => {}, '1', '1', '37', '0');
+  assert.equal(state.fields['.unit-after-discount'].hidden, true);
+  assert.equal(state.fields['.unit-discount-detail'].hidden, true);
+  assert.equal(state.fields['.line-discount-detail'].hidden, true);
 });

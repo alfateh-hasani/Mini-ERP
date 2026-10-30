@@ -81,9 +81,15 @@
 .invoice-editor-table output { padding-top: .6rem; }
 .invoice-editor-table .discount-amount { margin-top: .25rem; font-size: .75rem; }
 .invoice-editor-table .invoice-quantity-cell { min-width: 8rem; }
-.quantity-stock { display: block; margin-top: .4rem; font-size: .75rem; line-height: 1.5; }
-.quantity-stock > span { display: block; }
+.quantity-stock { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .55rem; font-size: .75rem; line-height: 1.5; }
+.quantity-stock > span { border-radius: .3rem; padding: .2rem .5rem; background: #f1f4f8; }
 .stock-available { font-weight: 600; color: var(--tblr-body-color, #182433); }
+.quantity-stock .stock-feedback:not(.text-danger) { background: #eaf6ee; color: #237a3d !important; }
+.quantity-stock .stock-feedback.text-danger { background: #fff0f0; }
+.unit-after-discount, .unit-discount-detail, .line-discount-detail { margin-top: .4rem; font-size: .75rem; }
+.invoice-editor-table .unit-after-discount output, .invoice-editor-table .unit-discount-detail output, .invoice-editor-table .line-discount-detail output { padding-top: .1rem; font-size: .8rem; }
+.unit-after-discount { color: #237a3d; font-weight: 600; }
+.unit-discount-detail, .line-discount-detail { color: var(--tblr-muted, #667382); }
 .invoice-footer { display: flex; justify-content: space-between; align-items: start; gap: 1.5rem; margin-top: 1.5rem; }
 .invoice-summary { padding: 1.25rem; border: 1px solid var(--tblr-border-color, #d9dee5); border-radius: .5rem; background: #f8fafc; width: 25rem; max-width: 100%; }
 .invoice-summary > div { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: .75rem; }

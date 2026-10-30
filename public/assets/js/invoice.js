@@ -49,6 +49,7 @@
     const feedback = row.querySelector('.stock-feedback');
     feedback.className = 'stock-feedback' + (exceeds ? ' text-danger' : ' text-muted');
     feedback.textContent = !selected ? '' : available === 0 ? labels.outOfStock : exceeds ? `${labels.excess}: ${requested - available}` : quantity.value !== '' && Number.isInteger(requested) && requested > 0 ? `${labels.remaining}: ${available - requested}` : '';
+    feedback.hidden = !feedback.textContent;
     if (exceeds) quantity.setCustomValidity(available === 0 ? labels.outOfStock : labels.stockLimit(available));
     return !exceeds;
   };
@@ -60,10 +61,17 @@
       const selected = !!row.querySelector('.product-id').value;
       const amount = selected && stockValid ? calculator.line(row.dataset.unitPrice, row.querySelector('.quantity').value, row.querySelector('.discount').value) : null;
       const unit = selected ? calculator.line(row.dataset.unitPrice, '1', '0') : null;
+      const discountedUnit = selected ? calculator.line(row.dataset.unitPrice, '1', row.querySelector('.discount').value) : null;
+      const hasDiscount = !!discountedUnit && Number(row.querySelector('.discount').value) > 0;
       row.querySelector('.unit-price').textContent = unit ? money(unit.unit) : '—';
+      row.querySelector('.unit-after-discount').hidden = !hasDiscount;
+      row.querySelector('.unit-net-price').textContent = hasDiscount ? money(discountedUnit.total) : '';
+      row.querySelector('.unit-discount-detail').hidden = !hasDiscount;
+      row.querySelector('.unit-discount').textContent = hasDiscount ? money(discountedUnit.discount) : '';
       row.querySelector('.line-subtotal').textContent = amount ? money(amount.subtotal) : '—';
       row.querySelector('.line-total').textContent = amount ? money(amount.total) : '—';
       row.querySelector('.discount-amount').textContent = amount ? money(amount.discount) : '';
+      row.querySelector('.line-discount-detail').hidden = !amount || amount.discount === 0n;
       if (amount) { subtotal += amount.subtotal; discount += amount.discount; }
       if (selected && !amount) complete = false;
     });
@@ -106,7 +114,7 @@
             existing.querySelector('.quantity').focus();
             return;
           }
-          input.value = button.textContent;
+          input.value = `${product.code} — ${arabic ? product.name_ar : product.name}`;
           picker.querySelector('.product-id').value = product.id;
           row.dataset.unitPrice = String(product.price);
           row.dataset.availableQty = String(product.available_qty);
