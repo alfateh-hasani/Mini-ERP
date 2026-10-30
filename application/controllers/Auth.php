@@ -10,6 +10,13 @@ class Auth extends MY_Controller
         $this->json(true);
     }
 
+    /** Logout must still be possible after the ordinary session expires. */
+    public function logout_csrf(): void
+    {
+        $this->output->set_header('Cache-Control: no-store');
+        $this->json(true);
+    }
+
     public function login(): void
     {
         if ($this->currentUser) { redirect(''); }
@@ -44,6 +51,11 @@ class Auth extends MY_Controller
 
     public function logout(): void
     {
+        if ($this->input->method() === 'get') {
+            if (!$this->currentUser) { redirect('login'); return; }
+            $this->render('auth/logout');
+            return;
+        }
         $this->requirePost();
         try {
             $this->authentication->forget();
@@ -51,6 +63,10 @@ class Auth extends MY_Controller
             log_message('error', 'Remembered logout could not be revoked: ' . $exception->getMessage());
         } finally {
             $this->session->sess_destroy();
+        }
+        if (strpos((string) $this->input->get_request_header('Accept', true), 'application/json') !== false) {
+            $this->json(true, ['redirect' => site_url('login')]);
+            return;
         }
         redirect('login');
     }

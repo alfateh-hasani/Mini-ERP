@@ -71,6 +71,7 @@ $lang['invoice_cancel_failed'] = 'Unable to cancel this invoice. It may already 
 $lang['inventory_adjustment_help'] = 'Set final quantity replaces the current balance. Add or remove changes the current balance and requires a reason.';
 
 $lang['stock_shortfall'] = 'Shortfall to alert level';
+$lang['logout_confirmation'] = 'Do you want to sign out of your account?';
 $lang['remember_me'] = 'Remember me';
 $lang['remember_help'] = 'Stay signed in on this device for up to 30 days. Use only on a private device.';
 $lang['remember_failed'] = 'You are signed in, but this device could not be remembered. Please select Remember me next time.';

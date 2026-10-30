@@ -14,7 +14,7 @@ function authClient()
     return $client;
 }
 
-function authRequest($client, string $base, string $path, ?array $post = null): array
+function authRequest($client, string $base, string $path, ?array $post = null, int $expectedStatus = 200): array
 {
     $headers = [];
     curl_setopt($client, CURLOPT_HEADERFUNCTION, static function ($client, $header) use (&$headers) { $headers[] = $header; return strlen($header); });
@@ -23,7 +23,7 @@ function authRequest($client, string $base, string $path, ?array $post = null): 
     if ($post !== null) { curl_setopt($client, CURLOPT_POSTFIELDS, http_build_query($post)); }
     $body = curl_exec($client);
     if ($body === false) { throw new RuntimeException('HTTP request failed: ' . curl_error($client)); }
-    authAssert(curl_getinfo($client, CURLINFO_HTTP_CODE) === 200, 'Unexpected HTTP status for ' . $path);
+    authAssert(curl_getinfo($client, CURLINFO_HTTP_CODE) === $expectedStatus, 'Unexpected HTTP status for ' . $path);
     return ['body' => $body, 'headers' => implode('', $headers)];
 }
 
@@ -145,10 +145,29 @@ try {
     // Log out with a freshly issued remembered login.
     $logoutClient = authClient();
     authLogin($logoutClient, $base, true);
+    authAssert(strpos(authRequest($logoutClient, $base, '/logout')['body'], 'data-logout-form') !== false, 'Direct logout URL lacks confirmation.');
+    authAssert($db->count_all('remember_tokens') === 1, 'GET logout revoked authentication.');
+    authRequest($logoutClient, $base, '/logout', [], 403);
+    authAssert($db->count_all('remember_tokens') === 1, 'Logout without CSRF changed authentication.');
     $csrf = json_decode(authRequest($logoutClient, $base, '/auth/csrf')['body'], true);
-    authRequest($logoutClient, $base, '/logout', ['csrf_mini_erp' => $csrf['csrf_hash']]);
+    // A different submission rotates the token from the originally rendered form.
+    authRequest($logoutClient, $base, '/invoices/store', ['csrf_mini_erp' => $csrf['csrf_hash']]);
+    $fresh = json_decode(authRequest($logoutClient, $base, '/auth/logout_csrf')['body'], true);
+    authAssert($fresh['csrf_hash'] !== $csrf['csrf_hash'], 'Test did not rotate the stale token.');
+    curl_setopt($logoutClient, CURLOPT_HTTPHEADER, ['Accept: application/json']);
+    $logout = json_decode(authRequest($logoutClient, $base, '/logout', ['csrf_mini_erp' => $fresh['csrf_hash']])['body'], true);
+    authAssert($logout['success'] === true && $logout['data']['redirect'] === $base . '/login', 'JSON logout did not return login destination.');
+    curl_setopt($logoutClient, CURLOPT_HTTPHEADER, []);
     authAssert(authCookie($logoutClient, 'erp_remember') === null, 'Logout retained remember cookie.');
     authAssert($db->count_all('remember_tokens') === 0, 'Logout retained remember token.');
+    $expiredLogout = authClient();
+    authLogin($expiredLogout, $base, false);
+    authSetIdle($db, $expiredLogout, 7201);
+    $csrf = json_decode(authRequest($expiredLogout, $base, '/auth/logout_csrf')['body'], true);
+    authAssert($csrf['success'] === true, 'Expired session cannot refresh logout CSRF.');
+    authRequest($expiredLogout, $base, '/logout', ['csrf_mini_erp' => $csrf['csrf_hash']]);
+    authAssert(strpos(authRequest($expiredLogout, $base, '/logout')['body'], 'id="login-email"') !== false, 'Anonymous logout URL did not return to login.');
+    echo "PASS: logout confirmation, CSRF enforcement, token refresh after another write, JSON logout, and expired-session logout.\n";
 
     // Password changes invalidate an existing session and remembered login.
     $passwordClient = authClient();
