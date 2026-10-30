@@ -1627,3 +1627,9 @@ The migration order starts with settings, not currencies:
 Use fixed `SAR` formatting in one presentation helper. Persist every monetary value as `DECIMAL(12,2)` representing SAR. The language switcher remains; a currency switcher does not exist.
 
 *Clarification version 3.2 - 2026-10-29. This overrides all earlier currency-related plan text.*
+
+## v3.3 Amendment ? Counter-free invoice numbering (2026-10-30)
+
+At the user's request, this supersedes the earlier `invoice_counters` requirement. `InvoiceRepository::nextNumber()` derives the next numeric suffix from retained invoices for the current prefix/date. `BaseRepository::withAdvisoryLock()` provides database-scoped locking, and `InvoiceRepository::numberedTransaction()` holds that lock from before transaction start until after commit/rollback. All invoice creators must use this path. A standalone COUNT/MAX query is not safe for allocation.
+
+Migration 014 removes the counter table; migration 009 is retained for historical upgrade compatibility. Fresh schema installations omit the table. Existing invoice numbers are unchanged. The new scheme assumes one MySQL writer and retained invoices, and deliberately serializes number-allocating transactions. See `DATABASE_REVIEW.md` for tradeoffs and review-only schema recommendations.

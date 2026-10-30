@@ -17,7 +17,8 @@ Demo login after seeding: `test@smartlife.com` / `87654321`. Change it before de
 
 - `composer test` runs PHPUnit.
 - `composer lint` runs PHP_CodeSniffer after dependencies are installed.
-- `php index.php cli/migrate` applies the included migrations.
+- `php index.php cli/migrate` applies the included migrations (including migration 014, which removes the legacy invoice counter table).
+- `php application/tests/integration/invoice_numbering.php` verifies numbering with concurrent MySQL connections in an isolated temporary database; the database user needs CREATE/DROP DATABASE permissions.
 - `php index.php cli/seed` idempotently creates or backfills demo warehouses, users, products, inventory, customers, and invoices.
 
 ## Security and business rules
@@ -33,5 +34,7 @@ Invoice product rows show compact available/remaining stock badges. Quantity fie
 - SAR is fixed; there is no currencies table, selector, conversion, or exchange-rate feature.
 - CI3 CSRF is enabled. Static JavaScript reads the token from layout metadata, sends it in `FormData`, and refreshes it from each JSON response.
 - Role and effective warehouse scope are enforced centrally in `MY_Controller`; warehouse users cannot widen scope with a submitted warehouse ID.
-- Invoice creation locks warehouse inventory by product ID in ascending order, allocates a number from a locked daily counter, and writes product snapshots. Cancellation locks the invoice and inventory rows before restoring stock.
+- Invoice creation locks warehouse inventory by product ID in ascending order, allocates the next daily number from retained invoices under a database-scoped advisory lock, and writes product snapshots. Cancellation locks the invoice and inventory rows before restoring stock.
 - Import `database/schema.sql` for the canonical fresh installation. Migrations are an equivalent application installation path.
+
+See [DATABASE_REVIEW.md](DATABASE_REVIEW.md) for the column-by-column schema review and unapplied recommendations. Invoice numbers must be allocated through `InvoiceRepository::numberedTransaction()`; existing invoices are retained, including cancellations.
