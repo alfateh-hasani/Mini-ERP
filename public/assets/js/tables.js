@@ -7,10 +7,13 @@
     search: '\u0628\u062d\u062b', rows: '\u0633\u062c\u0644\u0627\u062a \u0641\u064a \u0627\u0644\u0635\u0641\u062d\u0629',
     showing: '\u0625\u0638\u0647\u0627\u0631', of: '\u0645\u0646', records: '\u0633\u062c\u0644',
     previous: '\u0627\u0644\u0633\u0627\u0628\u0642', next: '\u0627\u0644\u062a\u0627\u0644\u064a',
-    noRecords: '\u0644\u0627 \u062a\u0648\u062c\u062f \u0633\u062c\u0644\u0627\u062a \u0645\u0637\u0627\u0628\u0642\u0629'
+    noRecords: '\u0644\u0627 \u062a\u0648\u062c\u062f \u0633\u062c\u0644\u0627\u062a \u0645\u0637\u0627\u0628\u0642\u0629',
+    confirmStatus: '\u0647\u0644 \u062a\u0631\u064a\u062f \u062a\u063a\u064a\u064a\u0631 \u062d\u0627\u0644\u0629 \u0647\u0630\u0627 \u0627\u0644\u0633\u062c\u0644\u061f',
+    confirm: '\u062a\u0623\u0643\u064a\u062f', cancel: '\u0625\u0644\u063a\u0627\u0621', updateFailed: '\u062a\u0639\u0630\u0631 \u062a\u062d\u062f\u064a\u062b \u0627\u0644\u062d\u0627\u0644\u0629. \u064a\u0631\u062c\u0649 \u0627\u0644\u0645\u062d\u0627\u0648\u0644\u0629 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649.'
   } : {
     search: 'Search', rows: 'rows per page', showing: 'Showing', of: 'of',
-    records: 'records', previous: 'Previous', next: 'Next', noRecords: 'No matching records'
+    records: 'records', previous: 'Previous', next: 'Next', noRecords: 'No matching records',
+    confirmStatus: 'Do you want to change this record’s status?', confirm: 'Confirm', cancel: 'Cancel', updateFailed: 'Unable to update the status. Please try again.'
   };
 
   function element(tag, className, text) {
@@ -18,6 +21,27 @@
     if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
     return node;
+  }
+
+  function confirmStatusChange() {
+    if (!('HTMLDialogElement' in window)) return Promise.resolve(window.confirm(labels.confirmStatus));
+    return new Promise(function (resolve) {
+      var dialog = element('dialog', 'status-confirm-dialog');
+      var content = element('div', 'status-confirm-dialog-content');
+      var message = element('p', 'mb-3', labels.confirmStatus);
+      var actions = element('div', 'status-confirm-dialog-actions');
+      var cancel = element('button', 'btn btn-outline-secondary', labels.cancel);
+      var confirm = element('button', 'btn btn-primary', labels.confirm);
+      cancel.type = 'button'; confirm.type = 'button';
+      actions.appendChild(cancel); actions.appendChild(confirm);
+      content.appendChild(message); content.appendChild(actions); dialog.appendChild(content);
+      document.body.appendChild(dialog);
+      function finish(value) { dialog.close(); dialog.remove(); resolve(value); }
+      cancel.addEventListener('click', function () { finish(false); });
+      confirm.addEventListener('click', function () { finish(true); });
+      dialog.addEventListener('cancel', function (event) { event.preventDefault(); finish(false); });
+      dialog.showModal();
+    });
   }
 
   function setupTable(table) {
@@ -74,6 +98,29 @@
               var link = document.createElement('a'); link.href = row.edit_url; link.className = 'btn btn-sm'; link.textContent = row.edit_label || 'Edit'; td.appendChild(link);
             } else if (field === 'number' && row.show_url) {
               var number = document.createElement('a'); number.href = row.show_url; number.textContent = row.invoice_number; td.appendChild(number);
+            } else if (field === 'status' && row.status_url) {
+              var isActive = row.status_value === 'active';
+              var toggle = element('button', 'status-switch' + (isActive ? ' is-active' : ''));
+              toggle.type = 'button';
+              toggle.setAttribute('role', 'switch');
+              toggle.setAttribute('aria-checked', isActive ? 'true' : 'false');
+              toggle.setAttribute('aria-label', row.status);
+              toggle.title = row.status;
+              toggle.appendChild(element('span', 'status-switch-track'));
+              toggle.addEventListener('click', function () {
+                confirmStatusChange().then(function (confirmed) {
+                  if (!confirmed) return;
+                  toggle.disabled = true;
+                  window.erpFetch(row.status_url, { method: 'POST' }).then(function (response) {
+                    if (!response.success) throw new Error((response.error || {}).message || labels.updateFailed);
+                    loadServerPage();
+                  }).catch(function (error) {
+                    toggle.disabled = false;
+                    window.alert(error.message || labels.updateFailed);
+                  });
+                });
+              });
+              td.appendChild(toggle);
             } else {
               td.textContent = row[field] === null || row[field] === undefined ? '' : row[field];
             }
