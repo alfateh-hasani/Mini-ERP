@@ -67,6 +67,18 @@ class InventoryRepository extends BaseRepository
         }
     }
 
+    public function adjustmentProductOptions(int $warehouseId, bool $includeUnstocked = false): array
+    {
+        if ($warehouseId < 1) { return []; }
+        $query = $this->db->select('products.id, products.code, products.name, products.name_ar')
+            ->from('products')->where('products.status', 'active')->where('products.deleted_at', null);
+        $query->join('warehouses', 'warehouses.id = ' . (int) $warehouseId . " AND warehouses.status = 'active'");
+        if (!$includeUnstocked) {
+            $query->join('inventory', 'inventory.product_id = products.id AND inventory.warehouse_id = warehouses.id');
+        }
+        return $query->order_by('products.code')->get()->result_array();
+    }
+
     public function productOptions(?int $warehouseId): array
     {
         $query = $this->db->distinct()->select('products.id, products.code, products.name, products.name_ar')

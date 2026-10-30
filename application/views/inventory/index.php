@@ -36,4 +36,4 @@ foreach ($filter_warehouses as $filterWarehouse) {
 
 <script src="<?= base_url('public/assets/js/inventory.js') ?>?v=2" defer></script>
 
-<script src="<?= base_url('public/assets/js/stock-adjustment.js') ?>?v=1" defer></script>
+<script src="<?= base_url('public/assets/js/stock-adjustment.js') ?>?v=2" defer></script>

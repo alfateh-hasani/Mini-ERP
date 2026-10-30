@@ -13,16 +13,18 @@ class Inventory extends MY_Controller
         }
         $repository = new \App\Repositories\InventoryRepository($this->db);
         $page = $this->inventoryService()->page([], $scope);
+        $adjustment = $this->session->flashdata('inventory_adjustment') ?: ['values' => [], 'errors' => []];
+        $adjustmentWarehouse = (int) ($adjustment['values']['warehouse_id'] ?? $scope ?? 0);
         $this->render('inventory/index', [
             'items' => $page['rows'],
             'scope' => $scope,
-            'adjustment' => $this->session->flashdata('inventory_adjustment') ?: ['values' => [], 'errors' => []],
+            'adjustment' => $adjustment,
             'filter_products' => $repository->productOptions($scope),
             'filter_warehouses' => $this->currentUser['role'] === ROLE_ADMIN
                 ? $this->db->order_by('name')->get('warehouses')->result_array()
                 : $this->db->where('id', $scope)->get('warehouses')->result_array(),
             'warehouses' => $this->currentUser['role'] === ROLE_ADMIN ? $this->db->where('status', STATUS_ACTIVE)->order_by('name')->get('warehouses')->result_array() : [],
-            'products' => $this->currentUser['role'] === ROLE_ADMIN ? $this->db->where('status', STATUS_ACTIVE)->where('deleted_at IS NULL', null, false)->order_by('code')->get('products')->result_array() : [],
+            'products' => $this->currentUser['role'] === ROLE_ADMIN ? $repository->adjustmentProductOptions($adjustmentWarehouse, ($adjustment['values']['include_unstocked'] ?? '') === '1' && ($adjustment['values']['mode'] ?? 'set') !== 'remove') : [],
         ]);
     }
 
@@ -60,6 +62,14 @@ class Inventory extends MY_Controller
         $this->json(true, ['products' => (new \App\Repositories\InventoryRepository($this->db))->productOptions($scope)]);
     }
 
+    public function adjustment_products(): void
+    {
+        $this->requireAdmin();
+        $warehouseId = filter_var($this->input->get('warehouse_id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 0;
+        $includeUnstocked = $this->input->get('include_unstocked') === '1';
+        $this->json(true, ['products' => (new \App\Repositories\InventoryRepository($this->db))->adjustmentProductOptions($warehouseId, $includeUnstocked)]);
+    }
+
     public function adjust(): void
     {
         $this->requireAdmin();
@@ -80,7 +90,7 @@ class Inventory extends MY_Controller
         }
         if ($flash['type'] === 'error') {
             $values = [];
-            foreach (['warehouse_id', 'product_id', 'mode', 'quantity', 'reason'] as $field) {
+            foreach (['warehouse_id', 'product_id', 'mode', 'quantity', 'reason', 'include_unstocked'] as $field) {
                 if (isset($input[$field]) && is_scalar($input[$field])) { $values[$field] = mb_substr((string) $input[$field], 0, 1024); }
             }
             $this->session->set_flashdata('inventory_adjustment', ['values' => $values, 'errors' => $errors, 'message' => $flash['message']]);

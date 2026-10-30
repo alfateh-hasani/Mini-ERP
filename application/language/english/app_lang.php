@@ -1,4 +1,7 @@
 <?php
+$lang['stock_include_unstocked'] = 'Include products not yet stocked here';
+$lang['stock_products_empty'] = 'No products stocked here. Include new products to add stock.';
+$lang['stock_products_failed'] = 'Unable to load products. Select the warehouse again to retry.';
 $lang['customer_saved'] = 'Customer saved.'; $lang['product_saved'] = 'Product saved.'; $lang['inventory_updated'] = 'Inventory updated.'; $lang['invalid_inventory_adjustment'] = 'Invalid inventory adjustment.'; $lang['invoice_cancelled_restored'] = 'Invoice cancelled and stock restored.'; $lang['category_saved'] = 'Category saved.'; $lang['warehouse_saved'] = 'Warehouse saved.'; $lang['user_saved'] = 'User saved.';
 $lang['login'] = 'Sign in'; $lang['logout'] = 'Sign out'; $lang['email'] = 'Email'; $lang['password'] = 'Password'; $lang['dashboard'] = 'Dashboard'; $lang['invalid_login'] = 'Invalid email or password.'; $lang['account_inactive'] = 'This account is inactive. Please contact an administrator.'; $lang['forbidden'] = 'You are not allowed to access this resource.';
 $lang['inventory'] = 'Inventory'; $lang['customers'] = 'Customers'; $lang['invoices'] = 'Invoices'; $lang['new_invoice'] = 'New invoice'; $lang['reports'] = 'Reports'; $lang['products'] = 'Products'; $lang['categories'] = 'Categories'; $lang['warehouses'] = 'Warehouses'; $lang['users'] = 'Users';

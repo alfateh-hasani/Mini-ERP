@@ -12,7 +12,7 @@ $needsReason = in_array($value('mode', 'set'), ['add', 'remove'], true);
 <div class="card mt-3" id="inventory-adjustment"><div class="card-body">
   <h3 class="card-title"><?= e(lang('inventory_adjustment')) ?></h3>
   <?php if (!empty($adjustment['message'])): ?><div class="alert alert-danger" role="alert"><?= e($adjustment['message']) ?></div><?php endif; ?>
-  <?= form_open('inventory/adjust', ['data-stock-adjustment' => '']) ?>
+  <?= form_open('inventory/adjust', ['data-stock-adjustment' => '', 'data-products-url' => site_url('inventory/adjustment_products'), 'data-product-placeholder' => lang('inventory_product_required'), 'data-load-error' => lang('stock_products_failed'), 'data-empty-products' => lang('stock_products_empty')]) ?>
     <fieldset data-inventory-adjustment <?= $selectedWarehouseInactive ? 'disabled' : '' ?>>
       <div class="row">
         <div class="col-md-3 mb-2">
@@ -25,11 +25,16 @@ $needsReason = in_array($value('mode', 'set'), ['add', 'remove'], true);
         </div>
         <div class="col-md-3 mb-2">
           <label class="form-label" for="stock-product_id"><?= e(lang('product')) ?></label>
-          <select class="form-select<?= $invalid('product_id') ?>" id="stock-product_id" name="product_id" <?= $aria('product_id') ?> required>
+          <select class="form-select<?= $invalid('product_id') ?>" id="stock-product_id" name="product_id" <?= $aria('product_id') ?> <?= $products ? '' : 'disabled' ?> required>
             <option value=""><?= e(lang('inventory_product_required')) ?></option>
             <?php foreach ($products as $product): ?><option value="<?= (int) $product['id'] ?>" <?= $value('product_id') === (string) $product['id'] ? 'selected' : '' ?>><?= e($product['code'] . ' — ' . ($lang === 'ar' ? $product['name_ar'] : $product['name'])) ?></option><?php endforeach; ?>
           </select>
           <?php $feedback('product_id'); ?>
+          <label class="form-check mt-2" data-enrolment-option <?= $value('mode', 'set') === 'remove' ? 'hidden' : '' ?>>
+            <input class="form-check-input" type="checkbox" name="include_unstocked" value="1" <?= $value('include_unstocked') === '1' && $value('mode', 'set') !== 'remove' ? 'checked' : '' ?>>
+            <span class="form-check-label"><?= e(lang('stock_include_unstocked')) ?></span>
+          </label>
+          <div class="small text-muted mt-1" data-stock-product-status role="status" aria-live="polite"></div>
         </div>
         <div class="col-md-2 mb-2">
           <label class="form-label" for="stock-mode"><?= e(lang('adjustment_type')) ?></label>

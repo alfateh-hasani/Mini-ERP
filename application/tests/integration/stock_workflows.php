@@ -27,6 +27,11 @@ try {
     $db->insert('users', ['id' => 1, 'name' => 'Test', 'email' => 'stock@example.test', 'password_hash' => 'test-only', 'role' => 'admin']);
     $db->insert('products', ['id' => 1, 'category_id' => 1, 'code' => 'STOCK', 'name' => 'Test', 'name_ar' => 'Test', 'unit' => 'piece', 'price' => '10.00']);
     $db->insert('inventory', ['warehouse_id' => 1, 'product_id' => 1, 'quantity' => 10]);
+    $options = new InventoryRepository($db);
+    stockAssert(count($options->adjustmentProductOptions(1)) === 1, 'Warehouse product missing.');
+    stockAssert($options->adjustmentProductOptions(2) === [], 'Another warehouse product leaked into options.');
+    stockAssert(count($options->adjustmentProductOptions(2, true)) === 1, 'Explicit enrolment cannot find unstocked products.');
+    stockAssert($options->adjustmentProductOptions(0, true) === [], 'Missing warehouse exposes catalogue.');
     $service = new InventoryService(new InventoryRepository($db));
     $input = ['warehouse_id' => '1', 'product_id' => '1', 'quantity' => '3', 'mode' => 'add', 'reason' => 'Delivery'];
     try {
@@ -70,6 +75,7 @@ try {
     $initialId = $productService->save(array_replace($product, ['code' => 'INITIAL', 'warehouse_id' => '1', 'initial_quantity' => '4']), 1);
     stockAssert((int) $db->where('product_id', $initialId)->get('inventory')->row_array()['quantity'] === 4, 'Atomic initial stock failed.');
     $db->where('id', 2)->update('warehouses', ['status' => 'inactive']);
+    stockAssert($options->adjustmentProductOptions(2, true) === [], 'Inactive warehouse exposes adjustment products.');
     try {
         $service->adjust(['warehouse_id' => 2, 'product_id' => $id, 'quantity' => '1', 'mode' => 'set'], 1);
         throw new LogicException('Inactive warehouse accepted stock changes.');

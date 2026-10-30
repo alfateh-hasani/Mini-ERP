@@ -159,7 +159,7 @@ try {
     authAssert((bool) preg_match('/class="alert alert-danger" role="alert"/', $response['body']), 'Error flash is not rendered as a danger alert.');
     authAssert(strpos($response['body'], 'alert-error') === false, 'Unsupported error alert class remains.');
     echo "PASS: user create/edit errors preserve non-password fields, duplicate email has inline invalid styling, and error flashes use danger styling.\n";
-    $stockInput = ['warehouse_id' => '1', 'product_id' => '1', 'mode' => 'add', 'quantity' => '5', 'reason' => ''];
+    $stockInput = ['warehouse_id' => '1', 'product_id' => '1', 'mode' => 'add', 'quantity' => '5', 'reason' => '', 'include_unstocked' => '1'];
     $form = authRequest($client, $base, '/inventory');
     preg_match('/name="(csrf_[^"]+)" value="([^"]+)"/', $form['body'], $csrf);
     $response = authRequest($client, $base, '/inventory/adjust', $stockInput + [$csrf[1] => $csrf[2]]);

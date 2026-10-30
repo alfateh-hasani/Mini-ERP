@@ -1,4 +1,7 @@
 <?php
+$lang['stock_include_unstocked'] = 'تضمين منتجات لم تُضف لهذا المستودع';
+$lang['stock_products_empty'] = 'لا توجد منتجات في هذا المستودع. فعّل تضمين المنتجات لإضافة مخزون جديد.';
+$lang['stock_products_failed'] = 'تعذر تحميل المنتجات. اختر المستودع مجددًا لإعادة المحاولة.';
 $lang['customer_saved'] = 'تم حفظ العميل.'; $lang['product_saved'] = 'تم حفظ المنتج.'; $lang['inventory_updated'] = 'تم تحديث المخزون.'; $lang['invalid_inventory_adjustment'] = 'تعديل المخزون غير صالح.'; $lang['invoice_cancelled_restored'] = 'تم إلغاء الفاتورة واستعادة المخزون.'; $lang['category_saved'] = 'تم حفظ التصنيف.'; $lang['warehouse_saved'] = 'تم حفظ المستودع.'; $lang['user_saved'] = 'تم حفظ المستخدم.';
 $lang['settings'] = 'الإعدادات'; $lang['company_name'] = 'اسم الشركة'; $lang['invoice_prefix'] = 'بادئة رقم الفاتورة'; $lang['settings_saved'] = 'تم حفظ الإعدادات.';
 $lang['login'] = 'تسجيل الدخول'; $lang['logout'] = 'تسجيل الخروج'; $lang['email'] = 'البريد الإلكتروني'; $lang['password'] = 'كلمة المرور'; $lang['dashboard'] = 'لوحة التحكم'; $lang['invalid_login'] = 'البريد الإلكتروني أو كلمة المرور غير صحيحة.'; $lang['account_inactive'] = 'هذا الحساب غير نشط. يرجى التواصل مع المسؤول.'; $lang['forbidden'] = 'ليس لديك صلاحية للوصول إلى هذا المورد.';
