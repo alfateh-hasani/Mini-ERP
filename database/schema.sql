@@ -9,7 +9,7 @@ CREATE TABLE settings (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (setting_key)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE warehouses (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -20,7 +20,7 @@ CREATE TABLE warehouses (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE categories (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -31,7 +31,7 @@ CREATE TABLE categories (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_categories_name (name)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE users (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -49,7 +49,7 @@ CREATE TABLE users (
   KEY idx_users_warehouse (warehouse_id),
   CONSTRAINT fk_users_warehouse FOREIGN KEY (warehouse_id) REFERENCES warehouses(id),
   CONSTRAINT chk_users_role_warehouse CHECK ((role = 'admin') OR (warehouse_id IS NOT NULL))
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE login_attempts (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -57,7 +57,7 @@ CREATE TABLE login_attempts (
   attempted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_login_attempts_ip_time (ip_address, attempted_at)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE products (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -81,7 +81,7 @@ CREATE TABLE products (
   CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories(id),
   CONSTRAINT fk_products_created_by FOREIGN KEY (created_by) REFERENCES users(id),
   CONSTRAINT chk_products_price CHECK (price >= 0)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE inventory (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -94,7 +94,7 @@ CREATE TABLE inventory (
   KEY idx_inventory_product_warehouse (product_id, warehouse_id),
   CONSTRAINT fk_inventory_warehouse FOREIGN KEY (warehouse_id) REFERENCES warehouses(id),
   CONSTRAINT fk_inventory_product FOREIGN KEY (product_id) REFERENCES products(id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE customers (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -109,7 +109,7 @@ CREATE TABLE customers (
   UNIQUE KEY uq_customers_phone (phone),
   UNIQUE KEY uq_customers_email (email),
   CONSTRAINT fk_customers_created_by FOREIGN KEY (created_by) REFERENCES users(id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE invoices (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -134,7 +134,7 @@ CREATE TABLE invoices (
   CONSTRAINT fk_invoices_created_by FOREIGN KEY (created_by) REFERENCES users(id),
   CONSTRAINT fk_invoices_cancelled_by FOREIGN KEY (cancelled_by) REFERENCES users(id),
   CONSTRAINT chk_invoices_amounts CHECK (subtotal >= 0 AND discount_amount >= 0 AND total >= 0)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE invoice_items (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -155,7 +155,7 @@ CREATE TABLE invoice_items (
   CONSTRAINT fk_invoice_items_product FOREIGN KEY (product_id) REFERENCES products(id),
   CONSTRAINT chk_invoice_items_quantity CHECK (quantity > 0),
   CONSTRAINT chk_invoice_items_amounts CHECK (unit_price >= 0 AND discount_amount >= 0 AND line_total >= 0)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE inventory_movements (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -174,7 +174,7 @@ CREATE TABLE inventory_movements (
   CONSTRAINT fk_inventory_movements_warehouse FOREIGN KEY (warehouse_id) REFERENCES warehouses(id),
   CONSTRAINT fk_inventory_movements_product FOREIGN KEY (product_id) REFERENCES products(id),
   CONSTRAINT fk_inventory_movements_user FOREIGN KEY (created_by) REFERENCES users(id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE ci_sessions (
   id VARCHAR(128) NOT NULL,
@@ -183,7 +183,7 @@ CREATE TABLE ci_sessions (
   data BLOB NOT NULL,
   PRIMARY KEY (id),
   KEY idx_ci_sessions_timestamp (timestamp)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE remember_tokens (
   selector CHAR(24) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
