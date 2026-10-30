@@ -9,16 +9,47 @@
   const backdrop = document.querySelector('[data-sidebar-backdrop]');
   const profileMenu = document.querySelector('.profile-menu');
 
-  window.erpFetch = async (url, options = {}) => {
+  let requestQueue = Promise.resolve();
+  const send = async (url, options = {}, retryCsrf = true) => {
     const body = options.body instanceof FormData ? options.body : new FormData();
+    const refreshUrl = document.querySelector('meta[name="csrf-refresh"]')?.content;
+    // HttpOnly cookies cannot be read by JavaScript; refresh their matching token.
+    if (refreshUrl) {
+      const fresh = await fetch(refreshUrl, { credentials: 'same-origin', cache: 'no-store' });
+      const token = await fresh.json().catch(() => null);
+      if (!fresh.ok || !token?.success || !token.csrf_hash) throw new Error(document.documentElement.lang === 'ar' ? 'انتهت الجلسة. سجّل الدخول مرة أخرى.' : 'Your session has expired. Please sign in again.');
+      hash = token.csrf_hash;
+    }
+    // Other tabs may rotate CI3's double-submit cookie after this page loads.
+    const cookieName = document.querySelector('meta[name="csrf-cookie"]')?.content;
+    const cookie = document.cookie.split('; ').find(value => value.startsWith(`${cookieName}=`));
+    if (cookie) hash = decodeURIComponent(cookie.slice(cookieName.length + 1));
     if (name) body.set(name, hash);
-    const response = await fetch(url, {...options, method: options.method || 'POST', body});
-    const json = await response.json();
+    const response = await fetch(url, { credentials: 'same-origin', ...options, method: options.method || 'POST', body});
+    // Retry only a confirmed CSRF rejection, which occurs before the controller runs.
+    if (retryCsrf && refreshUrl && response.status === 403) {
+      const rejected = await response.clone().text();
+      if (rejected.includes('The action you have requested is not allowed.')) return send(url, options, false);
+    }
+    const json = await response.json().catch(() => {
+      throw new Error(document.documentElement.lang === 'ar'
+        ? 'تعذر إكمال الطلب. حدّث الصفحة ثم حاول مرة أخرى.'
+        : 'Unable to complete the request. Refresh the page and try again.');
+    });
     if (json.csrf_hash) {
       hash = json.csrf_hash;
       document.querySelector('meta[name="csrf-hash"]')?.setAttribute('content', hash);
     }
     return json;
+  };
+  window.erpFetch = (url, options = {}) => {
+    const request = requestQueue.then(() => send(url, options));
+    const localized = request.catch(error => {
+      if (error.name === 'TypeError') throw new Error(document.documentElement.lang === 'ar' ? 'تعذر الاتصال بالخادم. تحقق من الاتصال وحاول مرة أخرى.' : 'Unable to reach the server. Check your connection and try again.');
+      throw error;
+    });
+    requestQueue = localized.catch(() => {});
+    return localized;
   };
 
   const closeSidebar = () => {

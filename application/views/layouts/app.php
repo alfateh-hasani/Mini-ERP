@@ -40,6 +40,8 @@ $adminLinks = [
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="csrf-name" content="<?= e($this->security->get_csrf_token_name()) ?>">
+  <meta name="csrf-cookie" content="<?= e($this->config->item('cookie_prefix') . $this->config->item('csrf_cookie_name')) ?>">
+  <meta name="csrf-refresh" content="<?= e(site_url('auth/csrf')) ?>">
   <meta name="csrf-hash" content="<?= e($this->security->get_csrf_hash()) ?>">
   <title>SmartLife ERP</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/css/tabler<?= $dir === 'rtl' ? '.rtl' : '' ?>.min.css">
@@ -87,7 +89,7 @@ $adminLinks = [
     </div></div>
   </div>
 </div>
-<script src="<?= base_url('public/assets/js/app.js') ?>?v=4"></script>
+<script src="<?= base_url('public/assets/js/app.js') ?>?v=6"></script>
 <script src="<?= base_url('public/assets/js/selects.js') ?>?v=5"></script>
 <script src="<?= base_url('public/assets/js/tables.js') ?>?v=8"></script>
 </body>

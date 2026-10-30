@@ -3,6 +3,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Auth extends MY_Controller
 {
+    public function csrf(): void
+    {
+        $this->requireAuth();
+        $this->output->set_header('Cache-Control: no-store');
+        $this->json(true);
+    }
+
     public function login(): void
     {
         if ($this->currentUser) { redirect(''); }
