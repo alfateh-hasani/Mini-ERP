@@ -6,7 +6,7 @@ class Invoices extends MY_Controller
     public function create(): void
     {
         $this->requireAuth(); $scope = $this->warehouseScope();
-        $data = ['customers' => $this->db->order_by('name')->get('customers')->result_array(), 'products' => $this->db->where('status', 'active')->where('deleted_at IS NULL', null, false)->order_by('code')->get('products')->result_array(), 'warehouses' => $scope ? $this->db->where('id', $scope)->get('warehouses')->result_array() : $this->db->where('status', 'active')->get('warehouses')->result_array(), 'scope' => $scope];
+        $data = ['customers' => $this->db->order_by('name')->get('customers')->result_array(), 'selected_customer_id' => (int) $this->input->get('customer_id', true), 'products' => $this->db->where('status', 'active')->where('deleted_at IS NULL', null, false)->order_by('code')->get('products')->result_array(), 'warehouses' => $scope ? $this->db->where('id', $scope)->get('warehouses')->result_array() : $this->db->where('status', 'active')->get('warehouses')->result_array(), 'scope' => $scope];
         $this->render('invoices/create', $data);
     }
 

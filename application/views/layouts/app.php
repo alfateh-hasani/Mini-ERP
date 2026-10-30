@@ -20,11 +20,11 @@ $navIcon = static function (string $icon): string {
 $mainLinks = [
     ['dashboard', '', lang('dashboard'), 'dashboard'],
     ['inventory', 'inventory', lang('inventory'), 'inventory'],
-    ['customers', 'customers', lang('customers'), 'customers'],
     ['invoices', 'invoices', lang('invoices'), 'invoices'],
     ['invoices/create', 'invoices', lang('new_invoice'), 'new_invoice'],
     ['reports/low_stock', 'reports', lang('reports'), 'reports'],
 ];
+if ($isAdmin) { array_splice($mainLinks, 2, 0, [['customers', 'customers', lang('customers'), 'customers']]); }
 $adminLinks = [
     ['products', 'products', lang('products'), 'products'],
     ['categories', 'categories', lang('categories'), 'categories'],
