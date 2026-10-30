@@ -1,5 +1,7 @@
 # Database design review — 2026-10-30
 
+This records the earlier database snapshot. The later job-test review in [SUBMISSION_REVIEW.md](SUBMISSION_REVIEW.md) adds a reproducible SQL/migration/live schema comparison: column/constraint structure matches, but all 12 application tables differ in collation. That later review also updates the observed invoice count and submission priorities. Recommendations below remain unapplied.
+
 Reviewed every column in the canonical schema, migrations, the live MySQL 8.0.30 schema, and the application code that reads/writes it. Recommendations below are **review findings**, not migrations applied in this change. The only requested schema change applied is removal of `invoice_counters` through migration 014.
 
 ## Observed integrity

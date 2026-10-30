@@ -1,5 +1,7 @@
 # Code and architecture review — 2026-10-30
 
+Historical review of the earlier layout/warehouse fixes. For the current submission assessment, updated test results and newly confirmed security findings, see [SUBMISSION_REVIEW.md](SUBMISSION_REVIEW.md). Some verification gaps listed here were subsequently covered; unresolved findings are distinguished in the current review.
+
 ## Assessment
 
 The application follows the amended plan's CI3 directory layout, single controller set, bilingual UI, SAR-only policy, constructor-injected sales/catalogue/customer services, and repository-owned invoice transactions. It does **not** yet meet every architecture or verification claim in the original plan. Passing the current checks does not establish full SOLID compliance, PSR-12 compliance, concurrency safety under load, or absence of regressions.

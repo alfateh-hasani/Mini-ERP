@@ -33,22 +33,14 @@ Date: 2026-10-29
 - Catalogue and stock: `categories`, `products`, `warehouses`, `inventory`
 - Sales: `customers`, `invoices`, `invoice_items`
 - Configuration: `settings`
+- Manual adjustment log: `inventory_movements` (not a complete stock ledger)
 
 It includes the critical uniqueness and foreign-key constraints, SAR monetary fields, item snapshots, and does not include a currency or inventory-version table.
 
-## What was not done
+## Current implementation and remaining work
 
-- The CI3 application itself was not implemented; the repository currently contains the CodeIgniter base distribution and planning artifacts rather than the planned controllers, services, repositories, views, migrations, tests, or assets.
-- No migration/seed CLI controller was added, so the canonical supported database initialization at this point is importing `database/schema.sql`.
-- No optional `database/seed.sql` was added; demo credentials and safe bcrypt hashes should be chosen when application seed tooling is implemented.
-- No dependency installation, runtime configuration, browser testing, database import, or automated tests were run.
-- Existing v3.0 plan text remains for traceability; the v3.1 amendment explicitly overrides conflicting portions.
+The application has been implemented since the original planning revision. Controllers, services, repositories, views, 14 migrations, CLI seed tooling and automated checks are present. The earlier statement that only the framework distribution existed is obsolete.
 
-## Remaining implementation checklist
+Current features, tradeoffs and omissions are described in [SUBMISSION.md](SUBMISSION.md). [SUBMISSION_REVIEW.md](SUBMISSION_REVIEW.md) maps the actual employer brief to code and identifies unresolved issues. Those documents take precedence over historical plan claims about implementation or verification.
 
-1. Build `MY_Controller` auth, locale, dependency wiring, effective warehouse scope, and breadcrumb support.
-2. Implement CRUD controllers/services/repositories and route all warehouse-sensitive reads/writes through the scope guard.
-3. Implement the static-JS CSRF metadata/refresh contract and JSON response token field.
-4. Implement invoice creation/cancellation transactions exactly as described in v3.1.
-5. Add migrations equivalent to `database/schema.sql`, CLI commands if desired, test fixtures, and regression/concurrency tests.
-6. Configure headers once in the deployment web server and validate the final CSP against local/CDN assets.
+Fresh SQL and migrated/live tables match in columns and constraints but differ in collation. The full committed dependency lock needs PHP 8.4; older PHP compatibility and MariaDB support have not been verified. Runtime security and correctness gaps remain open.
