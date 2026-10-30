@@ -87,7 +87,7 @@ $adminLinks = [
   </div>
 </div>
 <script src="<?= base_url('public/assets/js/app.js') ?>?v=3"></script>
-<script src="<?= base_url('public/assets/js/selects.js') ?>?v=1"></script>
+<script src="<?= base_url('public/assets/js/selects.js') ?>?v=2"></script>
 <script src="<?= base_url('public/assets/js/tables.js') ?>?v=6"></script>
 </body>
 </html>

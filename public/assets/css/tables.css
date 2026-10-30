@@ -38,6 +38,7 @@
 .searchable-select-icon { color: var(--tblr-muted); inset-inline-end: .75rem; pointer-events: none; position: absolute; top: .7rem; }
 .searchable-select-list { background: var(--tblr-bg-surface, #fff); border: 1px solid var(--tblr-border-color); border-radius: .375rem; box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .12); display: none; inset-inline: 0; margin-top: .25rem; max-height: 14rem; overflow-y: auto; position: absolute; z-index: 1050; }
 .searchable-select.is-open .searchable-select-list { display: block; }
+.searchable-select.opens-upward .searchable-select-list { bottom: calc(100% + .25rem); margin-top: 0; top: auto; }
 .searchable-select-option { cursor: pointer; padding: .55rem .75rem; }
 .searchable-select-option:hover,
 .searchable-select-option.is-active { background: rgba(var(--tblr-primary-rgb), .1); color: var(--tblr-primary); }

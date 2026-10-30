@@ -61,6 +61,8 @@
 
     const close = () => {
       wrapper.classList.remove('is-open');
+      wrapper.classList.remove('opens-upward');
+      list.style.maxHeight = '';
       input.setAttribute('aria-expanded', 'false');
       input.removeAttribute('aria-activedescendant');
       activeIndex = -1;
@@ -97,11 +99,25 @@
       });
       return visible;
     };
-    const open = () => {
+    const positionList = () => {
+      if (!wrapper.classList.contains('is-open')) return;
+      const rect = wrapper.getBoundingClientRect();
+      const below = window.innerHeight - rect.bottom;
+      const above = rect.top;
+      const preferredHeight = Math.min(list.scrollHeight || 224, 224);
+      const openUpward = below < preferredHeight && above > below;
+      const available = openUpward ? above : below;
+      wrapper.classList.toggle('opens-upward', openUpward);
+      list.style.maxHeight = `${Math.max(96, Math.min(224, available - 12))}px`;
+    };
+    const open = (clearSearch = false) => {
       if (input.disabled) return;
+      const wasOpen = wrapper.classList.contains('is-open');
       wrapper.classList.add('is-open');
       input.setAttribute('aria-expanded', 'true');
+      if (clearSearch && !wasOpen) input.value = '';
       render();
+      window.requestAnimationFrame(positionList);
     };
     const activate = (index) => {
       const elements = list.querySelectorAll('.searchable-select-option');
@@ -118,7 +134,7 @@
       else input.value = previousLabel;
     };
 
-    input.addEventListener('focus', open);
+    input.addEventListener('focus', () => open(true));
     input.addEventListener('input', () => { open(); activeIndex = -1; render(); });
     input.addEventListener('keydown', (event) => {
       const visible = visibleOptions();
@@ -133,6 +149,8 @@
       const selected = select.options[select.selectedIndex];
       if (selected) { previousLabel = selected.textContent.trim(); input.value = previousLabel; }
     });
+    window.addEventListener('resize', positionList);
+    window.addEventListener('scroll', positionList, true);
   }
 
   document.addEventListener('DOMContentLoaded', () => {
