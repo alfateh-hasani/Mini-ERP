@@ -41,7 +41,11 @@ class MY_Controller extends CI_Controller
     {
         $this->requireAuth();
         if ($this->currentUser['role'] === ROLE_WAREHOUSE) {
-            return (int) $this->currentUser['warehouse_id'];
+            $warehouseId = (int) $this->currentUser['warehouse_id'];
+            if (!$warehouseId || $this->db->where(['id' => $warehouseId, 'status' => STATUS_ACTIVE])->count_all_results('warehouses') !== 1) {
+                show_error(lang('warehouse_inactive'), 403);
+            }
+            return $warehouseId;
         }
         $warehouseId = $requestedId ? (int) $requestedId : null;
         if ($warehouseId && $this->db->where(['id' => $warehouseId, 'status' => STATUS_ACTIVE])->count_all_results('warehouses') !== 1) {

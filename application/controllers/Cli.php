@@ -75,9 +75,17 @@ class Cli extends CI_Controller
             ['FOOD-005', 'Instant Coffee', 'قهوة سريعة التحضير', 'pack', 'عبوة', '29.00', 5, 12, 'Food & Beverage'],
             ['FOOD-006', 'Instant Coffee', 'قهوة سريعة التحضير', 'pack', 'عبوة', '29.00', 5, 12, 'Food & Beverage'],
         ];
+        $generalProducts = [];
         for ($number = 1; $number <= 16; $number++) {
-            $products[] = [sprintf('GEN-%03d', $number), 'General Item ' . $number, 'منتج عام ' . $number, 'piece', 'قطعة', number_format(10 + $number, 2, '.', ''), 5, 20 + $number, 'General'];
+            $generalProducts[] = [sprintf('GEN-%03d', $number), 'General Item ' . $number, 'منتج عام ' . $number, 'piece', 'قطعة', number_format(10 + $number, 2, '.', ''), 5, 20 + $number, 'General'];
         }
+        $catalogueProducts = $products;
+        $mixedProducts = [];
+        foreach ($catalogueProducts as $index => $product) {
+            $mixedProducts[] = $product;
+            if (isset($generalProducts[$index])) { $mixedProducts[] = $generalProducts[$index]; }
+        }
+        $products = array_merge($mixedProducts, array_slice($generalProducts, count($catalogueProducts)));
         foreach ($products as $product) {
             $productId = $this->firstOrCreate('products', ['code' => $product[0]], [
                 'category_id' => $categoryIds[$product[8]], 'code' => $product[0], 'name' => $product[1], 'name_ar' => $product[2],

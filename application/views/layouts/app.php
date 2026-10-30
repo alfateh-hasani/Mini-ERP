@@ -42,7 +42,7 @@ $adminLinks = [
   <meta name="csrf-hash" content="<?= e($this->security->get_csrf_hash()) ?>">
   <title>SmartLife ERP</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/css/tabler<?= $dir === 'rtl' ? '.rtl' : '' ?>.min.css">
-  <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=6">
+  <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=7">
 </head>
 <body data-select-search-placeholder="<?= e(lang('search')) ?>" data-select-no-results="<?= e(lang('no_results')) ?>">
 <div class="page">
@@ -87,7 +87,7 @@ $adminLinks = [
   </div>
 </div>
 <script src="<?= base_url('public/assets/js/app.js') ?>?v=4"></script>
-<script src="<?= base_url('public/assets/js/selects.js') ?>?v=2"></script>
-<script src="<?= base_url('public/assets/js/tables.js') ?>?v=6"></script>
+<script src="<?= base_url('public/assets/js/selects.js') ?>?v=3"></script>
+<script src="<?= base_url('public/assets/js/tables.js') ?>?v=7"></script>
 </body>
 </html>
