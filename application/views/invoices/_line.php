@@ -14,7 +14,7 @@
     <input class="form-control quantity" type="number" min="1" max="2147483647" step="1" value="1" required disabled aria-label="<?= e(lang('quantity')) ?>">
   </td>
   <td data-label="<?= e(lang('discount')) ?> %"><div class="input-group invoice-discount-input"><input class="form-control discount" type="number" min="0" max="100" step="0.01" value="0" required aria-label="<?= e(lang('discount')) ?> %"><span class="input-group-text">%</span></div><small class="discount-error text-danger" role="status" hidden></small></td>
-  <td data-label="<?= e(lang('line_discount')) ?>"><output class="discount-amount invoice-money fw-bold">?</output></td>
+  <td data-label="<?= e(lang('line_discount')) ?>"><output class="discount-amount invoice-money fw-bold">—</output></td>
   <td data-label="<?= e(lang('before_discount')) ?>"><output class="line-subtotal invoice-money">—</output></td>
   <td data-label="<?= e(lang('after_discount')) ?>"><output class="line-total invoice-money fw-bold">—</output></td>
   <td class="invoice-remove-cell"><button type="button" class="btn btn-sm btn-outline-danger remove-line"><?= e(lang('remove')) ?></button></td>
