@@ -98,6 +98,11 @@ class MY_Controller extends CI_Controller
         return new \App\Services\ProductService(new \App\Repositories\ProductRepository($this->db));
     }
 
+    protected function inventoryService(): \App\Services\InventoryService
+    {
+        return new \App\Services\InventoryService(new \App\Repositories\InventoryRepository($this->db));
+    }
+
     protected function invoiceService(): \App\Services\InvoiceService
     {
         return new \App\Services\InvoiceService(new \App\Repositories\InvoiceRepository($this->db));

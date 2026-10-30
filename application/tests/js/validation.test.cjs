@@ -26,3 +26,9 @@ test('English pages retain English minimum validation', () => {
   setup('en').invalid({ target: field });
   assert.equal(field.message, 'Value must be greater than or equal to 1.');
 });
+
+test('field-specific translated range errors are preserved', () => {
+  const field = { message: 'Minimum must not exceed maximum.', validity: { customError: true }, setCustomValidity(value) { this.message = value; } };
+  setup('en').invalid({ target: field });
+  assert.equal(field.message, 'Minimum must not exceed maximum.');
+});

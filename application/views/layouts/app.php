@@ -46,7 +46,7 @@ $adminLinks = [
   <script src="<?= base_url('public/assets/js/validation.js') ?>?v=1" defer></script>
   <title>SmartLife ERP</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta21/dist/css/tabler<?= $dir === 'rtl' ? '.rtl' : '' ?>.min.css">
-  <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=8">
+  <link rel="stylesheet" href="<?= base_url('public/assets/css/tables.css') ?>?v=9">
 </head>
 <body data-select-search-placeholder="<?= e(lang('search')) ?>" data-select-no-results="<?= e(lang('no_results')) ?>">
 <div class="page">
@@ -91,7 +91,7 @@ $adminLinks = [
   </div>
 </div>
 <script src="<?= base_url('public/assets/js/app.js') ?>?v=6"></script>
-<script src="<?= base_url('public/assets/js/selects.js') ?>?v=5"></script>
-<script src="<?= base_url('public/assets/js/tables.js') ?>?v=8"></script>
+<script src="<?= base_url('public/assets/js/selects.js') ?>?v=6"></script>
+<script src="<?= base_url('public/assets/js/tables.js') ?>?v=9"></script>
 </body>
 </html>

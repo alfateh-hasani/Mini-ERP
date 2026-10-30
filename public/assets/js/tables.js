@@ -85,6 +85,17 @@
     var viewport = table.parentNode;
     viewport.parentNode.insertBefore(toolbar, viewport);
     viewport.parentNode.insertBefore(footer, viewport.nextSibling);
+    var filterForm = document.querySelector('[data-table-filter-form="' + table.id + '"]');
+    if (filterForm) {
+      new FormData(filterForm).forEach(function (value, key) { state.filters[key] = value; });
+      table.addEventListener('table:filters', function (event) {
+        state.filters = event.detail.filters;
+        state.page = 1;
+        if (event.detail.resetSearch) { state.query = ''; search.value = ''; }
+        clearTimeout(searchTimer);
+        render();
+      });
+    }
     Array.prototype.forEach.call(document.querySelectorAll('[data-table-filter]'), function (control) {
       if (control.getAttribute('data-table-filter') !== table.id) return;
       var key = control.getAttribute('data-filter-key');
@@ -153,12 +164,13 @@
         rows = Array.prototype.slice.call(body.rows);
         state.total = payload.pagination ? payload.pagination.total : rows.length;
         state.totalPages = payload.pagination ? payload.pagination.total_pages : 1;
+        if (payload.pagination) state.page = payload.pagination.page;
         render(true);
         table.setAttribute('aria-busy', 'false');
       }).catch(function (error) {
         if (error.name === 'AbortError') return;
         table.setAttribute('aria-busy', 'false');
-        info.textContent = labels.loadFailed;
+        info.textContent = error.message || labels.loadFailed;
       });
     }
 

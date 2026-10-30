@@ -1,0 +1,41 @@
+<?php
+namespace App\Repositories;
+
+class InventoryRepository extends BaseRepository
+{
+    public function page(?int $warehouseId, array $filters, int $page, int $perPage, string $search): array
+    {
+        $this->db->start_cache();
+        $this->db->from('inventory')->join('products', 'products.id=inventory.product_id')
+            ->join('warehouses', 'warehouses.id=inventory.warehouse_id');
+        if ($warehouseId) { $this->db->where('inventory.warehouse_id', $warehouseId); }
+        if ($filters['product_id']) { $this->db->where('inventory.product_id', $filters['product_id']); }
+        if ($filters['quantity_min'] !== null) { $this->db->where('inventory.quantity >=', $filters['quantity_min']); }
+        if ($filters['quantity_max'] !== null) { $this->db->where('inventory.quantity <=', $filters['quantity_max']); }
+        if ($search !== '') {
+            $this->db->group_start()->like('products.code', $search)->or_like('products.name', $search)
+                ->or_like('products.name_ar', $search)->or_like('warehouses.name', $search)
+                ->or_like('warehouses.name_ar', $search)->group_end();
+        }
+        $this->db->stop_cache();
+        try {
+            $total = $this->db->count_all_results();
+            $totalPages = max(1, (int) ceil($total / $perPage));
+            $page = min($page, $totalPages);
+            $rows = $this->db->select('inventory.quantity, products.code, products.name, products.name_ar, products.alert_quantity, warehouses.name AS warehouse_name, warehouses.name_ar AS warehouse_name_ar')
+                ->order_by('products.code')->order_by('inventory.warehouse_id')
+                ->limit($perPage, ($page - 1) * $perPage)->get()->result_array();
+            return ['rows' => $rows, 'pagination' => ['page' => $page, 'per_page' => $perPage, 'total' => $total, 'total_pages' => $totalPages]];
+        } finally {
+            $this->db->flush_cache();
+        }
+    }
+
+    public function productOptions(?int $warehouseId): array
+    {
+        $query = $this->db->distinct()->select('products.id, products.code, products.name, products.name_ar')
+            ->from('products')->join('inventory', 'inventory.product_id=products.id');
+        if ($warehouseId) { $query->where('inventory.warehouse_id', $warehouseId); }
+        return $query->order_by('products.code')->get()->result_array();
+    }
+}

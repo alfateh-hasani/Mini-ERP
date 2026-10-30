@@ -16,7 +16,7 @@
   function enhance(select) {
     if (select.dataset.searchableReady === 'true') return;
     select.dataset.searchableReady = 'true';
-    const options = Array.from(select.options).map((option) => ({ value: option.value, label: option.textContent.trim(), disabled: option.disabled }));
+    let options = Array.from(select.options).map((option) => ({ value: option.value, label: option.textContent.trim(), disabled: option.disabled }));
     const initial = select.selectedIndex >= 0 ? select.options[select.selectedIndex].textContent.trim() : '';
     const id = select.id || `searchable-select-${++sequence}`;
     const inputId = `${id}-input`;
@@ -148,6 +148,13 @@
     select.addEventListener('change', () => {
       const selected = select.options[select.selectedIndex];
       if (selected) { previousLabel = selected.textContent.trim(); input.value = previousLabel; }
+    });
+    select.addEventListener('erp:options-updated', () => {
+      options = Array.from(select.options).map(option => ({ value: option.value, label: option.textContent.trim(), disabled: option.disabled }));
+      previousLabel = select.selectedOptions[0]?.textContent.trim() || '';
+      input.value = previousLabel;
+      input.disabled = select.disabled;
+      close();
     });
     window.addEventListener('resize', positionList);
     window.addEventListener('scroll', positionList, true);

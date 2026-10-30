@@ -16,6 +16,7 @@
   document.addEventListener('invalid', event => {
     const field = event.target;
     if (typeof field.setCustomValidity !== 'function') return;
+    if (field.validity.customError) return;
     field.setCustomValidity('');
     field.setCustomValidity(message(field));
   }, true);

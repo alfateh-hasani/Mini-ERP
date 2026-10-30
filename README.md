@@ -22,6 +22,8 @@ Demo login after seeding: `test@smartlife.com` / `87654321`. Change it before de
 
 ## Security and business rules
 
+Inventory supports warehouse and product filters plus inclusive minimum/maximum stock quantities. Leave either quantity bound empty for no limit; use `0` to include zero stock. Product choices follow the selected warehouse. Apply filters to update the results, or Reset to clear filters and table search. Warehouse users remain restricted to their assigned warehouse.
+
 - SAR is fixed; there is no currencies table, selector, conversion, or exchange-rate feature.
 - CI3 CSRF is enabled. Static JavaScript reads the token from layout metadata, sends it in `FormData`, and refreshes it from each JSON response.
 - Role and effective warehouse scope are enforced centrally in `MY_Controller`; warehouse users cannot widen scope with a submitted warehouse ID.
