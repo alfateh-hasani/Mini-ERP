@@ -33,9 +33,12 @@ Use these credentials only in a disposable demo database. Seeding creates missin
 - Run the browser-script tests with `node application/tests/js/app-fetch.test.cjs`, `node application/tests/js/invoice-submit.test.cjs`, `node application/tests/js/invoice-totals.test.cjs` and `node application/tests/js/validation.test.cjs`.
 - `php index.php cli/migrate` applies the included migrations (including migration 014, which removes the legacy invoice counter table).
 - `php application/tests/integration/invoice_numbering.php` verifies numbering with concurrent MySQL connections in an isolated temporary database; the database user needs CREATE/DROP DATABASE permissions.
+- `php application/tests/integration/dashboard.php` verifies issued-only dashboard totals and warehouse isolation in an isolated temporary database; the database user needs CREATE/DROP DATABASE permissions.
 - `php index.php cli/seed` idempotently creates or backfills demo warehouses, users, products, inventory, customers, and invoices.
 
 ## Security and business rules
+
+Dashboard invoice count and sales total include issued invoices across all dates. Cancelled invoices are excluded from both cards. Admins see all warehouses unless they select a warehouse; warehouse users always see only their assigned warehouse. The recent invoice list retains both issued and cancelled history.
 
 Inventory supports warehouse and product filters plus inclusive minimum/maximum stock quantities. Leave either quantity bound empty for no limit; use `0` to include zero stock. Product choices follow the selected warehouse. Apply filters to update the results, or Reset to clear filters and table search. Warehouse users remain restricted to their assigned warehouse.
 
