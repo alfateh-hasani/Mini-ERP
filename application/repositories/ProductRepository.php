@@ -3,6 +3,18 @@ namespace App\Repositories;
 
 class ProductRepository extends BaseRepository
 {
+    /** Count catalogue products, optionally limited to an assigned warehouse. */
+    public function countForWarehouse(?int $warehouseId = null): int
+    {
+        $query = $this->db->from('products')->where('products.deleted_at', null);
+        if ($warehouseId !== null) {
+            $query->join('inventory', 'inventory.product_id = products.id')
+                ->where('inventory.warehouse_id', $warehouseId);
+        }
+        // The unique warehouse/product key prevents counting a product twice.
+        return (int) $query->count_all_results();
+    }
+
     public function codeExists(string $code, ?int $exceptId = null): bool
     {
         $query = $this->db->where('code', $code);

@@ -4,6 +4,26 @@ namespace App\Repositories;
 class InvoiceRepository extends BaseRepository
 {
     private $numberingLocked = false;
+
+    /**
+     * All-time issued invoice totals for an already authorized warehouse scope.
+     * Null includes all warehouses; money stays a decimal string.
+     *
+     * @return array{count: int, total: string}
+     */
+    public function issuedSummaryForWarehouse(?int $warehouseId = null): array
+    {
+        $query = $this->db
+            ->select('COUNT(*) AS invoice_count, COALESCE(SUM(total), 0.00) AS sales_total', false)
+            ->where('status', 'issued');
+        if ($warehouseId !== null) {
+            $query->where('warehouse_id', $warehouseId);
+        }
+        $summary = $query->get('invoices')->row_array();
+
+        return ['count' => (int) $summary['invoice_count'], 'total' => (string) $summary['sales_total']];
+    }
+
     /** Hold the numbering lock until the complete invoice transaction commits. */
     public function numberedTransaction(callable $work)
     {

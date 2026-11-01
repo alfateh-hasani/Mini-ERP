@@ -74,6 +74,16 @@ try {
     stockAssert($db->count_all('products') === $beforeProducts, 'Failed initial stock left a product behind.');
     $initialId = $productService->save(array_replace($product, ['code' => 'INITIAL', 'warehouse_id' => '1', 'initial_quantity' => '4']), 1);
     stockAssert((int) $db->where('product_id', $initialId)->get('inventory')->row_array()['quantity'] === 4, 'Atomic initial stock failed.');
+    $products = new \App\Repositories\ProductRepository($db);
+    stockAssert($products->countForWarehouse() === 3, 'Admin product total must count products, not warehouse rows.');
+    stockAssert($products->countForWarehouse(1) === 3, 'First warehouse product total is incorrect.');
+    stockAssert($products->countForWarehouse(2) === 1, 'Warehouse product total includes another warehouse.');
+    stockAssert($products->countForWarehouse(99999) === 0, 'Empty warehouse should have no products.');
+    $db->where(['warehouse_id' => 2, 'product_id' => $id])->update('inventory', ['quantity' => 0]);
+    stockAssert($products->countForWarehouse(2) === 1, 'Zero stock must still count as an assigned product.');
+    $db->where('id', $initialId)->update('products', ['deleted_at' => date('Y-m-d H:i:s')]);
+    stockAssert($products->countForWarehouse() === 2 && $products->countForWarehouse(1) === 2, 'Deleted products must not count on the dashboard.');
+    echo "PASS: dashboard product counts for admin, assigned/empty warehouses, zero stock and deleted products.\n";
     $db->where('id', 2)->update('warehouses', ['status' => 'inactive']);
     stockAssert($options->adjustmentProductOptions(2, true) === [], 'Inactive warehouse exposes adjustment products.');
     try {
